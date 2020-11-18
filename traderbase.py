@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import QMainWindow, QLabel, QPushButton, QLineEdit, \
     QTextEdit, QVBoxLayout, QHBoxLayout, QWidget, QRadioButton, QGridLayout, \
-    QCheckBox, QComboBox, QGroupBox, QDateTimeEdit, QAction, QFileDialog
-from PyQt5.QtCore import Qt, QDateTime
+    QCheckBox, QComboBox, QGroupBox, QDateTimeEdit, QAction, QFileDialog, QTableWidget, \
+    QTableWidgetItem
+from PyQt5.QtCore import Qt, QDateTime, QRect
 from PyQt5.QtGui import QIcon
 import json
 from kiwoom import Kiwoom
@@ -169,6 +170,33 @@ class TraderBase(QMainWindow, WookLog):
         go_grid = QGridLayout()
         go_grid.addWidget(self.btn_go, 0, 0, 3, 1)
 
+        # Balance information
+        header_purchase_price = QTableWidgetItem('purchase price')
+        header_evaluation = QTableWidgetItem('evaluation')
+        header_profit_rate = QTableWidgetItem('profit rate')
+        header_amount = QTableWidgetItem('amount')
+        header_current_price = QTableWidgetItem('current price')
+        header_purchase_sum = QTableWidgetItem('purchase sum')
+        header_evaluation_sum = QTableWidgetItem('evaluation sum')
+        header_fee = QTableWidgetItem('fee')
+        header_tax = QTableWidgetItem('tax')
+
+        table = QTableWidget(3, 9, self)
+        table.setHorizontalHeaderItem(0, header_purchase_price)
+        table.setHorizontalHeaderItem(1, header_evaluation)
+        table.setHorizontalHeaderItem(2, header_profit_rate)
+        table.setHorizontalHeaderItem(3, header_amount)
+        table.setHorizontalHeaderItem(4, header_current_price)
+        table.setHorizontalHeaderItem(5, header_current_price)
+        table.setHorizontalHeaderItem(6, header_purchase_sum)
+        table.setHorizontalHeaderItem(7, header_evaluation_sum)
+        table.setHorizontalHeaderItem(8, header_fee)
+        table.setHorizontalHeaderItem(9, header_tax)
+
+        table.resizeColumnsToContents()
+
+
+
         # TextEdit
         self.te_info = QTextEdit()
 
@@ -182,6 +210,7 @@ class TraderBase(QMainWindow, WookLog):
 
         vbox = QVBoxLayout()
         vbox.addLayout(top_hbox)
+        vbox.addWidget(table)
         vbox.addWidget(self.te_info)
         vbox.addWidget(self.btn_test)
 
