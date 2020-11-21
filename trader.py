@@ -32,6 +32,9 @@ class Trader(TraderBase):
             self.status_bar.showMessage('Getting stock prices (day data)...')
             self.kiwoom.request_stock_price_day()
 
+    def get_item_info(self):
+        pass
+
     def closeEvent(self, event):
         self.info('Closing process initializing...')
         self.kiwoom.clear()

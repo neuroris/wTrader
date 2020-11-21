@@ -23,11 +23,10 @@ class TraderBase(QMainWindow, WookLog):
 
     def initKiwoom(self):
         self.kiwoom.signal = self.on_kiwoom_signal
+        self.kiwoom.signal_market_status = self.on_kiwoom_market_status
         self.kiwoom.status = self.on_kiwoom_status
         self.kiwoom.item_code = self.cbb_item_code.currentText()
         self.kiwoom.item_name = self.cbb_item_name.currentText()
-        self.kiwoom.first_day = self.dte_first_day.text()
-        self.kiwoom.last_day = self.dte_last_day.text()
         self.kiwoom.save_folder = self.le_save_folder.text()
         self.kiwoom.tick_type = self.cbb_tick.currentText()
         self.kiwoom.min_type = self.cbb_min.currentText()
@@ -71,24 +70,11 @@ class TraderBase(QMainWindow, WookLog):
         self.cbb_item_name.addItem(NAME_KODEX_LEVERAGE)
         self.cbb_item_name.addItem(NAME_KODEX_INVERSE_2X)
 
-        # Period
-        current_date = QDateTime.currentDateTime()
-        lb_period = QLabel('Period')
-        self.dte_first_day = QDateTimeEdit()
-        self.dte_first_day.setCalendarPopup(True)
-        self.dte_first_day.setDisplayFormat('yyyy-MM-dd')
-        self.dte_first_day.setDateTime(current_date)
-        lb_wave = QLabel('~')
-        self.le_last_day = QLineEdit()
-        self.dte_last_day = QDateTimeEdit()
-        self.dte_last_day.setCalendarPopup(True)
-        self.dte_last_day.setDisplayFormat('yyyy-MM-dd')
-        self.dte_last_day.setDateTime(current_date)
-        self.cb_one_day = QCheckBox('1-day')
-        self.cb_one_day.setChecked(self.setting['one_day'])
-
-        self.dte_first_day.dateChanged.connect(self.on_change_first_day)
-        self.dte_last_day.dateChanged.connect(self.on_change_last_day)
+        # Market information
+        lb_martket_status = QLabel('Market status')
+        self.lb_market_status = QLabel('on')
+        self.btn_get_item_info = QPushButton('Get item info')
+        self.btn_get_item_info.clicked.connect(self.get_item_info)
 
         # Save Folder
         lb_save_folder = QLabel('Save')
@@ -105,11 +91,9 @@ class TraderBase(QMainWindow, WookLog):
         item_grid.addWidget(lb_item_name, 0, 2, 1, 2)
         item_grid.addWidget(self.cbb_item_name, 0, 4, 1, 2)
 
-        item_grid.addWidget(lb_period, 1, 0)
-        item_grid.addWidget(self.dte_first_day, 1, 1, 1, 2)
-        item_grid.addWidget(lb_wave, 1, 3, Qt.AlignCenter)
-        item_grid.addWidget(self.dte_last_day, 1, 4, 1, 1)
-        item_grid.addWidget(self.cb_one_day, 1, 5)
+        item_grid.addWidget(lb_martket_status, 1, 0, 1, 2)
+        item_grid.addWidget(self.lb_market_status, 1, 2, 1, 1)
+        item_grid.addWidget(self.btn_get_item_info, 1, 4, 1, 2)
 
         item_grid.addWidget(lb_save_folder, 2, 0)
         item_grid.addWidget(self.le_save_folder, 2, 1, 1, 4)
@@ -171,29 +155,19 @@ class TraderBase(QMainWindow, WookLog):
         go_grid.addWidget(self.btn_go, 0, 0, 3, 1)
 
         # Balance information
-        header_purchase_price = QTableWidgetItem('purchase price')
-        header_evaluation = QTableWidgetItem('evaluation')
-        header_profit_rate = QTableWidgetItem('profit rate')
-        header_amount = QTableWidgetItem('amount')
-        header_current_price = QTableWidgetItem('current price')
-        header_purchase_sum = QTableWidgetItem('purchase sum')
-        header_evaluation_sum = QTableWidgetItem('evaluation sum')
-        header_fee = QTableWidgetItem('fee')
-        header_tax = QTableWidgetItem('tax')
+        header = ['item', 'purchase\nprice', 'evaluation', 'profit\nrate', 'amount']
+        header += ['current\nprice', 'purchase\nsum', 'evaluation\nsum', 'fee', 'tax']
 
-        table = QTableWidget(3, 9, self)
-        table.setHorizontalHeaderItem(0, header_purchase_price)
-        table.setHorizontalHeaderItem(1, header_evaluation)
-        table.setHorizontalHeaderItem(2, header_profit_rate)
-        table.setHorizontalHeaderItem(3, header_amount)
-        table.setHorizontalHeaderItem(4, header_current_price)
-        table.setHorizontalHeaderItem(5, header_current_price)
-        table.setHorizontalHeaderItem(6, header_purchase_sum)
-        table.setHorizontalHeaderItem(7, header_evaluation_sum)
-        table.setHorizontalHeaderItem(8, header_fee)
-        table.setHorizontalHeaderItem(9, header_tax)
+        table = QTableWidget(2, 10)
+        table.setHorizontalHeaderLabels(header)
 
-        table.resizeColumnsToContents()
+        table.setRowHeight(0, 3)
+        table.setRowHeight(1, 5)
+        table.setRowHeight(2, 5)
+
+        # table.resizeColumnsToContents()
+        for column in range(table.columnCount()):
+            table.setColumnWidth(column, 65)
 
 
 
@@ -250,6 +224,8 @@ class TraderBase(QMainWindow, WookLog):
             message += str(arg) + ' '
 
         self.te_info.append(message)
+
+    def on_kiwoom_market_status(self, ):
 
     def on_kiwoom_status(self, message):
         self.status_bar.showMessage(message)

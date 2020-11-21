@@ -1,6 +1,5 @@
 from PyQt5.QAxContainer import QAxWidget
-from PyQt5.QtCore import QEventLoop, QThread
-from PyQt5.QtTest import QTest
+from PyQt5.QtCore import QEventLoop
 from queue import Queue
 import time, os, re
 import pickle
@@ -26,6 +25,7 @@ class KiwoomBase(QAxWidget, WookLog):
         self.timer = WookTimer(self.timer_event_loop)
 
         self.signal = None
+        self.signal_market_status = None
         self.status = None
         self.login_status = None
 

@@ -14,6 +14,9 @@ class Kiwoom(KiwoomBase):
         self.OnReceiveMsg.connect(self.on_receive_msg)
         self.OnReceiveConditionVer.connect(self.on_receive_condition_ver)
 
+        # market operation state
+        self.set_real_reg(self.screen_no_operation_state, ' ', FID.MARKET_OPERATION_STATE, '0')
+
     def connect(self, auto_login):
         if auto_login:
             self.auto_login()
@@ -96,6 +99,24 @@ class Kiwoom(KiwoomBase):
             self.get_stock_price_min(sTrCode, sRQName, sPrevNext)
         elif sRQName == 'stock price day':
             self.get_stock_price_day(sTrCode, sRQName, sPrevNext)
+
+    def on_receive_real_data(self, sCode, sRealType, sRealData):
+        print(sCode, sRealType, sRealData)
+
+        if sRealType == REAL_MARKET_OPENING_TIME:
+            self.get_market_operation_state(sCode)
+
+    def get_market_operation_state(self, sCode):
+        operation_state = self.get_comm_real_data(sCode, FID.MARKET_OPERATION_STATE)
+        if operation_state == '0':
+            # print('it is before market opening!')
+
+        elif operation_state == '3':
+            print('it is market opening hours')
+        elif operation_state == '2':
+            print('market is closed')
+        elif operation_state == '4':
+            print('single price market is over')
 
     def on_receive_msg(self, sScrNo, sRQName, sTrCode, sMsg):
         print('Receiving message', sScrNo, sRQName, sTrCode, sMsg)
