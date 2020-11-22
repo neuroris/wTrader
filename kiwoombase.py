@@ -25,7 +25,8 @@ class KiwoomBase(QAxWidget, WookLog):
         self.timer = WookTimer(self.timer_event_loop)
 
         self.signal = None
-        self.signal_market_status = None
+        self.portfolio_table = None
+        self.trading_table = None
         self.status = None
         self.login_status = None
 
@@ -45,19 +46,14 @@ class KiwoomBase(QAxWidget, WookLog):
         self.profit_rate_sum = 0
         self.item_code = 0
         self.item_name = ''
-        self.first_day = ''
-        self.last_day = ''
-        self.save_folder = ''
-        self.working_date = 0
-        self.tick_type = ''
-        self.min_type = ''
-        self.day_type = ''
-        self.stock_prices = list()
+        self.log_file = ''
 
         self.stocks = list()
         self.portfolio_stocks = list()
         self.interesting_stocks = list()
         self.unconcluded_stocks = list()
+        # self.trading_item_list = list()
+        self.trading_items = {}
 
         self.previous_time = 0.0
         self.reference_time = Queue()

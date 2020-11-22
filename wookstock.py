@@ -3,9 +3,18 @@ from wookdata import *
 
 class Stock:
     def __init__(self):
-        self.item_number = ''
         self.item_code = ''
         self.item_name = ''
+        self.transaction_time = ''
+        self.increase_amount = 0
+        self.increase_ratio = 0
+        self.ask_price = 0
+        self.bid_price = 0
+        self.volume = 0
+        self.accumulated_volume = 0
+        self.highest_price = 0
+        self.lowest_price = 0
+        self.opening_price = 0
         self.order_state = ''
         self.order_type = ''
         self.order_number = 0

@@ -1,5 +1,7 @@
+from PyQt5.QtWidgets import QTableWidgetItem
 from kiwoombase import KiwoomBase
 from wookauto import LoginPasswordThread, AccountPasswordThread
+from wookstock import Stock
 from wookdata import *
 
 class Kiwoom(KiwoomBase):
@@ -11,11 +13,16 @@ class Kiwoom(KiwoomBase):
         # Connect slots
         self.OnEventConnect.connect(self.on_login)
         self.OnReceiveTrData.connect(self.on_receive_tr_data)
+        self.OnReceiveRealData.connect(self.on_receive_real_data)
         self.OnReceiveMsg.connect(self.on_receive_msg)
         self.OnReceiveConditionVer.connect(self.on_receive_condition_ver)
 
         # market operation state
         self.set_real_reg(self.screen_no_operation_state, ' ', FID.MARKET_OPERATION_STATE, '0')
+
+
+        stock = Stock()
+        self.trading_items['122630'] = stock
 
     def connect(self, auto_login):
         if auto_login:
@@ -87,6 +94,11 @@ class Kiwoom(KiwoomBase):
         self.init_screen_no(self.screen_no_stock_price)
         self.event_loop.exit()
 
+    def demand_trading_item_info(self, item_code):
+        self.set_real_reg(self.screen_no_interesting_items, item_code, FID.TRANSACTION_TIME, '1')
+
+        self.update_trading_items(item_code)
+
     def on_login(self, err_code):
         self.login_status = err_code
         self.info('Login status code :', err_code)
@@ -104,19 +116,41 @@ class Kiwoom(KiwoomBase):
         print(sCode, sRealType, sRealData)
 
         if sRealType == REAL_MARKET_OPENING_TIME:
-            self.get_market_operation_state(sCode)
+            self.update_market_operation_state(sCode)
+        elif sRealType == REAL_CONCLUSION_TIME:
+            self.update_interesting_items(sCode)
 
-    def get_market_operation_state(self, sCode):
+    def update_market_operation_state(self, sCode):
         operation_state = self.get_comm_real_data(sCode, FID.MARKET_OPERATION_STATE)
-        if operation_state == '0':
-            # print('it is before market opening!')
+        self.signal_market_status(operation_state)
 
-        elif operation_state == '3':
-            print('it is market opening hours')
-        elif operation_state == '2':
-            print('market is closed')
-        elif operation_state == '4':
-            print('single price market is over')
+    def update_trading_items(self, sCode):
+        stock = self.trading_items[sCode]
+        get_comm_real_data = self.new_get_comm_real_data(sCode)
+
+        # stock.transaction_time = get_comm_real_data(FID.TRANSACTION_TIME)
+        # stock.current_price = get_comm_real_data(FID.CURRENT_PRICE)
+        # stock.price_increase_amount = get_comm_real_data(FID.PRICE_INCREASE_AMOUNT)
+        # stock.price_increase_ratio = get_comm_real_data(FID.PRICE_INCREASE_RATIO)
+        # stock.ask_price = get_comm_real_data(FID.ASK_PRICE)
+        # stock.bid_price = get_comm_real_data(FID.BID_PRICE)
+        # stock.volume = get_comm_real_data(FID.VOLUME)
+        # stock.accumulated_volume = get_comm_real_data(FID.ACCUMULATED_VOLUME)
+        # stock.highest_price = get_comm_real_data(FID.HIGHEST_PRICE)
+        # stock.lowest_price = get_comm_real_data(FID.LOWEST_PRICE)
+        # stock.opening_price = get_comm_real_data(FID.OPENING_PRICE)
+
+        stock.transaction_time = '12:03'
+        stock.current_price = '12343'
+        stock.price_increase_amount = '3423'
+        stock.price_increase_ratio = '42'
+
+        for row, stock in enumerate(self.trading_items.values()):
+            self.trading_table.setItem(row, 0, QTableWidgetItem(stock.item_name))
+            self.trading_table.setItem(row, 1, QTableWidgetItem(stock.transaction_time))
+            self.trading_table.setItem(row, 2, QTableWidgetItem(stock.current_price))
+            self.trading_table.setItem(row, 3, QTableWidgetItem(stock.price_increase_amount))
+            self.trading_table.setItem(row, 4, QTableWidgetItem(stock.price_increase_ratio))
 
     def on_receive_msg(self, sScrNo, sRQName, sTrCode, sMsg):
         print('Receiving message', sScrNo, sRQName, sTrCode, sMsg)

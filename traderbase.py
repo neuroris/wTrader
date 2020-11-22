@@ -8,6 +8,7 @@ import json
 from kiwoom import Kiwoom
 from wookutil import WookLog
 from wookdata import *
+import datetime, os
 
 class TraderBase(QMainWindow, WookLog):
     def __init__(self, log, key):
@@ -17,20 +18,7 @@ class TraderBase(QMainWindow, WookLog):
         with open('setting.json') as r_file:
             self.setting = json.load(r_file)
 
-        self.kiwoom = Kiwoom(log, key)
         self.initUI()
-        self.initKiwoom()
-
-    def initKiwoom(self):
-        self.kiwoom.signal = self.on_kiwoom_signal
-        self.kiwoom.signal_market_status = self.on_kiwoom_market_status
-        self.kiwoom.status = self.on_kiwoom_status
-        self.kiwoom.item_code = self.cbb_item_code.currentText()
-        self.kiwoom.item_name = self.cbb_item_name.currentText()
-        self.kiwoom.save_folder = self.le_save_folder.text()
-        self.kiwoom.tick_type = self.cbb_tick.currentText()
-        self.kiwoom.min_type = self.cbb_min.currentText()
-        self.kiwoom.day_type = self.cbb_day.currentText()
 
     def initUI(self):
         # Test Button
@@ -69,20 +57,29 @@ class TraderBase(QMainWindow, WookLog):
         self.cbb_item_code.addItem(CODE_KODEX_INVERSE_2X)
         self.cbb_item_name.addItem(NAME_KODEX_LEVERAGE)
         self.cbb_item_name.addItem(NAME_KODEX_INVERSE_2X)
+        self.btn_add_item = QPushButton('Add')
+        self.btn_add_item.clicked.connect(self.on_add_item)
+        self.btn_remove_item = QPushButton('Remove')
+        self.btn_remove_item.clicked.connect(self.on_remove_item)
 
         # Market information
         lb_martket_status = QLabel('Market status')
-        self.lb_market_status = QLabel('on')
+        self.lb_market_status = QLabel('no info')
         self.btn_get_item_info = QPushButton('Get item info')
         self.btn_get_item_info.clicked.connect(self.get_item_info)
 
         # Save Folder
-        lb_save_folder = QLabel('Save')
-        self.le_save_folder = QLineEdit()
-        self.le_save_folder.setText(self.setting['save_folder'])
-        self.le_save_folder.editingFinished.connect(self.on_edit_save_folder)
-        self.btn_change_folder = QPushButton('Change')
-        self.btn_change_folder.clicked.connect(self.on_change_save_folder)
+        save_folder = self.setting['save_folder']
+        if not os.path.exists(save_folder):
+            os.mkdir(save_folder)
+        today = datetime.date.today().strftime('%Y%m%d')
+        self.log_file = save_folder + 'trader log ' + today + '.txt'
+        lb_save_file = QLabel('Save')
+        self.le_save_file = QLineEdit()
+        self.le_save_file.setText(self.log_file)
+        self.le_save_file.editingFinished.connect(self.on_edit_save_file)
+        self.btn_change_file = QPushButton('Change')
+        self.btn_change_file.clicked.connect(self.on_change_save_file)
 
         # Item grid layout
         item_grid = QGridLayout()
@@ -90,86 +87,60 @@ class TraderBase(QMainWindow, WookLog):
         item_grid.addWidget(self.cbb_item_code, 0, 1)
         item_grid.addWidget(lb_item_name, 0, 2, 1, 2)
         item_grid.addWidget(self.cbb_item_name, 0, 4, 1, 2)
+        item_grid.addWidget(self.btn_add_item, 0, 6, 1, 1)
+        item_grid.addWidget(self.btn_remove_item, 0, 7, 1, 1)
 
         item_grid.addWidget(lb_martket_status, 1, 0, 1, 2)
-        item_grid.addWidget(self.lb_market_status, 1, 2, 1, 1)
-        item_grid.addWidget(self.btn_get_item_info, 1, 4, 1, 2)
+        item_grid.addWidget(self.lb_market_status, 1, 2, 1, 3)
+        item_grid.addWidget(self.btn_get_item_info, 1, 6, 1, 2)
 
-        item_grid.addWidget(lb_save_folder, 2, 0)
-        item_grid.addWidget(self.le_save_folder, 2, 1, 1, 4)
-        item_grid.addWidget(self.btn_change_folder, 2, 5)
+        item_grid.addWidget(lb_save_file, 2, 0)
+        item_grid.addWidget(self.le_save_file, 2, 1, 1, 6)
+        item_grid.addWidget(self.btn_change_file, 2, 7)
 
         item_gbox = QGroupBox('Item information')
         item_gbox.setLayout(item_grid)
 
-        # Data type selection
-        self.rb_tick = QRadioButton('Tick')
-        self.rb_min = QRadioButton('Min')
-        self.rb_day = QRadioButton('Day')
-        self.cbb_tick = QComboBox()
-        self.cbb_min = QComboBox()
-        self.cbb_day = QComboBox()
-        # self.rb_min.setChecked(True)
-        # self.rb_tick.setChecked(True)
-        self.rb_day.setChecked(True)
-
-        self.cbb_tick.addItem(TICK_1)
-        self.cbb_tick.addItem(TICK_3)
-        self.cbb_tick.addItem(TICK_5)
-        self.cbb_tick.addItem(TICK_10)
-        self.cbb_tick.addItem(TICK_30)
-
-        self.cbb_min.addItem(MIN_1)
-        self.cbb_min.addItem(MIN_3)
-        self.cbb_min.addItem(MIN_5)
-        self.cbb_min.addItem(MIN_10)
-        self.cbb_min.addItem(MIN_15)
-        self.cbb_min.addItem(MIN_30)
-        self.cbb_min.addItem(MIN_60)
-
-        self.cbb_day.addItem(DAY_DATA)
-        self.cbb_day.addItem(WEEK_DATA)
-        self.cbb_day.addItem(MONTH_DATA)
-        self.cbb_day.addItem(YEAR_DATA)
-
-        self.cbb_tick.activated.connect(self.on_change_tick)
-        self.cbb_min.activated.connect(self.on_change_min)
-        self.cbb_day.activated.connect(self.on_change_day)
-
-        data_type_grid = QGridLayout()
-        data_type_grid.addWidget(self.rb_tick, 0, 0)
-        data_type_grid.addWidget(self.cbb_tick, 0, 1)
-        data_type_grid.addWidget(self.rb_min, 1, 0)
-        data_type_grid.addWidget(self.cbb_min, 1, 1)
-        data_type_grid.addWidget(self.rb_day, 2, 0)
-        data_type_grid.addWidget(self.cbb_day, 2, 1)
-
-        data_type_gbox = QGroupBox('Data Type')
-        data_type_gbox.setLayout(data_type_grid)
-
         # Go button
         self.btn_go = QPushButton('&Go')
-        self.btn_go.clicked.connect(self.get_stock_price)
+        # self.btn_go.clicked.connect(self.get_stock_price)
         self.btn_go.setMaximumHeight(100)
         go_grid = QGridLayout()
         go_grid.addWidget(self.btn_go, 0, 0, 3, 1)
 
-        # Balance information
-        header = ['item', 'purchase\nprice', 'evaluation', 'profit\nrate', 'amount']
-        header += ['current\nprice', 'purchase\nsum', 'evaluation\nsum', 'fee', 'tax']
+        # Portfolio table
+        portfolio_header = ['item', 'purchase\nprice', 'evaluation', 'profit\nrate', 'amount']
+        portfolio_header += ['current\nprice', 'purchase\nsum', 'evaluation\nsum', 'fee', 'tax']
+        self.portfolio_table = QTableWidget(2, 10)
+        self.portfolio_table.setHorizontalHeaderLabels(portfolio_header)
+        self.portfolio_table.setRowHeight(0, 3)
+        self.portfolio_table.setRowHeight(1, 5)
+        self.portfolio_table.setRowHeight(2, 5)
+        self.portfolio_table.setColumnWidth(0, 100)
+        for column in range(1, self.portfolio_table.columnCount()):
+            self.portfolio_table.setColumnWidth(column, 65)
 
-        table = QTableWidget(2, 10)
-        table.setHorizontalHeaderLabels(header)
+        portfolio_gbox = QGroupBox('Portfolio')
+        portfolio_grid = QGridLayout()
+        portfolio_grid.addWidget(self.portfolio_table)
+        portfolio_gbox.setLayout(portfolio_grid)
 
-        table.setRowHeight(0, 3)
-        table.setRowHeight(1, 5)
-        table.setRowHeight(2, 5)
+        # Trading table
+        trading_header = ['item', 'transaction\ntime', 'current\nprice', 'ask\nprice', 'bid\nprice']
+        trading_header += ['volume', 'accumul.\nvolume', 'highest\nprice', 'lowest\nprice', 'opening\nprice']
+        self.trading_table = QTableWidget(4, 10)
+        self.trading_table.setHorizontalHeaderLabels(trading_header)
+        self.trading_table.setRowHeight(0, 3)
+        self.trading_table.setRowHeight(1, 5)
+        self.trading_table.setRowHeight(2, 5)
+        self.trading_table.setColumnWidth(0, 100)
+        for column in range(1, self.trading_table.columnCount()):
+            self.trading_table.setColumnWidth(column, 65)
 
-        # table.resizeColumnsToContents()
-        for column in range(table.columnCount()):
-            table.setColumnWidth(column, 65)
-
-
+        trading_gbox = QGroupBox('Trading items')
+        trading_grid = QGridLayout()
+        trading_grid.addWidget(self.trading_table)
+        trading_gbox.setLayout(trading_grid)
 
         # TextEdit
         self.te_info = QTextEdit()
@@ -178,13 +149,13 @@ class TraderBase(QMainWindow, WookLog):
         top_hbox = QHBoxLayout()
         top_hbox.addWidget(account_gbox)
         top_hbox.addWidget(item_gbox)
-        top_hbox.addWidget(data_type_gbox)
         top_hbox.addLayout(go_grid)
         top_hbox.addStretch()
 
         vbox = QVBoxLayout()
         vbox.addLayout(top_hbox)
-        vbox.addWidget(table)
+        vbox.addWidget(portfolio_gbox)
+        vbox.addWidget(trading_gbox)
         vbox.addWidget(self.te_info)
         vbox.addWidget(self.btn_test)
 
@@ -210,75 +181,7 @@ class TraderBase(QMainWindow, WookLog):
         self.status_bar = self.statusBar()
         self.status_bar.showMessage('ready')
         self.setWindowTitle('wook\'s algorithm trader')
-        self.resize(700, 600)
-        self.move(300, 150)
+        self.resize(800, 600)
+        self.move(100, 100)
         self.setWindowIcon(QIcon('nyang1.ico'))
         self.show()
-
-    def edit_setting(self):
-        self.debug('setting')
-
-    def on_kiwoom_signal(self, *args):
-        message = ''
-        for arg in args:
-            message += str(arg) + ' '
-
-        self.te_info.append(message)
-
-    def on_kiwoom_market_status(self, ):
-
-    def on_kiwoom_status(self, message):
-        self.status_bar.showMessage(message)
-
-    def on_select_account(self, account):
-        self.kiwoom.account_number = int(account)
-
-    def on_select_item_code(self, code):
-        self.kiwoom.item_code = int(code)
-        if code == CODE_KODEX_LEVERAGE:
-            self.cbb_item_name.setCurrentText(NAME_KODEX_LEVERAGE)
-        elif code == CODE_KODEX_INVERSE_2X:
-            self.cbb_item_name.setCurrentText(NAME_KODEX_INVERSE_2X)
-        else:
-            self.cbb_item_name.setCurrentText('')
-
-    def on_select_item_name(self, name):
-        self.kiwoom.item_name = name
-        if name == NAME_KODEX_LEVERAGE:
-            self.cbb_item_code.setCurrentText(CODE_KODEX_LEVERAGE)
-        elif name == NAME_KODEX_INVERSE_2X:
-            self.cbb_item_code.setCurrentText(CODE_KODEX_INVERSE_2X)
-        else:
-            self.cbb_item_code.setCurrentText('')
-
-    def on_change_first_day(self, date):
-        self.kiwoom.first_day = date.toString('yyyy-MM-dd')
-        if self.cb_one_day.isChecked():
-            self.dte_last_day.setDate(date)
-
-    def on_change_last_day(self, date):
-        self.kiwoom.last_day = date.toString('yyyy-MM-dd')
-        if self.cb_one_day.isChecked():
-            self.dte_first_day.setDate(date)
-
-    def on_edit_save_folder(self):
-        folder = self.le_save_folder.text()
-        self.kiwoom.save_folder = folder
-
-    def on_change_save_folder(self):
-        folder = QFileDialog.getExistingDirectory(self, 'Select folder', self.le_save_folder.text())
-        if folder != '':
-            self.le_save_folder.setText(folder)
-            self.kiwoom.save_folder = folder
-
-    def on_change_tick(self, index):
-        self.rb_tick.setChecked(True)
-        self.kiwoom.tick_type = self.cbb_tick.itemText(index)
-
-    def on_change_min(self, index):
-        self.rb_min.setChecked(True)
-        self.kiwoom.min_type = self.cbb_min.itemText(index)
-
-    def on_change_day(self, index):
-        self.rb_day.setChecked(True)
-        self.kiwoom.day_type = self.cbb_day.itemText(index)
