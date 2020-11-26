@@ -1,5 +1,6 @@
 from PyQt5.QAxContainer import QAxWidget
-from PyQt5.QtCore import QEventLoop
+from PyQt5.QtCore import QEventLoop, Qt
+from PyQt5.QtWidgets import QTableWidgetItem
 from queue import Queue
 import time, os, re
 import pickle
@@ -18,45 +19,39 @@ class KiwoomBase(QAxWidget, WookLog):
         self.account_password = wc.account_password
         self.certificate_password = wc.certificate_password
 
-        self.event_loop = QEventLoop()
         self.login_event_loop = QEventLoop()
-
+        self.event_loop = QEventLoop()
         self.timer_event_loop = QEventLoop()
         self.timer = WookTimer(self.timer_event_loop)
 
         self.signal = None
+        self.status = None
         self.portfolio_table = None
         self.trading_table = None
-        self.status = None
-        self.login_status = None
-
-        self.screen_no_account = '0010'
-        self.screen_no_inconclusion = '0020'
-        self.screen_no_stock_price = '0030'
-        self.screen_no_operation_state = '0040'
-        self.screen_no_interesting_items = '0050'
-        self.screen_no_bid = '0060'
 
         self.account_list = None
         self.account_number = 0
         self.deposit = 0
         self.withdrawable = 0
-        self.purchase_total_sum = 0
-        self.profit_evaluated_sum = 0
-        self.profit_rate_sum = 0
-        self.item_code = 0
-        self.item_name = ''
-        self.log_file = ''
+        self.orderable = 0
+        # self.purchase_total_sum = 0
+        # self.profit_evaluated_sum = 0
+        # self.profit_rate_sum = 0
+        # self.item_code = 0
+        # self.item_name = ''
+        # self.log_file = ''
 
-        self.stocks = list()
-        self.portfolio_stocks = list()
-        self.interesting_stocks = list()
-        self.unconcluded_stocks = list()
-        # self.trading_item_list = list()
+        # self.stocks = list()
+        # self.portfolio_stocks = list()
+        # self.interesting_stocks = list()
+        # self.unconcluded_stocks = list()
         self.trading_items = {}
+        self.portfolio = {}
 
+        self.inquiry_count = 0
         self.previous_time = 0.0
         self.reference_time = Queue()
+        self.reference_time_interval_limit = 20
         self.consecutive_interval_limit = 0.25
         self.request_block_time_limit = 5
         self.request_block_size = 10
@@ -65,20 +60,27 @@ class KiwoomBase(QAxWidget, WookLog):
         self.request_count_interval = 60
         self.request_count_waiting = 30
 
-        self.interesting_stocks_file = 'interesting_stocks.bin'
+        self.screen_account = '0010'
+        # self.screen_inconclusion = '0020'
+        self.screen_operation_state = '0040'
+        self.screen_portfolio = '0060'
+        self.screen_send_order = '0080'
+        self.screen_test = '9999'
 
-    def load_interesting_stocks(self):
-        if not os.path.exists(self.interesting_stocks_file):
-            print('interesting_stocks file not exist')
-            return
+        # self.interesting_stocks_file = 'interesting_stocks.bin'
 
-        with open(self.interesting_stocks_file, 'rb') as file:
-            self.interesting_stocks = pickle.load(file)
-        print(self.interesting_stocks)
+    # def load_interesting_stocks(self):
+    #     if not os.path.exists(self.interesting_stocks_file):
+    #         print('interesting_stocks file not exist')
+    #         return
+    #
+    #     with open(self.interesting_stocks_file, 'rb') as file:
+    #         self.interesting_stocks = pickle.load(file)
+    #     print(self.interesting_stocks)
 
-    def save_intesting_stocks(self):
-        with open(self.interesting_stocks_file, 'wb') as file:
-            pickle.dump(self.interesting_stocks, file)
+    # def save_intesting_stocks(self):
+    #     with open(self.interesting_stocks_file, 'wb') as file:
+    #         pickle.dump(self.interesting_stocks, file)
 
     def dynamic_call(self, function_name, *args):
         function_spec = '('
@@ -96,14 +98,14 @@ class KiwoomBase(QAxWidget, WookLog):
     def set_input_value(self, item, value):
         self.dynamicCall('SetInputValue(str, str)', item, value)
 
-    def set_input_values(self, account_number=None, account_password=None, media_type='00', inquiry_type='1'):
-        if account_number is None: account_number = self.account_number
-        if account_password is None: account_password = self.account_password
-
-        self.set_input_value(ACCOUNT_NUMBER, account_number)
-        self.set_input_value(PASSWORD, account_password)
-        self.set_input_value(PASSWORD_MEDIA_TYPE, media_type)
-        self.set_input_value(INQUIRY_TYPE, inquiry_type)
+    # def set_input_values(self, account_number=None, account_password=None, media_type='00', inquiry_type='1'):
+    #     if account_number is None: account_number = self.account_number
+    #     if account_password is None: account_password = self.account_password
+    #
+    #     self.set_input_value(ACCOUNT_NUMBER, account_number)
+    #     self.set_input_value(PASSWORD, account_password)
+    #     self.set_input_value(PASSWORD_MEDIA_TYPE, media_type)
+    #     self.set_input_value(INQUIRY_TYPE, inquiry_type)
 
     def comm_rq_data(self, sRQName, sTrCode, sPrevNext, sScreenNo):
         self.check_time_rule()
@@ -134,9 +136,9 @@ class KiwoomBase(QAxWidget, WookLog):
     def set_real_reg(self, strScreenNo, strCodeList, strFidList, strOptType='1'):
         self.dynamic_call('SetRealReg', strScreenNo, strCodeList, strFidList, strOptType)
 
-    def get_comm_real_data(self, sCode, fid):
+    def get_comm_real_data(self, sCode, fid, time=False):
         result = self.dynamic_call('GetCommRealData', sCode, fid)
-        processed_result = self.process_type(result)
+        processed_result = self.process_type(result, time)
         return processed_result
 
     def new_get_comm_real_data(self, *precedent_args):
@@ -162,6 +164,10 @@ class KiwoomBase(QAxWidget, WookLog):
         processed_result = self.process_type(result)
         return processed_result
 
+    def get_item_name(self, item_code):
+        item_name = self.dynamic_call('GetMasterCodeName()', str(item_code))
+        return item_name
+
     def check_time_rule(self):
         # consecutive 28 request is blocked in 5 times a sec
         # consecutive 100 request is blocked in 4 times a sec
@@ -183,13 +189,14 @@ class KiwoomBase(QAxWidget, WookLog):
             time.sleep(waiting_time)
 
         if self.request_count >= self.request_count_threshold:
-            if (self.request_count - self.request_count_threshold) % self.request_count_interval == 0:
-                print('now waiting {}s... for request count over {}'.format(self.request_count_waiting,
-                                                                            self.request_count))
-                self.sleep(self.request_count_waiting)
+            if reference_time_interval < self.reference_time_interval_limit:
+                if (self.request_count - self.request_count_threshold) % self.request_count_interval == 0:
+                    print('now waiting {}s... for request count over {}'.format(self.request_count_waiting,
+                                                                                self.request_count))
+                    self.sleep(self.request_count_waiting)
 
-        self.signal('Request count', self.request_count + 1)
-        self.signal('Reference time interval', reference_time_interval)
+        # self.signal('Request count', self.request_count + 1)
+        # self.signal('Reference time interval', reference_time_interval)
 
         self.request_count += 1
         current_time = time.time()
@@ -201,8 +208,14 @@ class KiwoomBase(QAxWidget, WookLog):
         self.timer.start()
         self.timer_event_loop.exec()
 
-    def process_type(self, data):
+    def process_type(self, raw_data, time=False):
+        data = str(raw_data)
         data = data.strip()
+
+        if time:
+            time_format = data[:2] + ':' + data[2:4] + ':' + data[4:]
+            return time_format
+
         int_criteria = re.compile('([+]{0,1}|[-]{0,1})\d+$')
         if int_criteria.match(data):
             return int(data)
@@ -222,3 +235,29 @@ class KiwoomBase(QAxWidget, WookLog):
         float_data = float(str_data)
         formalized_data = format(float_data, ',')
         return formalized_data
+
+    def formalize(self, data):
+        processed_data = self.process_type(data)
+        formalized_data = format(processed_data, ',')
+        return formalized_data
+
+    def to_item_time(self, data):
+        data = str(data)
+        time_format = data[:2] + ':' + data[2:4] + ':' + data[4:]
+        table_item = self.to_item(time_format)
+        table_item.setTextAlignment(Qt.AlignCenter)
+        return table_item
+
+    def to_item(self, data):
+        if type(data) != str:
+            item_data = self.formalize(data)
+            table_item = QTableWidgetItem(item_data)
+            table_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            if item_data[0] == '-':
+                table_item.setText(item_data[1:])
+                table_item.setForeground(Qt.blue)
+            else:
+                table_item.setForeground(Qt.red)
+        else:
+            table_item = QTableWidgetItem(data)
+        return table_item

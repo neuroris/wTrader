@@ -3,111 +3,93 @@ from traderbase import TraderBase
 from kiwoom import Kiwoom
 from wookstock import Stock
 from wookdata import *
+from datetime import datetime
 
 class Trader(TraderBase):
     def __init__(self, log, key):
         self.kiwoom = Kiwoom(log, key)
-        super().__init__(log, key)
+        super().__init__(log)
         self.initKiwoom()
 
-        # Auto login
-        self.on_connect_kiwoom()
+        # Initial work
+        self.connect_kiwoom()
+        # self.get_account_list()
+        # self.get_deposit_info()
+        # self.get_portfolio_info()
 
         # auto add
         # self.btn_add_item.click()
         # self.cbb_item_code.setCurrentIndex(1)
         # self.btn_add_item.click()
 
-
-
     def test(self):
-        self.debug('test button clicked')
-        self.kiwoom.update_interesting_items('122630')
+        name = self.kiwoom.get_item_name(self.cbb_item_code.currentText())
+        self.debug(name)
 
     def initKiwoom(self):
         self.kiwoom.signal = self.on_kiwoom_signal
-        self.kiwoom.signal_market_status = self.on_kiwoom_market_status
-        self.kiwoom.signal_trading_item = self.on_kiwoom_trading_item
-        self.kiwoom.portpolio_table = self.portfolio_table
-        self.kiwoom.trading_table = self.trading_table
         self.kiwoom.status = self.on_kiwoom_status
-        self.kiwoom.item_code = self.cbb_item_code.currentText()
-        self.kiwoom.item_name = self.cbb_item_name.currentText()
-        self.kiwoom.save_file = self.le_save_file.text()
+        self.kiwoom.portfolio_table = self.table_portfolio
+        self.kiwoom.trading_table = self.table_trading
+        # self.kiwoom.save_file = self.le_save_file.text()
 
-    def on_connect_kiwoom(self):
-        login_status = self.kiwoom.connect(self.cb_auto_login.isChecked())
-        if login_status != 0:
-            self.status_bar.showMessage('Something is wrong during log-in')
-            self.error('Login error', login_status)
-            return
+    def connect_kiwoom(self):
+        if self.cb_auto_login.isChecked():
+            self.kiwoom.auto_login()
+        else:
+            self.kiwoom.login()
+            self.kiwoom.set_account_password()
 
-        self.status_bar.showMessage('Log in success')
-        self.cbb_account.addItems(self.kiwoom.account_list)
+    def get_account_list(self):
+        account_list = self.kiwoom.get_account_list()
+        if account_list is not None:
+            self.cbb_account.addItems(self.kiwoom.account_list)
 
-    def get_item_info(self):
-        self.kiwoom.demand_item_info()
+    def get_deposit_info(self):
+        self.kiwoom.request_deposit_info()
+        self.lb_deposit.setText(self.kiwoom.deposit)
 
-    def on_kiwoom_signal(self, *args):
-        message = ''
-        for arg in args:
-            message += str(arg) + ' '
+    def get_portfolio_info(self):
+        self.kiwoom.request_portfolio_info()
 
-        self.te_info.append(message)
-
-    def on_kiwoom_market_status(self, operation_state):
-        if operation_state == '0':
-            self.info('it is before market opening!')
-            self.lb_market_status.setText('before open')
-        elif operation_state == '3':
-            self.info('it is market opening hours')
-            self.lb_market_status.setText('opening hour')
-        elif operation_state == '2':
-            self.info('market is closed')
-            self.lb_market_status.setText('closed')
-        elif operation_state == '4':
-            self.info('single price market is over')
-            self.lb_market_status.setText('single over')
-
-    def on_kiwoom_trading_item(self):
-        pass
-
-    def on_kiwoom_status(self, message):
-        self.status_bar.showMessage(message)
+    def go(self):
+        self.kiwoom.execute_algorithm()
 
     def on_select_account(self, account):
         self.kiwoom.account_number = int(account)
 
     def on_select_item_code(self, code):
-        self.kiwoom.item_code = int(code)
         item_name = self.get_item_name(code)
         self.cbb_item_name.setCurrentText(item_name)
 
     def on_select_item_name(self, name):
-        self.kiwoom.item_name = name
         item_code = self.get_item_code(name)
         self.cbb_item_code.setCurrentText(item_code)
 
     def on_add_item(self):
         item_code = self.cbb_item_code.currentText()
         item_name = self.cbb_item_name.currentText()
+        if item_code in self.kiwoom.trading_items:
+            return
 
         stock = Stock()
+        stock.item_code = item_code
         stock.item_name = item_name
         self.kiwoom.trading_items[item_code] = stock
         self.kiwoom.demand_trading_item_info(item_code)
+        self.kiwoom.signal(stock.item_name, ' stock information begins to be monitored')
 
     def on_remove_item(self):
         item_code = self.cbb_item_code.currentText()
         item_name = self.cbb_item_name.currentText()
-        if item_code not in self.kiwoom.trading_item_list:
+        if item_code not in self.kiwoom.trading_items:
             return
-        self.kiwoom.trading_item_list.remove(item_code)
-        self.kiwoom.trading_item_list.sort()
-        self.trading_table.clearContents()
 
-        for index in range(len(self.kiwoom.trading_item_list)):
-            self.trading_table.setItem(index, 0, QTableWidgetItem(self.kiwoom.trading_item_list[index]))
+        self.kiwoom.init_screen(item_code)
+        del self.kiwoom.trading_items[item_code]
+        self.table_trading.clearContents()
+        self.kiwoom.display_trading_table()
+        self.kiwoom.signal(item_name, ' stock information monitoring is finished')
 
     def on_edit_save_file(self):
         file = self.le_save_file.text()
@@ -140,8 +122,23 @@ class Trader(TraderBase):
 
         return item_code
 
+    def on_kiwoom_signal(self, *args):
+        message = str(args[0])
+        for arg in args[1:]:
+            message += str(arg) + ' '
+        time = datetime.now().strftime('%H:%M:%S') + ' '
+        self.te_info.append(time + message)
+        self.info(message)
+
+    def on_kiwoom_status(self, *args):
+        message = str(args[0])
+        for arg in args[1:]:
+            message += ' ' + str(arg)
+        self.status_bar.showMessage(message)
+
     def closeEvent(self, event):
-        self.info('Closing process initializing...')
+        self.kiwoom.signal('Closing process initializing...')
+        self.kiwoom.close_process()
         self.kiwoom.clear()
         self.kiwoom.deleteLater()
         self.deleteLater()

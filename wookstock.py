@@ -8,6 +8,7 @@ class Stock:
         self.transaction_time = ''
         self.increase_amount = 0
         self.increase_ratio = 0
+        self.evaluation = 0
         self.ask_price = 0
         self.bid_price = 0
         self.volume = 0
@@ -26,8 +27,11 @@ class Stock:
         self.purchase_price = 0
         self.current_price = 0
         self.purchase_sum = 0
+        self.profit = 0
         self.profit_rate = 0.0
         self.sellable_amount = 0
+        self.evaluation_fee = 0
+        self.tax = 0
 
         self.item_number_len = 8
         self.item_name_len = 20

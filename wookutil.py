@@ -6,7 +6,7 @@ import time
 
 class WookCipher:
     def __init__(self, key=None):
-        self.file_name = 'D:/Programming/Data/data.bin'
+        self.file_name = 'D:/Project/Data/data.bin'
         self.login_id = None
         self.login_password = None
         self.account_password = None
