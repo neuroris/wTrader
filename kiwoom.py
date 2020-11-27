@@ -104,6 +104,8 @@ class Kiwoom(KiwoomBase):
             self.get_portfolio_info(sTrCode, sRecordName, sScrNo, sPrevNext)
         elif sRQName == 'conclusion':
             self.get_concluded_order_info(sTrCode, sRecordName, sScrNo, sPrevNext)
+        elif sRQName == 'order':
+            pass
 
     def on_receive_real_data(self, sCode, sRealType, sRealData):
         self.debug('real', sCode, sRealType, sRealData)

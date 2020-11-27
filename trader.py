@@ -13,8 +13,8 @@ class Trader(TraderBase):
 
         # Initial work
         self.connect_kiwoom()
-        # self.get_account_list()
-        # self.get_deposit_info()
+        self.get_account_list()
+        self.get_deposit_info()
         # self.get_portfolio_info()
 
         # auto add
@@ -125,7 +125,7 @@ class Trader(TraderBase):
     def on_kiwoom_signal(self, *args):
         message = str(args[0])
         for arg in args[1:]:
-            message += str(arg) + ' '
+            message += ' ' + str(arg)
         time = datetime.now().strftime('%H:%M:%S') + ' '
         self.te_info.append(time + message)
         self.info(message)
