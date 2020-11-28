@@ -1,9 +1,10 @@
 from PyQt5.QtWidgets import QTableWidgetItem, QFileDialog
+from PyQt5.QtCore import Qt
+from datetime import datetime
 from traderbase import TraderBase
 from kiwoom import Kiwoom
 from wookstock import Stock
 from wookdata import *
-from datetime import datetime
 
 class Trader(TraderBase):
     def __init__(self, log, key):
@@ -15,7 +16,7 @@ class Trader(TraderBase):
         self.connect_kiwoom()
         self.get_account_list()
         self.get_deposit_info()
-        # self.get_portfolio_info()
+        self.get_portfolio_info()
 
         # auto add
         # self.btn_add_item.click()
@@ -23,15 +24,14 @@ class Trader(TraderBase):
         # self.btn_add_item.click()
 
     def test(self):
-        name = self.kiwoom.get_item_name(self.cbb_item_code.currentText())
-        self.debug(name)
+        item_code = self.cbb_item_code.currentText()
+        self.kiwoom.request_concluded_order_info(item_code)
 
     def initKiwoom(self):
         self.kiwoom.signal = self.on_kiwoom_signal
+        self.kiwoom.signal_portfolio_table = self.display_portfolio_table
+        self.kiwoom.signal_trading_table = self.display_trading_table
         self.kiwoom.status = self.on_kiwoom_status
-        self.kiwoom.portfolio_table = self.table_portfolio
-        self.kiwoom.trading_table = self.table_trading
-        # self.kiwoom.save_file = self.le_save_file.text()
 
     def connect_kiwoom(self):
         if self.cb_auto_login.isChecked():
@@ -51,6 +51,32 @@ class Trader(TraderBase):
 
     def get_portfolio_info(self):
         self.kiwoom.request_portfolio_info()
+
+    def display_trading_table(self, trading_items):
+        for row, stock in enumerate(trading_items.values()):
+            self.table_trading.setItem(row, 0, self.to_item(stock.item_name))
+            self.table_trading.setItem(row, 1, self.to_item_time(stock.transaction_time))
+            self.table_trading.setItem(row, 2, self.to_item(stock.current_price))
+            self.table_trading.setItem(row, 3, self.to_item(stock.ask_price))
+            self.table_trading.setItem(row, 4, self.to_item(stock.bid_price))
+            self.table_trading.setItem(row, 5, self.to_item(stock.volume))
+            self.table_trading.setItem(row, 6, self.to_item(stock.accumulated_volume))
+            self.table_trading.setItem(row, 7, self.to_item(stock.highest_price))
+            self.table_trading.setItem(row, 8, self.to_item(stock.lowest_price))
+            self.table_trading.setItem(row, 9, self.to_item(stock.opening_price))
+
+    def display_portfolio_table(self, portfolio):
+        for row, stock in enumerate(portfolio.values()):
+            self.table_portfolio.setItem(row, 0, self.to_item(stock.item_name))
+            self.table_portfolio.setItem(row, 1, self.to_item(stock.purchase_price))
+            self.table_portfolio.setItem(row, 2, self.to_item(stock.profit))
+            self.table_portfolio.setItem(row, 3, self.to_item(stock.profit_rate))
+            self.table_portfolio.setItem(row, 4, self.to_item(stock.purchase_amount))
+            self.table_portfolio.setItem(row, 5, self.to_item(stock.current_price))
+            self.table_portfolio.setItem(row, 6, self.to_item(stock.purchase_sum))
+            self.table_portfolio.setItem(row, 7, self.to_item(stock.evaluation_sum))
+            self.table_portfolio.setItem(row, 8, self.to_item(stock.evaluation_fee))
+            self.table_portfolio.setItem(row, 9, self.to_item(stock.tax))
 
     def go(self):
         self.kiwoom.execute_algorithm()
@@ -77,7 +103,7 @@ class Trader(TraderBase):
         stock.item_name = item_name
         self.kiwoom.trading_items[item_code] = stock
         self.kiwoom.demand_trading_item_info(item_code)
-        self.kiwoom.signal(stock.item_name, ' stock information begins to be monitored')
+        self.kiwoom.signal(stock.item_name, 'stock information begins to be monitored')
 
     def on_remove_item(self):
         item_code = self.cbb_item_code.currentText()
@@ -88,8 +114,8 @@ class Trader(TraderBase):
         self.kiwoom.init_screen(item_code)
         del self.kiwoom.trading_items[item_code]
         self.table_trading.clearContents()
-        self.kiwoom.display_trading_table()
-        self.kiwoom.signal(item_name, ' stock information monitoring is finished')
+        self.display_trading_table(self.kiwoom.trading_items)
+        self.kiwoom.signal(item_name, 'stock information monitoring is finished')
 
     def on_edit_save_file(self):
         file = self.le_save_file.text()

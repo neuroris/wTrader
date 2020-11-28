@@ -5,15 +5,15 @@ from PyQt5.QtWidgets import QMainWindow, QLabel, QPushButton, QLineEdit, \
 from PyQt5.QtCore import Qt, QDateTime, QRect
 from PyQt5.QtGui import QIcon, QBrush
 import json
-from kiwoom import Kiwoom
-from wookutil import WookLog
+from wookutil import WookLog, WookUtil
 from wookdata import *
 import datetime, os
 
-class TraderBase(QMainWindow, WookLog):
+class TraderBase(QMainWindow, WookLog, WookUtil):
     def __init__(self, log):
         super().__init__()
         WookLog.custom_init(self, log)
+        WookUtil.__init__(self)
         with open('setting.json') as r_file:
             self.setting = json.load(r_file)
         self.initUI()
@@ -64,31 +64,56 @@ class TraderBase(QMainWindow, WookLog):
         self.btn_remove_item = QPushButton('Remove')
         self.btn_remove_item.clicked.connect(self.on_remove_item)
 
-        # Save Folder
-        save_folder = self.setting['save_folder']
-        if not os.path.exists(save_folder):
-            os.mkdir(save_folder)
-        today = datetime.date.today().strftime('%Y%m%d')
-        self.log_file = save_folder + 'trader log ' + today + '.txt'
-        lb_save_file = QLabel('Save')
-        self.le_save_file = QLineEdit()
-        self.le_save_file.setText(self.log_file)
-        self.le_save_file.editingFinished.connect(self.on_edit_save_file)
-        self.btn_change_file = QPushButton('Change')
-        self.btn_change_file.clicked.connect(self.on_change_save_file)
+        # Order
+        lb_price = QLabel('Price')
+        self.le_price = QLineEdit()
+        self.le_price.setMaximumWidth(95)
+        lb_amount = QLabel('Amount')
+        self.le_amount = QLineEdit()
+        self.le_amount.setMaximumWidth(80)
+        self.rb_buy = QRadioButton('Buy')
+        self.rb_sell = QRadioButton('Sell')
+        self.rb_buy.setChecked(True)
+        self.cbb_order_type = QComboBox()
+        self.cbb_order_type.setMinimumHeight(32)
+        self.cbb_order_type.setEditable(True)
+        self.cbb_order_type.lineEdit().setReadOnly(True)
+        self.cbb_order_type.lineEdit().setAlignment(Qt.AlignCenter)
+        self.cbb_order_type.addItems(ORDER_TYPE)
+        self.btn_order = QPushButton('Order')
+
+        # Order information
+        lb_orderable = QLabel('Orderable')
+        self.lb_orderable = QLabel()
+        lb_buyable = QLabel('Buyable')
+        self.lb_buyable = QLabel()
+        lb_sellable = QLabel('Sellable')
+        self.lb_sellable = QLabel()
 
         # Item grid layout
         item_grid = QGridLayout()
         item_grid.addWidget(lb_item_code, 0, 0)
         item_grid.addWidget(self.cbb_item_code, 0, 1)
-        item_grid.addWidget(lb_item_name, 0, 2, 1, 2)
-        item_grid.addWidget(self.cbb_item_name, 0, 4, 1, 2)
-        item_grid.addWidget(self.btn_add_item, 0, 6, 1, 1)
-        item_grid.addWidget(self.btn_remove_item, 0, 7, 1, 1)
+        item_grid.addWidget(lb_item_name, 0, 2)
+        item_grid.addWidget(self.cbb_item_name, 0, 3, 1, 4)
+        item_grid.addWidget(self.btn_add_item, 0, 7)
+        item_grid.addWidget(self.btn_remove_item, 0, 8)
 
-        item_grid.addWidget(lb_save_file, 1, 0)
-        item_grid.addWidget(self.le_save_file, 1, 1, 1, 6)
-        item_grid.addWidget(self.btn_change_file, 1, 7)
+        item_grid.addWidget(lb_price, 1, 0)
+        item_grid.addWidget(self.le_price, 1, 1)
+        item_grid.addWidget(lb_amount, 1, 2, 1, 2)
+        item_grid.addWidget(self.le_amount, 1, 4)
+        item_grid.addWidget(self.rb_buy, 1, 5)
+        item_grid.addWidget(self.rb_sell, 1, 6)
+        item_grid.addWidget(self.cbb_order_type, 1, 7)
+        item_grid.addWidget(self.btn_order, 1, 8)
+
+        # item_grid.addWidget(lb_orderable, 2, 0)
+        # item_grid.addWidget(self.lb_orderable, 2, 1)
+        # item_grid.addWidget(lb_buyable, 2, 2)
+        # item_grid.addWidget(self.lb_buyable, 2, 3)
+        # item_grid.addWidget(lb_sellable, 2, 4)
+        # item_grid.addWidget(self.lb_sellable, 2, 5)
 
         item_gbox = QGroupBox('Item information')
         item_gbox.setLayout(item_grid)
@@ -132,7 +157,7 @@ class TraderBase(QMainWindow, WookLog):
         self.table_trading.setRowHeight(2, 5)
         for column in range(1, self.table_trading.columnCount()):
             self.table_trading.setColumnWidth(column, 100)
-        self.table_trading.setColumnWidth(0, 150)
+        self.table_trading.setColumnWidth(0, 215)
         self.table_trading.setColumnWidth(6, 120)
 
         trading_gbox = QGroupBox('Trading items')

@@ -4,13 +4,14 @@ from PyQt5.QtWidgets import QTableWidgetItem
 from queue import Queue
 import time, os, re
 import pickle
-from wookutil import WookCipher, WookLog, WookTimer
+from wookutil import WookCipher, WookLog, WookTimer, WookUtil
 from wookdata import *
 
-class KiwoomBase(QAxWidget, WookLog):
+class KiwoomBase(QAxWidget, WookLog, WookUtil):
     def __init__(self, log, key):
         super().__init__('KHOPENAPI.KHOpenAPICtrl.1')
         WookLog.custom_init(self, log)
+        WookUtil.__init__(self)
 
         wc = WookCipher(key)
         wc.decrypt_data()
@@ -23,28 +24,19 @@ class KiwoomBase(QAxWidget, WookLog):
         self.event_loop = QEventLoop()
         self.timer_event_loop = QEventLoop()
         self.timer = WookTimer(self.timer_event_loop)
+        # self.util = WookUtil()
 
         self.signal = None
         self.status = None
-        self.portfolio_table = None
-        self.trading_table = None
+        self.signal_portfolio_table = None
+        self.signal_trading_table = None
 
         self.account_list = None
         self.account_number = 0
         self.deposit = 0
         self.withdrawable = 0
         self.orderable = 0
-        # self.purchase_total_sum = 0
-        # self.profit_evaluated_sum = 0
-        # self.profit_rate_sum = 0
-        # self.item_code = 0
-        # self.item_name = ''
-        # self.log_file = ''
 
-        # self.stocks = list()
-        # self.portfolio_stocks = list()
-        # self.interesting_stocks = list()
-        # self.unconcluded_stocks = list()
         self.trading_items = {}
         self.portfolio = {}
 
@@ -61,7 +53,7 @@ class KiwoomBase(QAxWidget, WookLog):
         self.request_count_waiting = 30
 
         self.screen_account = '0010'
-        # self.screen_inconclusion = '0020'
+        self.screen_inconclusion = '0020'
         self.screen_operation_state = '0040'
         self.screen_portfolio = '0060'
         self.screen_send_order = '0080'
@@ -97,15 +89,6 @@ class KiwoomBase(QAxWidget, WookLog):
 
     def set_input_value(self, item, value):
         self.dynamicCall('SetInputValue(str, str)', item, value)
-
-    # def set_input_values(self, account_number=None, account_password=None, media_type='00', inquiry_type='1'):
-    #     if account_number is None: account_number = self.account_number
-    #     if account_password is None: account_password = self.account_password
-    #
-    #     self.set_input_value(ACCOUNT_NUMBER, account_number)
-    #     self.set_input_value(PASSWORD, account_password)
-    #     self.set_input_value(PASSWORD_MEDIA_TYPE, media_type)
-    #     self.set_input_value(INQUIRY_TYPE, inquiry_type)
 
     def comm_rq_data(self, sRQName, sTrCode, sPrevNext, sScreenNo):
         self.check_time_rule()
@@ -149,6 +132,7 @@ class KiwoomBase(QAxWidget, WookLog):
         return custom_get_comm_real_data
 
     def send_order(self, sRQName, sScreenNo, sAccNo, nOrderType, sCode, nQty, nPrice, sHogaGb, sOrgOrderNo=''):
+        self.check_time_rule()
         result = self.dynamic_call('SendOrder', sRQName, sScreenNo, sAccNo, nOrderType, sCode, nQty, nPrice, sHogaGb, sOrgOrderNo)
         return result
 
@@ -195,9 +179,6 @@ class KiwoomBase(QAxWidget, WookLog):
                                                                                 self.request_count))
                     self.sleep(self.request_count_waiting)
 
-        # self.signal('Request count', self.request_count + 1)
-        # self.signal('Reference time interval', reference_time_interval)
-
         self.request_count += 1
         current_time = time.time()
         self.previous_time = current_time
@@ -207,57 +188,3 @@ class KiwoomBase(QAxWidget, WookLog):
         self.timer.sleep(time)
         self.timer.start()
         self.timer_event_loop.exec()
-
-    def process_type(self, raw_data, time=False):
-        data = str(raw_data)
-        data = data.strip()
-
-        if time:
-            time_format = data[:2] + ':' + data[2:4] + ':' + data[4:]
-            return time_format
-
-        int_criteria = re.compile('([+]{0,1}|[-]{0,1})\d+$')
-        if int_criteria.match(data):
-            return int(data)
-
-        float_criteria = re.compile('([+]{0,1}|[-]{0,1})\d+[.]\d+$')
-        if float_criteria.match(data):
-            return float(data)
-
-        return data
-
-    def formalize_int(self, str_data):
-        int_data = int(str_data)
-        formalized_data = format(int_data, ',')
-        return formalized_data
-
-    def formalize_float(self, str_data):
-        float_data = float(str_data)
-        formalized_data = format(float_data, ',')
-        return formalized_data
-
-    def formalize(self, data):
-        processed_data = self.process_type(data)
-        formalized_data = format(processed_data, ',')
-        return formalized_data
-
-    def to_item_time(self, data):
-        data = str(data)
-        time_format = data[:2] + ':' + data[2:4] + ':' + data[4:]
-        table_item = self.to_item(time_format)
-        table_item.setTextAlignment(Qt.AlignCenter)
-        return table_item
-
-    def to_item(self, data):
-        if type(data) != str:
-            item_data = self.formalize(data)
-            table_item = QTableWidgetItem(item_data)
-            table_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-            if item_data[0] == '-':
-                table_item.setText(item_data[1:])
-                table_item.setForeground(Qt.blue)
-            else:
-                table_item.setForeground(Qt.red)
-        else:
-            table_item = QTableWidgetItem(data)
-        return table_item

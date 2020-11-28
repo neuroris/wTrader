@@ -35,10 +35,14 @@ TAX = '세금'
 PROFIT_RATE = '수익률(%)'
 SELLABLE_AMOUNT = '매매가능수량'
 ORDER_NUMBER = '주문번호'
+
 ORDER_STATE = '주문상태'
+RECEIPT = '접수'
+CONCLUSION = '체결'
+
 ORDER_AMOUNT = '주문수량'
 ORDER_PRICE = '주문가격'
-ORDER_TYPE = '주문구분'
+TRADE_POSITION = '주문구분'
 UNCONCLUDED_AMOUNT = '미체결수량'
 CONCLUDED_AMOUNT = '체결량'
 REFERENCE_DATE = '기준일자'
@@ -157,17 +161,28 @@ class TRADE_TYPE:
     CORRECT_BID = 5
     CORRECT_ASK = 6
 
-class ORDER_TYPE:
-    LIMIT = '00'
-    MARKET = '03'
-    CONDITIONAL = '05'
-    COVER = '06'
-    MARGINAL = '07'
-    BEFORE = '61'
-    CLOSING = '62'
-    AFTER = '81'
+# class ORDER_TYPE:
+#     LIMIT = '00'
+#     MARKET = '03'
+#     CONDITIONAL = '05'
+#     COVER = '06'
+#     MARGINAL = '07'
+#     BEFORE = '61'
+#     CLOSING = '62'
+#     AFTER = '81'
+
+ORDER_TYPE = {
+    'Limit': '00',
+    'Market': '03',
+    'Conditional': '05',
+    'Cover': '06',
+    'Marginal': '07',
+    'Before': '61',
+    'Closing': '62',
+    'After': '81'
+}
 
 CODE_KODEX_LEVERAGE = '122630'
 CODE_KODEX_INVERSE_2X = '252670'
 NAME_KODEX_LEVERAGE = 'KODEX 레버리지'
-NAME_KODEX_INVERSE_2X = 'KODEX 인버스2X'
+NAME_KODEX_INVERSE_2X = 'KODEX 200선물인버스2X'

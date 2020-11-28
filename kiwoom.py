@@ -19,7 +19,6 @@ class Kiwoom(KiwoomBase):
         self.OnReceiveConditionVer.connect(self.on_receive_condition_ver)
 
         self.demand_market_state_info()
-        # self.request_concluded_order_info()
 
     def auto_login(self):
         self.dynamicCall('CommConnect()')
@@ -72,7 +71,7 @@ class Kiwoom(KiwoomBase):
         self.set_input_value(TRADING_TYPE, ALL)
         self.set_input_value(ITEM_CODE, item_code)
         self.set_input_value(CONCLUSION_TYPE, ALL)
-        self.comm_rq_data('conclusion', REQUEST_UNCONCLUDED_ORDER, sPrevNext, self.screen_no_inconclusion)
+        self.comm_rq_data('conclusion', REQUEST_UNCONCLUDED_ORDER, sPrevNext, self.screen_inconclusion)
         self.event_loop.exec()
 
     def demand_market_state_info(self):
@@ -87,7 +86,7 @@ class Kiwoom(KiwoomBase):
             self.signal('Kiwoom log in success')
         else:
             self.signal('Something is wrong during log-in')
-            self.error('Login error', login_status)
+            self.error('Login error', err_code)
         self.login_event_loop.exit()
 
     def on_receive_msg(self, sScrNo, sRQName, sTrCode, sMsg):
@@ -97,18 +96,18 @@ class Kiwoom(KiwoomBase):
         self.debug('Received message:', sRQName, sMsg)
 
     def on_receive_tr_data(self, sScrNo, sRQName, sTrCode, sRecordName, sPrevNext):
-        self.debug('tr data', sScrNo, sRQName, sTrCode)
+        self.debug('tr_data', sScrNo, sRQName, sTrCode)
         if sRQName == 'deposit':
             self.get_deposit_info(sTrCode, sRecordName, sScrNo, sPrevNext)
         elif sRQName == 'portfolio':
             self.get_portfolio_info(sTrCode, sRecordName, sScrNo, sPrevNext)
         elif sRQName == 'conclusion':
-            self.get_concluded_order_info(sTrCode, sRecordName, sScrNo, sPrevNext)
+            self.get_order_conclusion_info(sTrCode, sRecordName, sScrNo, sPrevNext)
         elif sRQName == 'order':
             pass
 
     def on_receive_real_data(self, sCode, sRealType, sRealData):
-        self.debug('real', sCode, sRealType, sRealData)
+        self.debug('real_data', sCode, sRealType, sRealData)
         if sRealType == REAL_TYPE_STOCK_TRADED:
             self.update_trading_items(sCode)
         elif sRealType == REAL_TYPE_MARKET_OPENING_TIME:
@@ -128,6 +127,9 @@ class Kiwoom(KiwoomBase):
         self.deposit = self.formalize_int(get_comm_data(DEPOSIT))
         self.withdrawable = self.formalize_int(get_comm_data(WITHDRAWABLE))
         self.orderable = self.formalize_int(get_comm_data(ORDERABLE))
+        # self.deposit = self.util.formalize_int(get_comm_data(DEPOSIT))
+        # self.withdrawable = self.util.formalize_int(get_comm_data(WITHDRAWABLE))
+        # self.orderable = self.util.formalize_int(get_comm_data(ORDERABLE))
         self.debug('Deposit', self.deposit)
         self.signal('Deposit information acquired')
         self.init_screen(sScrNo)
@@ -153,7 +155,8 @@ class Kiwoom(KiwoomBase):
             stock.sellable_amount = get_comm_data(SELLABLE_AMOUNT)
             self.portfolio[stock.item_code] = stock
 
-        self.display_portfolio_table()
+        # self.display_portfolio_table()
+        self.signal_portfolio_table(self.portfolio)
         self.signal('Portfolio information acquired')
 
         if sPrevNext == '2':
@@ -162,7 +165,38 @@ class Kiwoom(KiwoomBase):
             self.init_screen(sScrNo)
             self.event_loop.exit()
 
-    def get_concluded_order_info(self, sTrCode, sRecordName, sScrNo, sPrevNext):
+    def get_order_conclusion_info(self, sTrCode, sRecordName, sScrNo, sPrevNext):
+        number_of_item = self.get_repeat_count(sTrCode, sRecordName)
+        for count in range(number_of_item):
+            get_comm_data = self.new_get_comm_data(sTrCode, sRecordName, count)
+
+            stock = Stock()
+            stock.item_code = get_comm_data(ITEM_CODE)
+            stock.item_name = get_comm_data(ITEM_NAME)
+            stock.order_number = get_comm_data(ORDER_NUMBER)
+            stock.order_state = get_comm_data(ORDER_STATE)
+            stock.order_amount = get_comm_data(ORDER_AMOUNT)
+            stock.order_price = get_comm_data(ORDER_PRICE)
+            stock.kind_or_order = get_comm_data(TRADE_POSITION)
+            stock.unconcluded_amount = get_comm_data(UNCONCLUDED_AMOUNT)
+            stock.concluded_amount = get_comm_data(CONCLUDED_AMOUNT)
+
+            self.debug('number of order', number_of_item)
+            self.debug(stock.item_code)
+            self.debug(stock.item_name)
+            self.debug(stock.order_number)
+            self.debug(stock.order_state)
+            self.debug(stock.order_amount)
+            self.debug(stock.order_price)
+            self.debug(stock.kind_or_order)
+            self.debug(stock.unconcluded_amount)
+            self.debug(stock.concluded_amount)
+
+
+
+        if sPrevNext == '2':
+            self.request_unconcluded_order(sPrevNext)
+
         self.event_loop.exit()
 
     def update_market_state(self, sCode):
@@ -188,33 +222,8 @@ class Kiwoom(KiwoomBase):
         stock.lowest_price = get_comm_real_data(FID.LOWEST_PRICE)
         stock.opening_price = get_comm_real_data(FID.OPENING_PRICE)
 
-        self.display_trading_table()
-
-    def display_trading_table(self):
-        for row, stock in enumerate(self.trading_items.values()):
-            self.trading_table.setItem(row, 0, self.to_item(stock.item_name))
-            self.trading_table.setItem(row, 1, self.to_item_time(stock.transaction_time))
-            self.trading_table.setItem(row, 2, self.to_item(stock.current_price))
-            self.trading_table.setItem(row, 3, self.to_item(stock.ask_price))
-            self.trading_table.setItem(row, 4, self.to_item(stock.bid_price))
-            self.trading_table.setItem(row, 5, self.to_item(stock.volume))
-            self.trading_table.setItem(row, 6, self.to_item(stock.accumulated_volume))
-            self.trading_table.setItem(row, 7, self.to_item(stock.highest_price))
-            self.trading_table.setItem(row, 8, self.to_item(stock.lowest_price))
-            self.trading_table.setItem(row, 9, self.to_item(stock.opening_price))
-
-    def display_portfolio_table(self):
-        for row, stock in enumerate(self.portfolio.values()):
-            self.portfolio_table.setItem(row, 0, self.to_item(stock.item_name))
-            self.portfolio_table.setItem(row, 1, self.to_item(stock.purchase_price))
-            self.portfolio_table.setItem(row, 2, self.to_item(stock.profit))
-            self.portfolio_table.setItem(row, 3, self.to_item(stock.profit_rate))
-            self.portfolio_table.setItem(row, 4, self.to_item(stock.purchase_amount))
-            self.portfolio_table.setItem(row, 5, self.to_item(stock.current_price))
-            self.portfolio_table.setItem(row, 6, self.to_item(stock.purchase_sum))
-            self.portfolio_table.setItem(row, 7, self.to_item(stock.evaluation_sum))
-            self.portfolio_table.setItem(row, 8, self.to_item(stock.evaluation_fee))
-            self.portfolio_table.setItem(row, 9, self.to_item(stock.tax))
+        self.signal_trading_table(self.trading_items)
+        # self.display_trading_table()
 
     def obtain_order_info(self):
         item_code = self.get_chejan_data(FID.ITEM_CODE)
@@ -242,7 +251,7 @@ class Kiwoom(KiwoomBase):
         item_name = self.get_chejan_data(FID.ITEM_NAME)
         current_price = self.get_chejan_data(FID.CURRENT_PRICE)
         holding_amount = self.get_chejan_data(FID.HOLDING_AMOUNT)
-        purchase_price = self.get_chejan_data(FID.PURCHASE_PRICE)
+        purchase_price_avg = self.get_chejan_data(FID.PURCHASE_PRICE)
         purchase_sum = self.get_chejan_data(FID.PURCHASE_SUM)
         purchase_today = self.get_chejan_data(FID.PURCHASE_TODAY)
         buy_or_sell = self.get_chejan_data(FID.BUY_OR_SELL)
@@ -253,14 +262,14 @@ class Kiwoom(KiwoomBase):
         profit_realization_rate = self.get_chejan_data(FID.PROFIT_REALIZATION_RATE)
 
         self.signal('balance info')
-        self.signal(item_code, item_name, current_price, holding_amount, purchase_price, purchase_sum)
+        self.signal(item_code, item_name, current_price, holding_amount, purchase_price_avg, purchase_sum)
         self.signal(purchase_today, buy_or_sell, sell_today, reference_price, profit_rate)
         self.signal(profit_realization, profit_realization_rate)
 
     def execute_algorithm(self):
         self.signal('running algorithm')
         send_order = self.new_send_order('order', self.screen_send_order, self.account_number, 1)
-        send_order('122630', 1, 19000, '00', '')
+        send_order('122630', 3000, 19000, '00', '')
 
     def init_screen(self, sScrNo):
         self.dynamic_call('DisconnectRealData', sScrNo)

@@ -17,7 +17,7 @@ class Stock:
         self.lowest_price = 0
         self.opening_price = 0
         self.order_state = ''
-        self.order_type = ''
+        self.kind_of_order = ''
         self.order_number = 0
         self.order_amount = 0
         self.order_price = 0

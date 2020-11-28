@@ -1,8 +1,11 @@
+from PyQt5.QtWidgets import QTableWidgetItem
+from PyQt5.QtCore import Qt
 from Cryptodome import Random
 from Cryptodome.Cipher import AES
 from Cryptodome.Util import Padding, strxor
 from PyQt5.QtCore import QThread
 import time
+import re
 
 class WookCipher:
     def __init__(self, key=None):
@@ -113,3 +116,61 @@ class WookTimer(QThread):
             print('\r{}s remaining '.format(self.time-i)+'='*(self.time-i), end='')
             time.sleep(1)
         self.event_loop.exit()
+
+class WookUtil:
+    def __init__(self):
+        pass
+
+    def process_type(self, raw_data, time=False):
+        data = str(raw_data)
+        data = data.strip()
+
+        if time:
+            time_format = data[:2] + ':' + data[2:4] + ':' + data[4:]
+            return time_format
+
+        int_criteria = re.compile('([+]{0,1}|[-]{0,1})\d+$')
+        if int_criteria.match(data):
+            return int(data)
+
+        float_criteria = re.compile('([+]{0,1}|[-]{0,1})\d+[.]\d+$')
+        if float_criteria.match(data):
+            return float(data)
+
+        return data
+
+    def formalize_int(self, str_data):
+        int_data = int(str_data)
+        formalized_data = format(int_data, ',')
+        return formalized_data
+
+    def formalize_float(self, str_data):
+        float_data = float(str_data)
+        formalized_data = format(float_data, ',')
+        return formalized_data
+
+    def formalize(self, data):
+        processed_data = self.process_type(data)
+        formalized_data = format(processed_data, ',')
+        return formalized_data
+
+    def to_item_time(self, data):
+        data = str(data)
+        time_format = data[:2] + ':' + data[2:4] + ':' + data[4:]
+        table_item = self.to_item(time_format)
+        table_item.setTextAlignment(Qt.AlignCenter)
+        return table_item
+
+    def to_item(self, data):
+        if type(data) != str:
+            item_data = self.formalize(data)
+            table_item = QTableWidgetItem(item_data)
+            table_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            if item_data[0] == '-':
+                table_item.setText(item_data[1:])
+                table_item.setForeground(Qt.blue)
+            else:
+                table_item.setForeground(Qt.red)
+        else:
+            table_item = QTableWidgetItem(data)
+        return table_item
