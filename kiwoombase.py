@@ -1,5 +1,5 @@
 from PyQt5.QAxContainer import QAxWidget
-from PyQt5.QtCore import QEventLoop, Qt
+from PyQt5.QtCore import QEventLoop, QThread, Qt, QMutex
 from PyQt5.QtWidgets import QTableWidgetItem
 from queue import Queue
 import time, os, re
@@ -24,21 +24,36 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         self.event_loop = QEventLoop()
         self.timer_event_loop = QEventLoop()
         self.timer = WookTimer(self.timer_event_loop)
-        # self.util = WookUtil()
 
+        self.deposit_requester = QThread()
+        self.moveToThread(self.deposit_requester)
+        self.deposit_requester.started.connect(self.request_deposit_info)
+        self.portfolio_requester = QThread()
+        self.moveToThread(self.portfolio_requester)
+        self.portfolio_requester.started.connect(self.request_portfolio_info)
+        self.order_history_requester = QThread()
+        self.moveToThread(self.order_history_requester)
+        self.order_history_requester.started.connect(self.request_order_history)
+
+        self.request_time = 0
+        self.request_interval_limit = 0.5
+        self.order_position = ''
+
+        self.log = None
         self.signal = None
         self.status = None
-        self.signal_portfolio_table = None
-        self.signal_trading_table = None
 
         self.account_list = None
         self.account_number = 0
         self.deposit = 0
-        self.withdrawable = 0
-        self.orderable = 0
+        self.withdrawable_money = 0
+        self.orderable_money = 0
 
-        self.trading_items = {}
-        self.portfolio = {}
+        self.portfolio = dict()
+        self.trading_items = dict()
+        self.open_orders = dict()
+        self.balance = dict()
+        self.order_history = dict()
 
         self.inquiry_count = 0
         self.previous_time = 0.0
@@ -53,26 +68,11 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         self.request_count_waiting = 30
 
         self.screen_account = '0010'
-        self.screen_inconclusion = '0020'
+        self.screen_open_order = '0020'
         self.screen_operation_state = '0040'
         self.screen_portfolio = '0060'
         self.screen_send_order = '0080'
         self.screen_test = '9999'
-
-        # self.interesting_stocks_file = 'interesting_stocks.bin'
-
-    # def load_interesting_stocks(self):
-    #     if not os.path.exists(self.interesting_stocks_file):
-    #         print('interesting_stocks file not exist')
-    #         return
-    #
-    #     with open(self.interesting_stocks_file, 'rb') as file:
-    #         self.interesting_stocks = pickle.load(file)
-    #     print(self.interesting_stocks)
-
-    # def save_intesting_stocks(self):
-    #     with open(self.interesting_stocks_file, 'wb') as file:
-    #         pickle.dump(self.interesting_stocks, file)
 
     def dynamic_call(self, function_name, *args):
         function_spec = '('
@@ -91,7 +91,7 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         self.dynamicCall('SetInputValue(str, str)', item, value)
 
     def comm_rq_data(self, sRQName, sTrCode, sPrevNext, sScreenNo):
-        self.check_time_rule()
+        # self.check_time_rule()
         result = self.dynamicCall('CommRqData(str, str, int, str)', sRQName, sTrCode, sPrevNext, sScreenNo)
         if result != 0:
             print('Something is wrong during request : {}, Error code : {}'.format(sRQName, result))
@@ -143,14 +143,21 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
             return result
         return custom_send_order
 
-    def get_chejan_data(self, nFid):
+    def get_chejan_data(self, nFid, number=False):
         result = self.dynamic_call('GetChejanData', nFid)
-        processed_result = self.process_type(result)
+        processed_result = self.process_type(result, number)
         return processed_result
 
     def get_item_name(self, item_code):
         item_name = self.dynamic_call('GetMasterCodeName()', str(item_code))
         return item_name
+
+    def get_item_code(self, item_name):
+        item_code = ''
+        for key, value in CODES.items():
+            if item_name == value:
+                item_code = key
+        return item_code
 
     def check_time_rule(self):
         # consecutive 28 request is blocked in 5 times a sec
@@ -177,7 +184,7 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
                 if (self.request_count - self.request_count_threshold) % self.request_count_interval == 0:
                     print('now waiting {}s... for request count over {}'.format(self.request_count_waiting,
                                                                                 self.request_count))
-                    self.sleep(self.request_count_waiting)
+                    # self.sleep(self.request_count_waiting)
 
         self.request_count += 1
         current_time = time.time()

@@ -15,7 +15,7 @@ if __name__ == '__main__':
     log_level = args.log.upper()
     key = args.key
 
-    console_formatter = logging.Formatter('\033[31m%(levelname)s \033[30m%(message)s\033[0m')
+    console_formatter = logging.Formatter('\033[91m%(levelname)s \033[97m%(message)s\033[0m')
     console_handler = logging.StreamHandler()
     console_handler.setLevel(log_level)
     console_handler.setFormatter(console_formatter)

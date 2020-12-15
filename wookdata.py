@@ -9,49 +9,106 @@ ACCOUNT_NUMBER = '계좌번호'
 PASSWORD = '비밀번호'
 PASSWORD_MEDIA_TYPE = '비밀번호입력매체구분'
 INQUIRY_TYPE = '조회구분'
-TRADING_TYPE = '매매구분'
+
+TRADE_POSITION = '매매구분'
+class POSITION:
+    ALL = '0'
+    SELL = '1'
+    BUY = '2'
 
 ALL_OR_INDIVIDUAL = '전체종목구분'
 ALL = '0'
 INDIVIDUAL = '1'
 
-CONCLUSION_TYPE = '체결구분'
-UNCONCLUDED = '1'
-CONCLUDED = '2'
+ORDER_EXECUTION_TYPE = '체결구분'
+class ORDER:
+    ALL = '0'
+    OPEN = '1'
+    EXECUTED = '2'
 
 CORRECTED_PRICE_TYPE = '수정주가구분'
 
+# 계좌평가잔고내역요청 (opw00018)
 ITEM_CODE = '종목코드'
 ITEM_NUMBER = '종목번호'
 ITEM_NAME = '종목명'
-PURCHASE_AMOUNT = '보유수량'
+PROFIT = '평가손익'
+PROFIT_RATE = '수익률(%)'
 PURCHASE_PRICE = '매입가'
+REFERENCE_PRICE = '전일종가'
+HOLDING_AMOUNT = '보유수량'
+SELLABLE_AMOUNT = '매매가능수량'
 CURRENT_PRICE = '현재가'
 PURCHASE_SUM = '매입금액'
-PROFIT = '평가손익'
 EVALUATION_SUM = '평가금액'
 EVALUATION_FEE = '평가수수료'
 TAX = '세금'
-PROFIT_RATE = '수익률(%)'
-SELLABLE_AMOUNT = '매매가능수량'
+TOTAL_FEE = '수수료합'
+HOLDING_RATIO = '보유비중(%)'
+
+# 실시간미체결요청 (opt10075)
+ACCOUNT_NUMBER = '계좌번호'
 ORDER_NUMBER = '주문번호'
-
+ITEM_CODE = '종목코드'
 ORDER_STATE = '주문상태'
-RECEIPT = '접수'
-CONCLUSION = '체결'
-
+ITEM_NAME = '종목명'
 ORDER_AMOUNT = '주문수량'
+OPEN_AMOUNT = '미체결수량'
+EXECUTED_SUM = '체결누계금액'
+ORIGINAL_ORDER_NUMBER = '원주문번호'
+ORDER_POSITION = '주문구분'
+TRADE_POSITION = '매매구분'
+TIME = '시간'
+EXECUTED_ORDER_NUMBER = '체결번호'
+EXECUTED_ORDER_PRICE = '체결가'
+EXECUTED_ORDER_AMOUNT = '체결량'
+TRANSACTION_FEE_TODAY = '당일매매수수료'
+TAX_TODAY = '당일매매세금'
+
+
+RECEIPT = '접수'
+CONFIRMED = '확인'
+ORDER_EXECUTED = '체결'
+
 ORDER_PRICE = '주문가격'
-TRADE_POSITION = '주문구분'
-UNCONCLUDED_AMOUNT = '미체결수량'
-CONCLUDED_AMOUNT = '체결량'
+
+ORDER_POSITION = '주문구분'
+ORDER_POSITION_DICT = {
+    'BUY': '1',
+    'SELL': '2',
+    'CANCEL BUY': '3',
+    'CANCEL SELL': '4',
+    'CORRECT BUY': '5',
+    'CORRECT SELL': '6'
+}
+PURCHASE = '매수'
+SELL = '매도'
+CANCEL_PURCHASE = '매수취소'
+CANCEL_SELL = '매도취소'
+CORRECT_PURCHASE = '매수정정'
+CORRECT_SELL = '매도정정'
+
+ORDER_TYPE = {
+    'LIMIT': '00',
+    'MARKET': '03',
+    'CONDITIONAL': '05',
+    'COVER': '06',
+    'MARGINAL': '07',
+    'BEFORE': '61',
+    'CLOSING': '62',
+    'AFTER': '81',
+}
+
+
 REFERENCE_DATE = '기준일자'
 END_DATE = '끝일자'
 DATE = '일자'
 
+
 REQUEST_DEPOSIT_INFO = 'opw00001'
 REQUEST_PORTFOLIO_INFO = 'opw00018'
-REQUEST_UNCONCLUDED_ORDER = 'opt10075'
+REQUEST_OPEN_ORDER = 'opt10075'
+REQUEST_EXECUTED_ORDER = 'opt10076'
 REQUEST_TICK_PRICE = 'opt10079'
 REQUEST_MINUTE_PRICE = 'opt10080'
 REQUEST_DAY_PRICE = 'opt10081'
@@ -63,8 +120,8 @@ REAL_TYPE_STOCK_TRADED = '주식체결'
 REAL_TYPE_MARKET_OPENING_TIME = '장시작시간'
 REAL_TYPE_BALANCE = '잔고'
 
-CHEJAN_GUBUN_ORDER_CONCLUSION = '0'
-CHEJAN_GUBUN_BALANCE = '1'
+CHEJAN_EXECUTED_ORDER = '0'
+CHEJAN_BALANCE = '1'
 
 TICK_RANGE = '틱범위'
 TICK_1 = '1:1틱'
@@ -86,17 +143,22 @@ MONTH_DATA = '월'
 YEAR_DATA = '년'
 
 TRANSACTION_TIME = '체결시간'
-OPENING_PRICE = '시가'
-HIGHEST_PRICE = '고가'
-LOWEST_PRICE = '저가'
-TRANSACTION_AMOUNT = '거래량'
-
-SELL = '1'
-BUY = '2'
+OPEN_PRICE = '시가'
+HIGH_PRICE = '고가'
+LOW_PRICE = '저가'
+VOLUME = '거래량'
 
 MARKET_KOSDAQ = '10'
 MARKET_KOSPI = '0'
 MARKET_ETF = '8'
+
+class TRADE_TYPE:
+    BID = 1
+    ASK = 2
+    CANCEL_BID = 3
+    CANCEL_ASK = 4
+    CORRECT_BID = 5
+    CORRECT_ASK = 6
 
 class FID:
     # 주식체결
@@ -108,9 +170,9 @@ class FID:
     BID_PRICE = '28'
     VOLUME = '15'
     ACCUMULATED_VOLUME = '13'
-    HIGHEST_PRICE = ' 17'
-    LOWEST_PRICE = '18'
-    OPENING_PRICE = '16'
+    HIGH_PRICE = '17'
+    LOW_PRICE = '18'
+    OPEN_PRICE = '16'
 
     # 장시작시간
     MARKET_OPERATION_STATE = '215'
@@ -124,14 +186,14 @@ class FID:
     ORDER_STATE = '913'
     ORDER_AMOUNT = '900'
     ORDER_PRICE = '901'
-    UNCONCLUDED_AMOUNT = '902'
+    OPEN_AMOUNT = '902'
     ORIGINAL_ORDER_NUMBER = '904'
-    ORDER_TYPE = '905'
-    ORDER_TRANSACTION_TIME = '908'
+    ORDER_POSITION = '905'
+    ORDER_EXECUTED_TIME = '908'
     TRANSACTION_TYPE = '906'
-    TRANSACTION_NUMBER = '909'
-    TRANSACTION_PRICE = '910'
-    TRANSACTION_AMOUNT = '911'
+    EXECUTED_ORDER_NUMBER = '909'
+    EXECUTED_PRICE = '910'
+    EXECUTED_AMOUNT = '911'
     CURRENT_PRICE = '10'
     ASK_PRICE = '27'
     BID_PRICE = '28'
@@ -140,12 +202,13 @@ class FID:
 
     # 잔고
     HOLDING_AMOUNT = '930'
-    PURCHASE_PRICE = '931'
+    PURCHASE_PRICE_AVG = '931'
     PURCHASE_SUM = '932'
     ORDERABLE_AMOUNT = '933'
-    PURCHASE_TODAY = '945'
+    PURCHASE_AMOUNT_NET = '945'
     BUY_OR_SELL = '946'
-    SELL_TODAY = '950'
+    PROFIT_NET = '950'
+    DEPOSIT = '951'
     REFERENCE_PRICE = '307'
     PROFIT_RATE = '8019'
     PROFIT_REALIZATION = '990'
@@ -153,36 +216,8 @@ class FID:
 
     ASK_BID = '946'
 
-class TRADE_TYPE:
-    BID = 1
-    ASK = 2
-    CANCEL_BID = 3
-    CANCEL_ASK = 4
-    CORRECT_BID = 5
-    CORRECT_ASK = 6
-
-# class ORDER_TYPE:
-#     LIMIT = '00'
-#     MARKET = '03'
-#     CONDITIONAL = '05'
-#     COVER = '06'
-#     MARGINAL = '07'
-#     BEFORE = '61'
-#     CLOSING = '62'
-#     AFTER = '81'
-
-ORDER_TYPE = {
-    'Limit': '00',
-    'Market': '03',
-    'Conditional': '05',
-    'Cover': '06',
-    'Marginal': '07',
-    'Before': '61',
-    'Closing': '62',
-    'After': '81'
+CODES = {
+    '122630': 'KODEX 레버리지',
+    '252670': 'KODEX 200선물인버스2X',
+    '048260': '오스템임플란트'
 }
-
-CODE_KODEX_LEVERAGE = '122630'
-CODE_KODEX_INVERSE_2X = '252670'
-NAME_KODEX_LEVERAGE = 'KODEX 레버리지'
-NAME_KODEX_INVERSE_2X = 'KODEX 200선물인버스2X'

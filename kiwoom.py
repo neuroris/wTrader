@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QTableWidgetItem
 from datetime import datetime
+import time
 from kiwoombase import KiwoomBase
 from wookauto import LoginPasswordThread, AccountPasswordThread
 from wookstock import Stock
@@ -8,7 +9,7 @@ from wookdata import *
 class Kiwoom(KiwoomBase):
     def __init__(self, log, key):
         super().__init__(log, key)
-        self.debug('Kiwoom initializing...')
+        self.info('Kiwoom initializing...')
 
         # Connect slots
         self.OnEventConnect.connect(self.on_login)
@@ -42,37 +43,35 @@ class Kiwoom(KiwoomBase):
         self.account_list = account_list.split(';')
         self.account_list.pop()
         if self.account_list is None:
-            self.signal('Failed to get account information')
+            self.log('Failed to get account information')
         else:
-            self.signal('Account information acquired')
-            for index, account in enumerate(self.account_list):
-                self.debug("Account {} : {}".format(index+1, account))
+            self.log('Account information')
         return self.account_list
 
     def request_deposit_info(self, sPrevNext='0'):
+        self.check_request_time()
         self.set_input_value(ACCOUNT_NUMBER, self.account_number)
         self.set_input_value(PASSWORD, self.account_password)
         self.set_input_value(PASSWORD_MEDIA_TYPE, '00')
         self.set_input_value(INQUIRY_TYPE, '1')
         self.comm_rq_data('deposit', REQUEST_DEPOSIT_INFO, sPrevNext, self.screen_account)
-        self.event_loop.exec()
 
     def request_portfolio_info(self, sPrevNext='0'):
+        self.check_request_time()
         self.set_input_value(ACCOUNT_NUMBER, self.account_number)
         self.set_input_value(PASSWORD, self.account_password)
         self.set_input_value(PASSWORD_MEDIA_TYPE, '00')
         self.set_input_value(INQUIRY_TYPE, '1')
         self.comm_rq_data('portfolio', REQUEST_PORTFOLIO_INFO, sPrevNext, self.screen_portfolio)
-        self.event_loop.exec()
 
-    def request_concluded_order_info(self, item_code, sPrevNext='0'):
+    def request_order_history(self, item_code='', sPrevNext='0'):
+        self.check_request_time()
         self.set_input_value(ACCOUNT_NUMBER, self.account_number)
-        self.set_input_value(ALL_OR_INDIVIDUAL, INDIVIDUAL)
-        self.set_input_value(TRADING_TYPE, ALL)
+        self.set_input_value(ALL_OR_INDIVIDUAL, ALL)
+        self.set_input_value(TRADE_POSITION, POSITION.ALL)
         self.set_input_value(ITEM_CODE, item_code)
-        self.set_input_value(CONCLUSION_TYPE, ALL)
-        self.comm_rq_data('conclusion', REQUEST_UNCONCLUDED_ORDER, sPrevNext, self.screen_inconclusion)
-        self.event_loop.exec()
+        self.set_input_value(ORDER_EXECUTION_TYPE, ORDER.ALL)
+        self.comm_rq_data('order_history', REQUEST_OPEN_ORDER, sPrevNext, self.screen_open_order)
 
     def demand_market_state_info(self):
         self.set_real_reg(self.screen_operation_state, ' ', FID.MARKET_OPERATION_STATE, '0')
@@ -80,60 +79,61 @@ class Kiwoom(KiwoomBase):
     def demand_trading_item_info(self, item_code):
         self.set_real_reg(item_code, item_code, FID.TRANSACTION_TIME, '1')
 
+    def order(self, item_code, price, amount, order_position_text, order_type, order_number):
+        self.order_position = order_position_text
+        order_position = ORDER_POSITION_DICT[order_position_text]
+        send_order = self.new_send_order('order', self.screen_send_order, self.account_number)
+        send_order(order_position, item_code, amount, price, order_type, order_number)
+
     def on_login(self, err_code):
-        self.debug('Login status code :', err_code)
         if err_code == 0:
-            self.signal('Kiwoom log in success')
+            self.log('Kiwoom log in success')
         else:
-            self.signal('Something is wrong during log-in')
+            self.log('Something is wrong during log-in')
             self.error('Login error', err_code)
+
         self.login_event_loop.exit()
 
     def on_receive_msg(self, sScrNo, sRQName, sTrCode, sMsg):
         self.inquiry_count += 1
         time = datetime.now().strftime('%H:%M:%S')
         self.status(sMsg, sRQName, time, '('+str(self.inquiry_count)+')')
-        self.debug('Received message:', sRQName, sMsg)
 
     def on_receive_tr_data(self, sScrNo, sRQName, sTrCode, sRecordName, sPrevNext):
-        self.debug('tr_data', sScrNo, sRQName, sTrCode)
+        # self.debug('tr_data', sScrNo, sRQName, sTrCode)
         if sRQName == 'deposit':
             self.get_deposit_info(sTrCode, sRecordName, sScrNo, sPrevNext)
         elif sRQName == 'portfolio':
             self.get_portfolio_info(sTrCode, sRecordName, sScrNo, sPrevNext)
-        elif sRQName == 'conclusion':
-            self.get_order_conclusion_info(sTrCode, sRecordName, sScrNo, sPrevNext)
         elif sRQName == 'order':
-            pass
+            self.get_order_state(sTrCode, sRecordName, sScrNo, sPrevNext)
+        elif sRQName == 'order_history':
+            self.get_order_history(sTrCode, sRecordName, sScrNo, sPrevNext)
 
     def on_receive_real_data(self, sCode, sRealType, sRealData):
-        self.debug('real_data', sCode, sRealType, sRealData)
+        # self.debug('real_data', sCode, sRealType, sRealData)
         if sRealType == REAL_TYPE_STOCK_TRADED:
             self.update_trading_items(sCode)
         elif sRealType == REAL_TYPE_MARKET_OPENING_TIME:
             self.update_market_state(sCode)
-        elif sRealType == REAL_TYPE_BALANCE:
-            self.update_portfolio(sCode)
 
     def on_receive_chejan_data(self, sGubun, nItemCnt, nFidList):
-        self.debug('chejan', sGubun, nItemCnt, nFidList)
-        if sGubun == CHEJAN_GUBUN_ORDER_CONCLUSION:
-            self.obtain_order_info()
-        elif sGubun == CHEJAN_GUBUN_BALANCE:
+        # self.debug('chejan', sGubun, nItemCnt, nFidList)
+        if sGubun == CHEJAN_EXECUTED_ORDER:
+            self.obtain_executed_order_info()
+        elif sGubun == CHEJAN_BALANCE:
             self.obtain_balance_info()
 
     def get_deposit_info(self, sTrCode, sRecordName, sScrNo, sPrevNext):
         get_comm_data = self.new_get_comm_data(sTrCode, sRecordName, 0)
-        self.deposit = self.formalize_int(get_comm_data(DEPOSIT))
-        self.withdrawable = self.formalize_int(get_comm_data(WITHDRAWABLE))
-        self.orderable = self.formalize_int(get_comm_data(ORDERABLE))
-        # self.deposit = self.util.formalize_int(get_comm_data(DEPOSIT))
-        # self.withdrawable = self.util.formalize_int(get_comm_data(WITHDRAWABLE))
-        # self.orderable = self.util.formalize_int(get_comm_data(ORDERABLE))
-        self.debug('Deposit', self.deposit)
-        self.signal('Deposit information acquired')
+        self.deposit = get_comm_data(DEPOSIT)
+        self.withdrawable = get_comm_data(WITHDRAWABLE)
+        self.orderable_money = get_comm_data(ORDERABLE)
+
+        self.signal('deposit')
+        self.log('Deposit information')
         self.init_screen(sScrNo)
-        self.event_loop.exit()
+        self.deposit_requester.quit()
 
     def get_portfolio_info(self, sTrCode, sRecordName, sScrNo, sPrevNext):
         number_of_item = self.get_repeat_count(sTrCode, sRecordName)
@@ -141,69 +141,76 @@ class Kiwoom(KiwoomBase):
             get_comm_data = self.new_get_comm_data(sTrCode, sRecordName, count)
 
             stock = Stock()
-            stock.item_code = get_comm_data(ITEM_NUMBER)
+            stock.item_code = get_comm_data(ITEM_NUMBER)[1:]
             stock.item_name = get_comm_data(ITEM_NAME)
-            stock.purchase_price = get_comm_data(PURCHASE_PRICE)
-            stock.profit = get_comm_data(PROFIT)
-            stock.profit_rate = get_comm_data(PROFIT_RATE)
-            stock.purchase_amount = get_comm_data(PURCHASE_AMOUNT)
             stock.current_price = get_comm_data(CURRENT_PRICE)
+            stock.purchase_price = get_comm_data(PURCHASE_PRICE)
+            stock.holding_amount = get_comm_data(HOLDING_AMOUNT)
             stock.purchase_sum = get_comm_data(PURCHASE_SUM)
             stock.evaluation_sum = get_comm_data(EVALUATION_SUM)
+            stock.profit = get_comm_data(PROFIT)
+            stock.profit_rate = get_comm_data(PROFIT_RATE)
             stock.evaluation_fee = get_comm_data(EVALUATION_FEE)
             stock.tax = get_comm_data(TAX)
-            stock.sellable_amount = get_comm_data(SELLABLE_AMOUNT)
-            self.portfolio[stock.item_code] = stock
 
-        # self.display_portfolio_table()
-        self.signal_portfolio_table(self.portfolio)
-        self.signal('Portfolio information acquired')
+            self.portfolio[stock.item_code] = stock
 
         if sPrevNext == '2':
             self.request_portfolio_info(sPrevNext)
         else:
+            self.signal('portfolio')
+            self.signal('portfolio_table')
+            self.log('Portfolio information')
             self.init_screen(sScrNo)
-            self.event_loop.exit()
+            self.portfolio_requester.quit()
 
-    def get_order_conclusion_info(self, sTrCode, sRecordName, sScrNo, sPrevNext):
-        number_of_item = self.get_repeat_count(sTrCode, sRecordName)
-        for count in range(number_of_item):
+    def get_order_history(self, sTrCode, sRecordName, sScrNo, sPrevNext):
+        self.order_history.clear()
+        number_of_order = self.get_repeat_count(sTrCode, sRecordName)
+        for count in range(number_of_order):
             get_comm_data = self.new_get_comm_data(sTrCode, sRecordName, count)
 
             stock = Stock()
             stock.item_code = get_comm_data(ITEM_CODE)
             stock.item_name = get_comm_data(ITEM_NAME)
-            stock.order_number = get_comm_data(ORDER_NUMBER)
-            stock.order_state = get_comm_data(ORDER_STATE)
+            stock.order_executed_time = get_comm_data(TIME)
             stock.order_amount = get_comm_data(ORDER_AMOUNT)
+            stock.executed_amount = get_comm_data(EXECUTED_ORDER_AMOUNT)
+            stock.open_amount = get_comm_data(OPEN_AMOUNT)
+            stock.order_number = get_comm_data(ORDER_NUMBER)
+            stock.original_order_number = get_comm_data(ORIGINAL_ORDER_NUMBER)
             stock.order_price = get_comm_data(ORDER_PRICE)
-            stock.kind_or_order = get_comm_data(TRADE_POSITION)
-            stock.unconcluded_amount = get_comm_data(UNCONCLUDED_AMOUNT)
-            stock.concluded_amount = get_comm_data(CONCLUDED_AMOUNT)
+            stock.executed_price = get_comm_data(EXECUTED_ORDER_PRICE)
+            stock.order_position = get_comm_data(ORDER_POSITION)
+            stock.order_state = get_comm_data(ORDER_STATE)
+            # stock.trade_position = get_comm_data(TRADE_POSITION)
+            # stock.executed_order_number = get_comm_data(EXECUTED_ORDER_NUMBER)
 
-            self.debug('number of order', number_of_item)
-            self.debug(stock.item_code)
-            self.debug(stock.item_name)
-            self.debug(stock.order_number)
-            self.debug(stock.order_state)
-            self.debug(stock.order_amount)
-            self.debug(stock.order_price)
-            self.debug(stock.kind_or_order)
-            self.debug(stock.unconcluded_amount)
-            self.debug(stock.concluded_amount)
-
-
+            self.order_history[stock.order_number] = stock
+            if stock.open_amount != 0:
+                self.open_orders[stock.order_number] = stock
 
         if sPrevNext == '2':
-            self.request_unconcluded_order(sPrevNext)
+            self.request_order_history(sPrevNext)
+        else:
+            self.signal('order_history_table')
+            self.signal('open_orders_table')
+            self.log('Order history information')
+            self.init_screen(sScrNo)
+            self.order_history_requester.quit()
 
-        self.event_loop.exit()
+    def get_order_state(self, sTrCode, sRecordName, sScrNo, sPrevNext):
+        get_comm_data = self.new_get_comm_data(sTrCode, sRecordName)
+        order_number = get_comm_data(0, ORDER_NUMBER)
+        if order_number:
+            self.debug('Send order ({}) command committed successfully'.format(self.order_position), sTrCode)
+        else:
+            self.debug('Send order failed.', 'Please check order variables')
 
     def update_market_state(self, sCode):
         operation_state = self.get_comm_real_data(sCode, FID.MARKET_OPERATION_STATE)
         present_time = self.get_comm_real_data(sCode, FID.TRANSACTION_TIME, time=True)
         remaining_time = self.get_comm_real_data(sCode, FID.MARKET_OPERATION_REMAINING_TIME, time=True)
-
         self.info('market operation state', operation_state, present_time, remaining_time)
 
     def update_trading_items(self, sCode):
@@ -213,71 +220,98 @@ class Kiwoom(KiwoomBase):
         stock.transaction_time = get_comm_real_data(FID.TRANSACTION_TIME)
         stock.current_price = get_comm_real_data(FID.CURRENT_PRICE)
         stock.price_increase_amount = get_comm_real_data(FID.PRICE_INCREASE_AMOUNT)
-        stock.price_increase_ratio = get_comm_real_data(FID.PRICE_INCREASE_RATIO)
         stock.ask_price = get_comm_real_data(FID.ASK_PRICE)
         stock.bid_price = get_comm_real_data(FID.BID_PRICE)
         stock.volume = get_comm_real_data(FID.VOLUME)
         stock.accumulated_volume = get_comm_real_data(FID.ACCUMULATED_VOLUME)
-        stock.highest_price = get_comm_real_data(FID.HIGHEST_PRICE)
-        stock.lowest_price = get_comm_real_data(FID.LOWEST_PRICE)
-        stock.opening_price = get_comm_real_data(FID.OPENING_PRICE)
+        stock.high_price = get_comm_real_data(FID.HIGH_PRICE)
+        stock.low_price = get_comm_real_data(FID.LOW_PRICE)
+        stock.open_price = get_comm_real_data(FID.OPEN_PRICE)
+        # stock.price_increase_ratio = get_comm_real_data(FID.PRICE_INCREASE_RATIO)
 
-        self.signal_trading_table(self.trading_items)
-        # self.display_trading_table()
+        self.signal('trading_items_table')
+        self.portfolio_requester.start()
 
-    def obtain_order_info(self):
-        item_code = self.get_chejan_data(FID.ITEM_CODE)
-        order_number = self.get_chejan_data(FID.ORDER_NUMBER)
-        order_state = self.get_chejan_data(FID.ORDER_STATE)
-        order_amount = self.get_chejan_data(FID.ORDER_AMOUNT)
-        order_price = self.get_chejan_data(FID.ORDER_PRICE)
-        unconcluded_amount = self.get_chejan_data(FID.UNCONCLUDED_AMOUNT)
-        original_order_number = self.get_chejan_data(FID.ORIGINAL_ORDER_NUMBER)
-        order_type = self.get_chejan_data(FID.ORDER_TYPE)
-        transaction_type = self.get_chejan_data(FID.TRANSACTION_TYPE)
-        transaction_number = self.get_chejan_data(FID.TRANSACTION_NUMBER)
-        transaction_price = self.get_chejan_data(FID.TRANSACTION_PRICE)
-        transaction_amount = self.get_chejan_data(FID.TRANSACTION_AMOUNT)
-        transaction_fee = self.get_chejan_data(FID.TRANSACTION_FEE)
-        transaction_tax = self.get_chejan_data(FID.TRANSACTION_TAX)
+    def obtain_executed_order_info(self):
+        stock = Stock()
+        stock.item_code = self.get_chejan_data(FID.ITEM_CODE)[1:]
+        stock.item_name = self.get_item_name(stock.item_code)
+        stock.order_executed_time = self.get_chejan_data(FID.ORDER_EXECUTED_TIME)
+        stock.order_amount = self.get_chejan_data(FID.ORDER_AMOUNT)
+        stock.executed_amount = self.get_chejan_data(FID.EXECUTED_AMOUNT, number=True)
+        stock.open_amount = self.get_chejan_data(FID.OPEN_AMOUNT)
+        stock.order_number = self.get_chejan_data(FID.ORDER_NUMBER)
+        stock.original_order_number = self.get_chejan_data(FID.ORIGINAL_ORDER_NUMBER)
+        stock.executed_order_number = self.get_chejan_data(FID.EXECUTED_ORDER_NUMBER)
+        stock.order_price = self.get_chejan_data(FID.ORDER_PRICE)
+        stock.executed_price = self.get_chejan_data(FID.EXECUTED_PRICE)
+        stock.order_position = self.get_chejan_data(FID.ORDER_POSITION)
 
-        self.signal('order info')
-        self.signal(item_code, order_number, order_state, order_amount, order_price, unconcluded_amount)
-        self.signal(original_order_number, order_type)
-        self.signal(transaction_type, transaction_number, transaction_price, transaction_amount, transaction_fee, transaction_tax)
+        stock.order_state = self.get_chejan_data(FID.ORDER_STATE)
+        stock.order_type = self.get_chejan_data(FID.ORDER_POSITION)
+        stock.transaction_type = self.get_chejan_data(FID.TRANSACTION_TYPE)
+        stock.transaction_price = self.get_chejan_data(FID.EXECUTED_PRICE)
+        stock.volume = self.get_chejan_data(FID.VOLUME)
+        stock.transaction_fee = self.get_chejan_data(FID.TRANSACTION_FEE)
+        stock.tax = self.get_chejan_data(FID.TRANSACTION_TAX)
+
+        self.open_orders[stock.order_number] = stock
+        if (stock.order_number in self.open_orders) and (stock.open_amount == 0):
+            del self.open_orders[stock.order_number]
+
+        message = 'Order execution {}({}), '.format(stock.item_name, stock.order_state)
+        message += 'order:{}, executed:{}, '.format(stock.order_amount, stock.executed_amount)
+        message += 'order number:{}, original number:{}'.format(stock.order_number, stock.original_order_number)
+        self.log(message)
+        self.signal('open_orders_table')
+
+        self.order_history_requester.start()
 
     def obtain_balance_info(self):
-        item_code = self.get_chejan_data(FID.ITEM_CODE)
-        item_name = self.get_chejan_data(FID.ITEM_NAME)
-        current_price = self.get_chejan_data(FID.CURRENT_PRICE)
-        holding_amount = self.get_chejan_data(FID.HOLDING_AMOUNT)
-        purchase_price_avg = self.get_chejan_data(FID.PURCHASE_PRICE)
-        purchase_sum = self.get_chejan_data(FID.PURCHASE_SUM)
-        purchase_today = self.get_chejan_data(FID.PURCHASE_TODAY)
-        buy_or_sell = self.get_chejan_data(FID.BUY_OR_SELL)
-        sell_today = self.get_chejan_data(FID.SELL_TODAY)
-        reference_price = self.get_chejan_data(FID.REFERENCE_PRICE)
-        profit_rate = self.get_chejan_data(FID.PROFIT_RATE)
-        profit_realization = self.get_chejan_data(FID.PROFIT_REALIZATION)
-        profit_realization_rate = self.get_chejan_data(FID.PROFIT_REALIZATION_RATE)
+        stock = Stock()
+        stock.item_code = self.get_chejan_data(FID.ITEM_CODE)[1:]
+        stock.item_name = self.get_chejan_data(FID.ITEM_NAME)
+        stock.current_price = self.get_chejan_data(FID.CURRENT_PRICE)
+        stock.reference_price = self.get_chejan_data(FID.REFERENCE_PRICE)
+        stock.purchase_price_avg = self.get_chejan_data(FID.PURCHASE_PRICE_AVG)
+        stock.holding_amount = self.get_chejan_data(FID.HOLDING_AMOUNT)
+        stock.purchase_amount_net = self.get_chejan_data(FID.PURCHASE_AMOUNT_NET)
+        stock.purchase_sum = self.get_chejan_data(FID.PURCHASE_SUM)
+        Stock.balance_profit_net = self.get_chejan_data(FID.PROFIT_NET)
+        Stock.balance_profit_rate = self.get_chejan_data(FID.PROFIT_RATE)
+        Stock.balance_profit_realization = self.get_chejan_data(FID.PROFIT_REALIZATION)
+        # Stock.balance_profit_realization_rate = self.get_chejan_data(FID.PROFIT_REALIZATION_RATE)
+        # stock.buy_or_sell = self.get_chejan_data(FID.BUY_OR_SELL)
+        # stock.deposit = self.get_chejan_data(FID.DEPOSIT)
 
-        self.signal('balance info')
-        self.signal(item_code, item_name, current_price, holding_amount, purchase_price_avg, purchase_sum)
-        self.signal(purchase_today, buy_or_sell, sell_today, reference_price, profit_rate)
-        self.signal(profit_realization, profit_realization_rate)
+        self.balance[stock.item_code] = stock
+        self.signal('balance_table')
+        self.log('Balance information')
+
+        self.deposit_requester.start()
+        self.portfolio_requester.start()
 
     def execute_algorithm(self):
-        self.signal('running algorithm')
-        send_order = self.new_send_order('order', self.screen_send_order, self.account_number, 1)
-        send_order('122630', 3000, 19000, '00', '')
+        self.log('running algorithm')
+        # send_order('122630', 19000, 30, ORDER_TYPE['LIMIT'], '')
+
+    def check_request_time(self):
+        current_time = time.time()
+        interval = current_time - self.request_time
+        waiting_time = self.request_interval_limit - interval
+        self.debug('===== Request time check =====', interval)
+        if interval < self.request_interval_limit:
+            self.debug('===== Waiting for time interval ===== ', waiting_time)
+            time.sleep(waiting_time)
+        self.request_time = time.time()
 
     def init_screen(self, sScrNo):
         self.dynamic_call('DisconnectRealData', sScrNo)
-        self.debug('Screen disconnected', sScrNo)
+        # self.debug('Screen reset', sScrNo)
 
     def on_receive_condition_ver(self, IRet, sMsg):
         self.debug('receive condition ver', IRet, sMsg)
 
     def close_process(self):
         self.dynamic_call('SetRealRemove', 'ALL', 'ALL')
-        self.signal('All screens are disconnected')
+        self.log('All screens are disconnected')
