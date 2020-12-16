@@ -25,12 +25,13 @@ class Trader(TraderBase):
     def test(self):
         self.debug('test button clicked')
 
-        self.kiwoom.request_args = '048260'
-        self.kiwoom.request = 'order_history'
-        self.kiwoom.order_history_requester.start()
+        if self.kiwoom.order_history_requester.isRunning():
+            self.debug('requester is running!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        else:
+            self.debug('requester is not running')
+            self.kiwoom.order_history_requester.start()
 
     def go(self):
-        self.kiwoom.order_history_requester.start()
         pass
 
     def initKiwoom(self):
@@ -74,7 +75,6 @@ class Trader(TraderBase):
 
     def display_portfolio(self):
         self.clear_table(self.table_portfolio)
-
         for row, stock in enumerate(self.kiwoom.portfolio.values()):
             self.table_portfolio.insertRow(row)
             self.table_portfolio.setRowHeight(row, 8)
@@ -133,8 +133,8 @@ class Trader(TraderBase):
             self.table_balance.setItem(row, 3, self.to_item(stock.purchase_price_avg))
             self.table_balance.setItem(row, 4, self.to_item(stock.holding_amount))
             self.table_balance.setItem(row, 5, self.to_item(stock.purchase_sum))
-            self.table_balance.setItem(row, 6, self.to_item_sign(stock.purchase_amount_net))
-            self.table_balance.setItem(row, 7, self.to_item_sign(stock.balance_profit_net))
+            self.table_balance.setItem(row, 6, self.to_item_sign(stock.purchase_amount_net_today))
+            self.table_balance.setItem(row, 7, self.to_item_sign(stock.balance_profit_net_today))
             self.table_balance.setItem(row, 8, self.to_item_sign(stock.balance_profit_rate))
             self.table_balance.setItem(row, 9, self.to_item_sign(stock.balance_profit_realization))
         self.table_balance.sortItems(0, Qt.DescendingOrder)

@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QTableWidgetItem
+from PyQt5.QtCore import QObject, QThread
 from datetime import datetime
 import time
 from kiwoombase import KiwoomBase
@@ -131,7 +132,7 @@ class Kiwoom(KiwoomBase):
         self.orderable_money = get_comm_data(ORDERABLE)
 
         self.signal('deposit')
-        self.log('Deposit information')
+        self.info('Deposit information')
         self.init_screen(sScrNo)
         self.deposit_requester.quit()
 
@@ -160,7 +161,7 @@ class Kiwoom(KiwoomBase):
         else:
             self.signal('portfolio')
             self.signal('portfolio_table')
-            self.log('Portfolio information')
+            self.info('Portfolio information')
             self.init_screen(sScrNo)
             self.portfolio_requester.quit()
 
@@ -195,7 +196,7 @@ class Kiwoom(KiwoomBase):
         else:
             self.signal('order_history_table')
             self.signal('open_orders_table')
-            self.log('Order history information')
+            self.info('Order history information')
             self.init_screen(sScrNo)
             self.order_history_requester.quit()
 
@@ -265,7 +266,10 @@ class Kiwoom(KiwoomBase):
         self.log(message)
         self.signal('open_orders_table')
 
-        self.order_history_requester.start()
+        if self.order_history_requester.isRunning():
+            self.debug('Order history requester is still running!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        else:
+            self.order_history_requester.start()
 
     def obtain_balance_info(self):
         stock = Stock()
@@ -275,9 +279,9 @@ class Kiwoom(KiwoomBase):
         stock.reference_price = self.get_chejan_data(FID.REFERENCE_PRICE)
         stock.purchase_price_avg = self.get_chejan_data(FID.PURCHASE_PRICE_AVG)
         stock.holding_amount = self.get_chejan_data(FID.HOLDING_AMOUNT)
-        stock.purchase_amount_net = self.get_chejan_data(FID.PURCHASE_AMOUNT_NET)
+        stock.purchase_amount_net_today = self.get_chejan_data(FID.PURCHASE_AMOUNT_NET_TODAY)
         stock.purchase_sum = self.get_chejan_data(FID.PURCHASE_SUM)
-        Stock.balance_profit_net = self.get_chejan_data(FID.PROFIT_NET)
+        Stock.balance_profit_net_today = self.get_chejan_data(FID.PROFIT_NET_TODAY)
         Stock.balance_profit_rate = self.get_chejan_data(FID.PROFIT_RATE)
         Stock.balance_profit_realization = self.get_chejan_data(FID.PROFIT_REALIZATION)
         # Stock.balance_profit_realization_rate = self.get_chejan_data(FID.PROFIT_REALIZATION_RATE)
@@ -288,8 +292,15 @@ class Kiwoom(KiwoomBase):
         self.signal('balance_table')
         self.log('Balance information')
 
-        self.deposit_requester.start()
-        self.portfolio_requester.start()
+        if self.deposit_requester.isRunning():
+            self.debug('Deposit requester is still running !!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        else:
+            self.deposit_requester.start()
+
+        if self.portfolio_requester.isRunning():
+            self.debug('Portfolio requester is still running !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        else:
+            self.portfolio_requester.start()
 
     def execute_algorithm(self):
         self.log('running algorithm')

@@ -156,12 +156,14 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         item_gbox = QGroupBox('Manual Order')
         item_gbox.setLayout(item_grid)
 
-        # Go button
+        # Algorithm
         self.btn_go = QPushButton('&Go')
         self.btn_go.clicked.connect(self.go)
-        self.btn_go.setMaximumHeight(120)
-        go_grid = QGridLayout()
-        go_grid.addWidget(self.btn_go, 0, 0, 3, 1)
+        self.btn_go.setMinimumHeight(130)
+        algorithm_grid = QGridLayout()
+        algorithm_grid.addWidget(self.btn_go, 0, 0, 3, 1)
+        algorithm_gbox = QGroupBox('Algorithm')
+        algorithm_gbox.setLayout(algorithm_grid)
 
         # Portfolio table
         portfolio_header = ['Item', 'Current\nPrice', 'Purchase\nPrice', 'Holding\nAmount', 'Purchase\nSum']
@@ -257,8 +259,8 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         top_hbox = QHBoxLayout()
         top_hbox.addWidget(account_gbox)
         top_hbox.addWidget(item_gbox)
-        top_hbox.addLayout(go_grid)
-        top_hbox.addStretch()
+        top_hbox.addWidget(algorithm_gbox)
+        # top_hbox.addStretch()
 
         vbox = QVBoxLayout()
         vbox.addLayout(top_hbox)

@@ -948,3 +948,269 @@
 2020-12-15 17:09:23,988 Account information
 2020-12-15 17:09:24,500 Deposit information
 2020-12-15 17:09:24,545 Portfolio information
+2020-12-15 17:44:23,120 Kiwoom initializing...
+2020-12-15 17:44:28,103 Kiwoom log in success
+2020-12-15 17:44:28,103 Account information
+2020-12-15 17:44:28,619 Deposit information
+2020-12-15 17:44:28,681 Portfolio information
+2020-12-15 17:45:05,077 Closing process initializing...
+2020-12-15 17:45:05,078 All screens are disconnected
+2020-12-15 17:45:20,087 Kiwoom initializing...
+2020-12-15 17:45:26,762 Closing process initializing...
+2020-12-15 17:45:26,763 All screens are disconnected
+2020-12-15 18:41:24,873 Kiwoom initializing...
+2020-12-15 18:41:29,742 Kiwoom log in success
+2020-12-15 18:41:29,742 Account information
+2020-12-15 18:41:30,259 Deposit information
+2020-12-15 18:41:30,304 Portfolio information
+2020-12-15 18:42:55,425 Kiwoom initializing...
+2020-12-15 18:43:00,034 Kiwoom log in success
+2020-12-15 18:43:00,034 Account information
+2020-12-15 18:43:00,547 Deposit information
+2020-12-15 18:43:00,587 Portfolio information
+2020-12-15 18:43:02,703 Order history information
+2020-12-15 18:43:43,996 Kiwoom initializing...
+2020-12-15 18:43:48,676 Kiwoom log in success
+2020-12-15 18:43:48,677 Account information
+2020-12-15 18:43:49,205 Deposit information
+2020-12-15 18:43:49,293 Portfolio information
+2020-12-15 18:44:06,296 Order history information
+2020-12-15 18:44:59,878 Kiwoom initializing...
+2020-12-15 18:45:04,660 Kiwoom log in success
+2020-12-15 18:45:04,660 Account information
+2020-12-15 18:45:05,176 Deposit information
+2020-12-15 18:45:05,214 Portfolio information
+2020-12-15 18:45:09,962 Order history information
+2020-12-15 18:45:23,286 Kiwoom initializing...
+2020-12-15 18:45:28,028 Kiwoom log in success
+2020-12-15 18:45:28,028 Account information
+2020-12-15 18:45:28,542 Deposit information
+2020-12-15 18:45:28,580 Portfolio information
+2020-12-15 18:45:52,834 Order history information
+2020-12-15 18:45:58,326 Order history information
+2020-12-15 18:46:00,562 Order history information
+2020-12-15 18:46:01,734 Order history information
+2020-12-15 18:46:02,395 Order history information
+2020-12-15 18:46:03,061 Order history information
+2020-12-15 18:46:03,746 Order history information
+2020-12-15 18:46:04,293 Order history information
+2020-12-15 18:46:04,790 Order history information
+2020-12-15 18:46:05,303 Order history information
+2020-12-15 18:46:05,802 Order history information
+2020-12-15 18:46:09,831 Order history information
+2020-12-15 18:46:10,794 Order history information
+2020-12-15 18:46:11,388 Order history information
+2020-12-15 18:46:12,009 Order history information
+2020-12-15 18:46:12,505 Order history information
+2020-12-15 18:46:13,017 Order history information
+2020-12-15 18:46:13,661 Order history information
+2020-12-15 18:46:14,230 Order history information
+2020-12-15 18:46:14,736 Order history information
+2020-12-15 18:46:15,443 Order history information
+2020-12-15 18:46:15,938 Order history information
+2020-12-15 18:46:16,441 Order history information
+2020-12-15 18:46:16,945 Order history information
+2020-12-15 18:46:17,450 Order history information
+2020-12-15 18:46:18,442 Order history information
+2020-12-15 18:47:07,802 Kiwoom initializing...
+2020-12-15 18:47:12,372 Kiwoom log in success
+2020-12-15 18:47:12,373 Account information
+2020-12-15 18:47:12,884 Deposit information
+2020-12-15 18:47:12,920 Portfolio information
+2020-12-15 18:47:15,464 Order history information
+2020-12-15 18:47:16,492 Order history information
+2020-12-15 18:47:17,372 Order history information
+2020-12-15 18:47:18,416 Order history information
+2020-12-15 18:47:19,420 Order history information
+2020-12-15 18:47:20,364 Order history information
+2020-12-15 18:47:21,325 Order history information
+2020-12-15 18:47:22,324 Order history information
+2020-12-15 18:47:23,269 Order history information
+2020-12-15 18:47:24,211 Order history information
+2020-12-15 18:47:25,113 Order history information
+2020-12-15 18:47:26,290 Order history information
+2020-12-15 18:47:27,310 Order history information
+2020-12-15 18:47:28,349 Order history information
+2020-12-15 18:47:29,367 Order history information
+2020-12-15 18:47:30,390 Order history information
+2020-12-15 18:47:31,449 Order history information
+2020-12-15 18:47:32,364 Order history information
+2020-12-15 18:59:30,259 Order history information
+2020-12-15 18:59:31,195 Order history information
+2020-12-15 18:59:31,915 Order history information
+2020-12-15 18:59:32,497 Order history information
+2020-12-15 18:59:33,181 Order history information
+2020-12-15 18:59:33,939 Order history information
+2020-12-15 18:59:34,696 Order history information
+2020-12-15 18:59:35,496 Order history information
+2020-12-15 18:59:36,355 Order history information
+2020-12-15 18:59:37,097 Order history information
+2020-12-15 18:59:37,855 Order history information
+2020-12-15 18:59:38,747 Order history information
+2020-12-15 18:59:39,509 Order history information
+2020-12-15 18:59:40,239 Order history information
+2020-12-15 18:59:40,966 Order history information
+2020-12-15 18:59:41,724 Order history information
+2020-12-15 18:59:42,356 Order history information
+2020-12-15 18:59:43,049 Order history information
+2020-12-15 18:59:43,651 Order history information
+2020-12-15 18:59:44,292 Order history information
+2020-12-15 18:59:44,954 Order history information
+2020-12-15 18:59:45,591 Order history information
+2020-12-15 18:59:46,216 Order history information
+2020-12-15 18:59:47,039 Order history information
+2020-12-15 18:59:47,609 Order history information
+2020-12-15 18:59:48,239 Order history information
+2020-12-15 18:59:48,813 Order history information
+2020-12-15 18:59:49,482 Order history information
+2020-12-15 18:59:50,048 Order history information
+2020-12-15 18:59:50,698 Order history information
+2020-12-15 18:59:51,366 Order history information
+2020-12-15 18:59:52,080 Order history information
+2020-12-15 18:59:52,721 Order history information
+2020-12-15 18:59:53,360 Order history information
+2020-12-15 18:59:53,960 Order history information
+2020-12-15 18:59:54,604 Order history information
+2020-12-15 18:59:55,200 Order history information
+2020-12-15 18:59:55,787 Order history information
+2020-12-15 18:59:56,369 Order history information
+2020-12-15 18:59:56,911 Order history information
+2020-12-15 18:59:57,470 Order history information
+2020-12-15 18:59:58,107 Order history information
+2020-12-15 18:59:58,668 Order history information
+2020-12-15 18:59:59,169 Order history information
+2020-12-15 19:00:00,032 Order history information
+2020-12-15 19:00:00,955 Order history information
+2020-12-15 19:00:01,653 Order history information
+2020-12-15 19:00:02,319 Order history information
+2020-12-15 19:00:02,826 Order history information
+2020-12-15 19:00:03,326 Order history information
+2020-12-15 19:00:04,098 Order history information
+2020-12-15 19:00:04,814 Order history information
+2020-12-15 19:00:05,459 Order history information
+2020-12-15 19:00:05,968 Order history information
+2020-12-15 19:00:06,466 Order history information
+2020-12-15 19:00:06,967 Order history information
+2020-12-15 19:00:07,461 Order history information
+2020-12-15 19:00:07,964 Order history information
+2020-12-15 19:00:08,469 Order history information
+2020-12-15 19:14:26,393 Order history information
+2020-12-15 19:14:36,125 Kiwoom initializing...
+2020-12-15 19:14:40,689 Kiwoom log in success
+2020-12-15 19:14:40,690 Account information
+2020-12-15 19:14:41,208 Deposit information
+2020-12-15 19:14:41,239 Portfolio information
+2020-12-15 19:14:57,219 Order history information
+2020-12-15 19:14:59,815 Order history information
+2020-12-15 19:15:00,661 Order history information
+2020-12-15 19:15:01,304 Order history information
+2020-12-15 19:15:02,018 Order history information
+2020-12-15 19:15:02,911 Order history information
+2020-12-15 19:15:03,417 Order history information
+2020-12-15 19:15:04,731 Order history information
+2020-12-15 19:15:05,235 Order history information
+2020-12-15 19:15:06,269 Order history information
+2020-12-15 19:15:06,776 Order history information
+2020-12-15 19:15:07,721 Order history information
+2020-12-15 19:15:08,218 Order history information
+2020-12-15 19:15:08,764 Order history information
+2020-12-15 19:15:09,759 Order history information
+2020-12-15 19:17:12,503 Kiwoom initializing...
+2020-12-15 19:17:17,284 Kiwoom log in success
+2020-12-15 19:17:17,285 Account information
+2020-12-15 19:17:17,796 Deposit information
+2020-12-15 19:17:17,834 Portfolio information
+2020-12-15 19:17:19,354 Order history information
+2020-12-15 19:17:21,304 Order history information
+2020-12-15 19:17:22,578 Order history information
+2020-12-15 19:17:23,586 Order history information
+2020-12-15 19:17:24,514 Order history information
+2020-12-15 19:17:25,676 Order history information
+2020-12-15 19:17:26,401 Order history information
+2020-12-15 19:17:27,055 Order history information
+2020-12-15 19:17:27,743 Order history information
+2020-12-15 19:17:28,345 Order history information
+2020-12-15 19:17:29,336 Order history information
+2020-12-15 19:29:25,781 Kiwoom initializing...
+2020-12-15 19:29:37,124 Kiwoom log in success
+2020-12-15 19:29:37,125 Account information
+2020-12-15 19:29:37,634 Deposit information
+2020-12-15 19:29:37,674 Portfolio information
+2020-12-15 19:34:35,172 Kiwoom initializing...
+2020-12-15 19:34:39,729 Kiwoom log in success
+2020-12-15 19:34:39,730 Account information
+2020-12-15 19:34:40,243 Deposit information
+2020-12-15 19:34:40,278 Portfolio information
+2020-12-15 19:34:43,647 Order history information
+2020-12-15 19:34:44,811 Order history information
+2020-12-15 19:34:45,631 Order history information
+2020-12-15 19:34:46,515 Order history information
+2020-12-15 19:34:47,328 Order history information
+2020-12-15 19:34:48,374 Order history information
+2020-12-15 19:34:49,480 Order history information
+2020-12-15 19:34:50,569 Order history information
+2020-12-15 19:34:51,336 Order history information
+2020-12-15 19:34:51,833 Order history information
+2020-12-15 19:34:53,150 Order history information
+2020-12-15 19:34:53,663 Order history information
+2020-12-15 19:34:54,182 Order history information
+2020-12-15 19:34:54,672 Order history information
+2020-12-15 19:34:55,178 Order history information
+2020-12-15 19:34:55,674 Order history information
+2020-12-15 19:34:56,183 Order history information
+2020-12-15 19:34:56,680 Order history information
+2020-12-15 19:34:57,185 Order history information
+2020-12-15 19:34:57,684 Order history information
+2020-12-15 19:34:58,191 Order history information
+2020-12-15 19:34:58,687 Order history information
+2020-12-15 19:34:59,192 Order history information
+2020-12-15 19:34:59,689 Order history information
+2020-12-15 19:35:00,195 Order history information
+2020-12-15 19:35:00,694 Order history information
+2020-12-15 19:35:01,191 Order history information
+2020-12-15 19:35:01,698 Order history information
+2020-12-15 19:35:02,196 Order history information
+2020-12-15 19:35:02,703 Order history information
+2020-12-15 19:35:03,196 Order history information
+2020-12-15 19:35:03,701 Order history information
+2020-12-15 19:35:04,204 Order history information
+2020-12-15 19:35:05,139 Order history information
+2020-12-15 19:35:05,639 Order history information
+2020-12-15 19:35:06,147 Order history information
+2020-12-15 19:35:06,644 Order history information
+2020-12-15 19:35:07,147 Order history information
+2020-12-15 19:35:07,645 Order history information
+2020-12-15 19:35:08,152 Order history information
+2020-12-15 19:35:08,650 Order history information
+2020-12-15 19:35:09,154 Order history information
+2020-12-15 19:35:09,666 Order history information
+2020-12-15 19:35:10,171 Order history information
+2020-12-15 19:35:10,669 Order history information
+2020-12-15 19:35:11,176 Order history information
+2020-12-15 19:35:11,674 Order history information
+2020-12-15 19:57:16,628 Order history information
+2020-12-15 19:57:17,573 Order history information
+2020-12-15 19:57:18,284 Order history information
+2020-12-15 19:57:18,778 Order history information
+2020-12-15 19:57:19,283 Order history information
+2020-12-15 19:57:19,784 Order history information
+2020-12-15 19:57:20,289 Order history information
+2020-12-15 19:57:20,788 Order history information
+2020-12-15 19:57:21,289 Order history information
+2020-12-15 19:57:21,787 Order history information
+2020-12-15 19:57:22,290 Order history information
+2020-12-15 19:57:22,792 Order history information
+2020-12-15 19:57:23,297 Order history information
+2020-12-15 19:57:23,794 Order history information
+2020-12-15 19:57:24,297 Order history information
+2020-12-15 19:57:24,795 Order history information
+2020-12-15 19:57:25,302 Order history information
+2020-12-15 19:57:25,802 Order history information
+2020-12-15 21:10:08,470 Order history information
+2020-12-15 21:10:09,222 Order history information
+2020-12-15 21:10:09,719 Order history information
+2020-12-15 21:10:10,220 Order history information
+2020-12-15 21:10:10,726 Order history information
+2020-12-15 21:10:11,230 Order history information
+2020-12-15 21:10:11,731 Order history information
+2020-12-15 21:10:12,233 Order history information
