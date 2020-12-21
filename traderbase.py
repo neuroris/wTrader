@@ -1,13 +1,37 @@
 from PyQt5.QtWidgets import QMainWindow, QLabel, QPushButton, QLineEdit, \
     QTextEdit, QVBoxLayout, QHBoxLayout, QWidget, QRadioButton, QGridLayout, \
     QCheckBox, QComboBox, QGroupBox, QDateTimeEdit, QAction, QFileDialog, QTableWidget, \
-    QTableWidgetItem, QSpinBox
+    QTableWidgetItem, QSpinBox, QGraphicsView, QGraphicsScene
 from PyQt5.QtCore import Qt, QDateTime, QRect
 from PyQt5.QtGui import QIcon, QBrush
 import json
 from wookutil import WookLog, WookUtil
 from wookdata import *
 import datetime, os
+
+class WookSingal:
+    def __init__(self):
+        self.slot = None
+
+    def connect(self, slot):
+        self.slot = slot
+
+    def emit(self, *args):
+        self.slot(*args)
+
+class WookImageScene(QGraphicsScene):
+    def __init__(self):
+        super().__init__()
+        self.dropped = WookSingal()
+
+    def dragMoveEvent(self, event):
+        event.accept()
+
+    def dropEvent(self, event):
+        mimeData = event.mimeData()
+        text = mimeData.text()
+        file_name = text[8:]
+        self.dropped.emit(file_name)
 
 class TraderBase(QMainWindow, WookLog, WookUtil):
     def __init__(self, log):
@@ -23,7 +47,7 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         self.btn_test = QPushButton('Test')
         self.btn_test.clicked.connect(self.test)
 
-        # Account information
+        ###### Account
         self.cb_auto_login = QCheckBox('Auto')
         self.cb_auto_login.setChecked(True)
         self.btn_login = QPushButton('Login', self)
@@ -31,7 +55,6 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         lb_account = QLabel('Account')
         self.cbb_account = QComboBox()
         self.cbb_account.currentTextChanged.connect(self.on_select_account)
-        # self.cbb_account.setMinimumHeight(32)
         lb_deposit = QLabel('Deposit')
         self.lb_deposit = QLabel('No info')
         self.lb_deposit.setStyleSheet('font-weight:bold; color:brown')
@@ -43,15 +66,16 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         account_grid.addWidget(self.cb_auto_login, 0, 0)
         account_grid.addWidget(self.btn_login, 0, 1)
         account_grid.addWidget(lb_account, 1, 0)
-        account_grid.addWidget(self.cbb_account, 1, 1, 1, 2)
+        account_grid.addWidget(self.cbb_account, 1, 1)
         account_grid.addWidget(lb_deposit, 2, 0)
-        account_grid.addWidget(self.lb_deposit, 2, 1, 1, 2)
+        account_grid.addWidget(self.lb_deposit, 2, 1)
         account_grid.addWidget(lb_orderable, 3, 0)
-        account_grid.addWidget(self.lb_orderable, 3, 1, 1, 2)
-        account_gbox = QGroupBox('Account Information')
+        account_grid.addWidget(self.lb_orderable, 3, 1)
+        account_gbox = QGroupBox('Account')
         account_gbox.setLayout(account_grid)
 
-        # Item infomation
+        ##### Manual Order
+        # Item information
         lb_item_code = QLabel('Code')
         lb_item_name = QLabel('Name')
         self.cbb_item_code = QComboBox()
@@ -68,7 +92,7 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         self.btn_remove_item.clicked.connect(self.on_remove_item)
         self.btn_remove_item.setMinimumWidth(150)
 
-        # Order
+        # Order Parameters
         lb_price = QLabel('Price')
         self.sb_price = QSpinBox()
         self.sb_price.setMinimumHeight(30)
@@ -97,26 +121,19 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         # Order Correction
         lb_order_number = QLabel('Order Number')
         self.le_order_number = QLineEdit()
-        # self.le_order_number.setMinimumHeight(32)
         self.le_order_number.setMaximumWidth(80)
-        self.btn_portfolio = QPushButton('Portfolio')
-        self.btn_portfolio.clicked.connect(self.kiwoom.request_portfolio_info)
 
         order_number_hbox = QHBoxLayout()
         order_number_hbox.addWidget(lb_order_number)
         order_number_hbox.addWidget(self.le_order_number)
 
-        # Order varialbles
+        # Tradable Parameters
         lb_buyable = QLabel('Buyable')
         self.lb_buyable = QLabel()
         self.lb_buyable.setStyleSheet('font-weight:bold; color:indigo')
-
         lb_sellable = QLabel('Sellable')
         self.lb_sellable = QLabel()
         self.lb_sellable.setStyleSheet('font-weight:bold; color:purple')
-
-        self.btn_order_history = QPushButton('Order history')
-        self.btn_order_history.clicked.connect(self.get_order_history)
 
         tradeable_hbox = QHBoxLayout()
         tradeable_hbox.addWidget(lb_buyable)
@@ -124,57 +141,43 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         tradeable_hbox.addWidget(lb_sellable)
         tradeable_hbox.addWidget(self.lb_sellable)
 
-        buyable_hbox = QHBoxLayout()
-        buyable_hbox.addWidget(lb_buyable)
-        buyable_hbox.addWidget(self.lb_buyable)
-        sellable_hbox = QHBoxLayout()
-        sellable_hbox.addWidget(lb_sellable)
-        sellable_hbox.addWidget(self.lb_sellable)
+        # Manual Check
+        self.btn_order_history = QPushButton('Order history')
+        self.btn_order_history.clicked.connect(self.get_order_history)
+        self.btn_portfolio = QPushButton('Portfolio')
+        self.btn_portfolio.clicked.connect(self.kiwoom.request_portfolio_info)
 
         # Item grid layout
-        item_grid = QGridLayout()
-        item_grid.addWidget(lb_item_code, 0, 0)
-        item_grid.addWidget(self.cbb_item_code, 0, 1)
-        item_grid.addWidget(lb_item_name, 0, 2)
-        item_grid.addWidget(self.cbb_item_name, 0, 3, 1, 3)
-        item_grid.addWidget(self.btn_add_item, 0, 6)
-        item_grid.addWidget(self.btn_remove_item, 0, 7)
+        order_grid = QGridLayout()
+        order_grid.addWidget(lb_item_code, 0, 0)
+        order_grid.addWidget(self.cbb_item_code, 0, 1)
+        order_grid.addWidget(lb_item_name, 0, 2)
+        order_grid.addWidget(self.cbb_item_name, 0, 3, 1, 3)
+        order_grid.addWidget(self.btn_add_item, 0, 6)
+        order_grid.addWidget(self.btn_remove_item, 0, 7)
 
-        item_grid.addWidget(lb_price, 1, 0)
-        item_grid.addWidget(self.sb_price, 1, 1)
-        item_grid.addWidget(lb_amount, 1, 2, 1, 2)
-        item_grid.addWidget(self.sb_amount, 1, 4)
-        item_grid.addWidget(self.cbb_order_position, 1, 5)
-        item_grid.addWidget(self.cbb_order_type, 1, 6)
-        item_grid.addWidget(self.btn_order, 1, 7)
+        order_grid.addWidget(lb_price, 1, 0)
+        order_grid.addWidget(self.sb_price, 1, 1)
+        order_grid.addWidget(lb_amount, 1, 2, 1, 2)
+        order_grid.addWidget(self.sb_amount, 1, 4)
+        order_grid.addWidget(self.cbb_order_position, 1, 5)
+        order_grid.addWidget(self.cbb_order_type, 1, 6)
+        order_grid.addWidget(self.btn_order, 1, 7)
 
-        item_grid.addLayout(order_number_hbox, 2, 0, 1, 3)
-        item_grid.addLayout(tradeable_hbox, 2, 3, 1, 3)
-        item_grid.addWidget(self.btn_order_history, 2, 6)
-        item_grid.addWidget(self.btn_portfolio, 2, 7)
+        order_grid.addLayout(order_number_hbox, 2, 0, 1, 3)
+        order_grid.addLayout(tradeable_hbox, 2, 3, 1, 3)
+        order_grid.addWidget(self.btn_order_history, 2, 6)
+        order_grid.addWidget(self.btn_portfolio, 2, 7)
 
-        item_gbox = QGroupBox('Manual Order')
-        item_gbox.setLayout(item_grid)
+        order_gbox = QGroupBox('Manual Order')
+        order_gbox.setLayout(order_grid)
 
-        # Algorithm
-        self.btn_go = QPushButton('&Go')
-        self.btn_go.clicked.connect(self.go)
-        self.btn_go.setMinimumHeight(130)
-        algorithm_grid = QGridLayout()
-        algorithm_grid.addWidget(self.btn_go, 0, 0, 3, 1)
-        algorithm_gbox = QGroupBox('Algorithm')
-        algorithm_gbox.setLayout(algorithm_grid)
-
-        # Portfolio table
+        ##### Portfolio table
         portfolio_header = ['Item', 'Current\nPrice', 'Purchase\nPrice', 'Holding\nAmount', 'Purchase\nSum']
         portfolio_header += ['Evaluation\nSum', 'Profit', 'Profit\nRate', 'Fee', 'Tax']
-
         self.table_portfolio = QTableWidget(0, 10)
         self.table_portfolio.cellClicked.connect(self.on_select_portfolio_table)
         self.table_portfolio.setHorizontalHeaderLabels(portfolio_header)
-        for column in range(self.table_portfolio.columnCount()):
-            header_item = self.table_portfolio.horizontalHeaderItem(column)
-
         for column in range(1, self.table_portfolio.columnCount()):
             self.table_portfolio.setColumnWidth(column, 100)
         self.table_portfolio.setColumnWidth(0, 215)
@@ -186,7 +189,7 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         portfolio_grid.addWidget(self.table_portfolio)
         portfolio_gbox.setLayout(portfolio_grid)
 
-        # Trading table
+        ##### Trading items table
         trading_items_header = ['Item', 'Time', 'Price', 'Ask', 'Bid']
         trading_items_header += ['Volume', 'Volume(A)', 'High', 'Low', 'Open']
         self.table_trading_items = QTableWidget(0, 10)
@@ -197,12 +200,38 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         self.table_trading_items.setColumnWidth(0, 215)
         self.table_trading_items.setColumnWidth(6, 120)
 
-        trading_items_gbox = QGroupBox('Trading items')
+        trading_items_gbox = QGroupBox('Trading Items')
         trading_items_grid = QGridLayout()
         trading_items_grid.addWidget(self.table_trading_items)
         trading_items_gbox.setLayout(trading_items_grid)
 
-        # Open order table
+        ##### Balance table
+        balance_header = ['Item', 'Current\nPrice', 'Reference\nPrice', 'Purchase\nPrice']
+        balance_header += ['Holding\nAmount', 'Purchase\nSum', 'Purchase\nToday', 'Profit\nToday']
+        balance_header += ['Profit\nRate', 'Profit\nRealization']
+        self.table_balance = QTableWidget(0, 10)
+        self.table_balance.cellClicked.connect(self.on_select_balance_table)
+        self.table_balance.setHorizontalHeaderLabels(balance_header)
+        for column in range(1, self.table_balance.columnCount()):
+            self.table_balance.setColumnWidth(column, 100)
+        self.table_balance.setColumnWidth(0, 215)
+        self.table_balance.setColumnWidth(5, 110)
+
+        balance_gbox = QGroupBox('Balance')
+        balance_grid = QGridLayout()
+        balance_grid.addWidget(self.table_balance)
+        balance_gbox.setLayout(balance_grid)
+
+        ##### Go Algorithm
+        self.btn_go_algorithm = QPushButton('&Go')
+        self.btn_go_algorithm.clicked.connect(self.go)
+        self.btn_go_algorithm.setMinimumHeight(120)
+        algorithm_grid = QGridLayout()
+        algorithm_grid.addWidget(self.btn_go_algorithm, 0, 0, 1, 1)
+        algorithm_gbox = QGroupBox('Algorithm')
+        algorithm_gbox.setLayout(algorithm_grid)
+
+        ##### Open Order Table
         open_orders_header = ['Item', 'Time', 'Order\nAmount', 'Executed\nAmount', 'Open\nAmount']
         open_orders_header += ['Order\nNumber', 'Original\nNumber']
         open_orders_header += ['Order\nPrice', 'Executed\nPrice', 'Order\nPosition', 'Order\nState']
@@ -213,30 +242,28 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
             self.table_open_orders.setColumnWidth(column, 100)
         self.table_open_orders.setColumnWidth(0, 215)
 
-        open_orders_gbox = QGroupBox('Open orders')
+        open_orders_gbox = QGroupBox('Open Orders')
         open_orders_grid = QGridLayout()
         open_orders_grid.addWidget(self.table_open_orders)
         open_orders_gbox.setLayout(open_orders_grid)
 
-        # Balance table
-        balance_header = ['Item', 'Current\nPrice', 'Reference\nPrice', 'Purchase\nPrice']
-        balance_header += ['Holding\nAmount', 'Purchase\nSum', 'Purchase\nToday', 'Profit\nToday']
-        balance_header += ['Profit\nRate', 'Profit\nRealization']
+        ##### Algorithm Trading Table
+        algorithm_trading_header = ['Item', 'Trade\nPosition', 'Current\nPrice', 'Order\nPrice']
+        algorithm_trading_header += ['Executed\nPrice', 'Order\nAmount', 'Executed\nAmount']
+        algorithm_trading_header += ['Open\nAmount', 'Profit', 'Total\nProfit', 'Order\nNumber']
+        self.table_algorithm_trading = QTableWidget(0, 11)
+        self.table_algorithm_trading.cellClicked.connect(self.on_select_algorithm_trading_table)
+        self.table_algorithm_trading.setHorizontalHeaderLabels(algorithm_trading_header)
+        for column in range(1, self.table_algorithm_trading.columnCount()):
+            self.table_algorithm_trading.setColumnWidth(column, 100)
+        self.table_algorithm_trading.setColumnWidth(0, 215)
 
-        self.table_balance = QTableWidget(0, 10)
-        self.table_balance.cellClicked.connect(self.on_select_balance_table)
-        self.table_balance.setHorizontalHeaderLabels(balance_header)
-        for column in range(1, self.table_balance.columnCount()):
-            self.table_balance.setColumnWidth(column, 100)
-        self.table_balance.setColumnWidth(0, 215)
-        self.table_balance.setColumnWidth(7, 110)
+        algorithm_trading_gbox = QGroupBox('Algorithm Trading')
+        algorithm_trading_grid = QGridLayout()
+        algorithm_trading_grid.addWidget(self.table_algorithm_trading)
+        algorithm_trading_gbox.setLayout(algorithm_trading_grid)
 
-        balance_gbox = QGroupBox('Balance')
-        balance_grid = QGridLayout()
-        balance_grid.addWidget(self.table_balance)
-        balance_gbox.setLayout(balance_grid)
-
-        # Order history table
+        ##### Order History Table
         order_history_header = ['Item', 'Time', 'Order\nAmount', 'Executed\nAmount', 'Open\nAmount']
         order_history_header += ['Order\nNumber', 'Original\nNumber', 'Order\nPrice', 'Executed\nPrice']
         order_history_header += ['Order\nPosition', 'Order\nState']
@@ -247,34 +274,49 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
             self.table_order_history.setColumnWidth(column, 100)
         self.table_order_history.setColumnWidth(0, 215)
 
-        order_history_gbox = QGroupBox('Order history')
+        order_history_gbox = QGroupBox('Order History')
         order_history_grid = QGridLayout()
         order_history_grid.addWidget(self.table_order_history)
         order_history_gbox.setLayout(order_history_grid)
 
-        # TextEdit
+        ##### TextEdit
         self.te_info = QTextEdit()
 
-        # Central Layout
-        top_hbox = QHBoxLayout()
-        top_hbox.addWidget(account_gbox)
-        top_hbox.addWidget(item_gbox)
-        top_hbox.addWidget(algorithm_gbox)
-        # top_hbox.addStretch()
+        ##### Chart Display
+        self.image_view = QGraphicsView()
+        self.image_scene = WookImageScene()
+        # self.image_view.adjustSize()
+        self.image_view.setScene(self.image_scene)
 
-        vbox = QVBoxLayout()
-        vbox.addLayout(top_hbox)
-        vbox.addWidget(portfolio_gbox)
-        vbox.addWidget(trading_items_gbox)
-        vbox.addWidget(open_orders_gbox)
-        vbox.addWidget(balance_gbox)
-        vbox.addWidget(order_history_gbox)
-        vbox.addWidget(self.te_info)
-        vbox.addWidget(self.btn_test)
+        ##### Left Layout #####
+        left_top_grid = QGridLayout()
+        left_top_grid.addWidget(account_gbox, 0, 0, 1, 3)
+        left_top_grid.addWidget(order_gbox, 0, 3, 1, 8)
+
+        left_vbox = QVBoxLayout()
+        left_vbox.addLayout(left_top_grid)
+        left_vbox.addWidget(portfolio_gbox)
+        left_vbox.addWidget(trading_items_gbox)
+        left_vbox.addWidget(balance_gbox)
+        left_vbox.addWidget(self.te_info)
+        left_vbox.addWidget(self.btn_test)
+
+        ##### Right Layout #####
+        right_vbox = QVBoxLayout()
+        right_vbox.addWidget(algorithm_gbox)
+        right_vbox.addWidget(open_orders_gbox)
+        right_vbox.addWidget(algorithm_trading_gbox)
+        right_vbox.addWidget(order_history_gbox)
+        right_vbox.addWidget(self.image_view)
+
+        ##### Central Layout #####
+        central_grid = QGridLayout()
+        central_grid.addLayout(left_vbox, 0, 0, 1, 10)
+        central_grid.addLayout(right_vbox, 0, 10, 1, 11)
 
         # Central widget
         cw = QWidget()
-        cw.setLayout(vbox)
+        cw.setLayout(central_grid)
 
         # Menu bar
         menu_bar = self.menuBar()
@@ -294,7 +336,7 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         self.status_bar = self.statusBar()
         self.status_bar.showMessage('ready')
         self.setWindowTitle('wook\'s algorithm trader')
-        self.resize(1330, 1700)
+        self.resize(2500, 1700)
         self.move(100, 100)
         self.setWindowIcon(QIcon('nyang1.ico'))
         self.show()

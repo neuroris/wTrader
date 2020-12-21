@@ -12,7 +12,6 @@ class Stock:
         self.order_state = ''
         self.order_position = ''
         self.trade_position = ''
-        self.buy_or_sell = ''
         self.current_price = 0
         self.purchase_price = 0
         self.ask_price = 0

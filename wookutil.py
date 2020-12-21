@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QTableWidgetItem
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QThread
 from Cryptodome import Random
 from Cryptodome.Cipher import AES
 from Cryptodome.Util import Padding, strxor
@@ -116,15 +116,19 @@ class WookTimer(QThread):
             time.sleep(1)
         self.event_loop.exit()
 
-class WookRequester(QThread):
-    def __init__(self, kiwoom):
+class WookThreadCollector(QThread, WookLog):
+    def __init__(self, kiwoom, log):
         super().__init__()
+        WookLog.custom_init(self, log)
         self.kiwoom = kiwoom
 
     def run(self):
-        self.kiwoom.request_portfolio_info()
-        print('in run')
-        self.exit()
+        while True:
+            time.sleep(30)
+            self.debug('~~~~~~~~~~ Inspecting threads ~~~~~~~~~~')
+            if self.kiwoom.portfolio_requester.isRunning():
+                self.debug('Portfolio requester is running. Collecting threads...')
+                self.kiwoom.portfolio_requester.quit()
 
 class WookUtil:
     def __init__(self):

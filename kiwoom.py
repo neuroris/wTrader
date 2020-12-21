@@ -22,6 +22,8 @@ class Kiwoom(KiwoomBase):
 
         self.demand_market_state_info()
 
+        self.portfolio_request_complete = True
+
     def auto_login(self):
         self.dynamicCall('CommConnect()')
         self.login_event_loop.exec()
@@ -231,7 +233,8 @@ class Kiwoom(KiwoomBase):
         # stock.price_increase_ratio = get_comm_real_data(FID.PRICE_INCREASE_RATIO)
 
         self.signal('trading_items_table')
-        self.portfolio_requester.start()
+
+        # self.portfolio_requester.start()
 
     def obtain_executed_order_info(self):
         stock = Stock()
@@ -266,10 +269,7 @@ class Kiwoom(KiwoomBase):
         self.log(message)
         self.signal('open_orders_table')
 
-        if self.order_history_requester.isRunning():
-            self.debug('Order history requester is still running!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        else:
-            self.order_history_requester.start()
+        self.order_history_requester.start()
 
     def obtain_balance_info(self):
         stock = Stock()
@@ -292,15 +292,10 @@ class Kiwoom(KiwoomBase):
         self.signal('balance_table')
         self.log('Balance information')
 
-        if self.deposit_requester.isRunning():
-            self.debug('Deposit requester is still running !!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        else:
-            self.deposit_requester.start()
-
-        if self.portfolio_requester.isRunning():
-            self.debug('Portfolio requester is still running !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        else:
-            self.portfolio_requester.start()
+        self.request_deposit_info()
+        self.request_portfolio_info()
+        # self.deposit_requester.start()
+        # self.portfolio_requester.start()
 
     def execute_algorithm(self):
         self.log('running algorithm')

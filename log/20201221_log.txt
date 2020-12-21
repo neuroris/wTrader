@@ -1,0 +1,101 @@
+2020-12-21 09:51:41,258 Kiwoom initializing...
+2020-12-21 09:52:38,199 Kiwoom log in success
+2020-12-21 09:52:38,199 Account information
+2020-12-21 09:52:38,707 Deposit information
+2020-12-21 09:52:40,026 Portfolio information
+2020-12-21 09:55:01,880 오스템임플란트 trading information begins to be monitored
+2020-12-21 09:55:04,423 KODEX 200선물인버스2X trading information begins to be monitored
+2020-12-21 09:55:06,832 KODEX 레버리지 trading information begins to be monitored
+2020-12-21 09:55:17,537 Order execution 오스템임플란트(접수), order:200, executed:0, order number:56814, original number:0
+2020-12-21 09:55:17,540 Balance information
+2020-12-21 09:55:18,059 Deposit information
+2020-12-21 09:55:18,589 Order history information
+2020-12-21 09:55:18,620 Portfolio information
+2020-12-21 09:55:39,744 Order execution 오스템임플란트(접수), order:200, executed:0, order number:56930, original number:0
+2020-12-21 09:55:39,746 Balance information
+2020-12-21 09:55:40,775 Deposit information
+2020-12-21 09:55:40,821 Order history information
+2020-12-21 09:55:40,843 Order execution 오스템임플란트(체결), order:200, executed:19, order number:56814, original number:0
+2020-12-21 09:55:40,845 Balance information
+2020-12-21 09:55:42,297 Deposit information
+2020-12-21 09:55:42,320 Order history information
+2020-12-21 09:55:42,913 Portfolio information
+2020-12-21 09:55:45,044 Order execution 오스템임플란트(체결), order:200, executed:21, order number:56814, original number:0
+2020-12-21 09:55:45,047 Balance information
+2020-12-21 09:55:45,555 Deposit information
+2020-12-21 09:55:46,144 Order execution 오스템임플란트(체결), order:200, executed:26, order number:56814, original number:0
+2020-12-21 09:55:46,146 Balance information
+2020-12-21 09:55:47,102 Order history information
+2020-12-21 09:55:47,104 Deposit information
+2020-12-21 09:55:48,099 Portfolio information
+2020-12-21 09:55:52,242 Order execution 오스템임플란트(체결), order:200, executed:28, order number:56814, original number:0
+2020-12-21 09:55:52,245 Balance information
+2020-12-21 09:55:53,272 Deposit information
+2020-12-21 09:55:53,313 Order history information
+2020-12-21 09:55:57,111 Portfolio information
+2020-12-21 09:56:01,142 Order execution 오스템임플란트(체결), order:200, executed:128, order number:56814, original number:0
+2020-12-21 09:56:01,145 Balance information
+2020-12-21 09:56:02,183 Deposit information
+2020-12-21 09:56:02,199 Order history information
+2020-12-21 09:56:07,738 Order execution 오스템임플란트(체결), order:200, executed:144, order number:56814, original number:0
+2020-12-21 09:56:07,740 Balance information
+2020-12-21 09:56:08,774 Order history information
+2020-12-21 09:56:10,745 Order execution 오스템임플란트(체결), order:200, executed:153, order number:56814, original number:0
+2020-12-21 09:56:10,748 Balance information
+2020-12-21 09:56:11,790 Order history information
+2020-12-21 09:56:12,673 Deposit information
+2020-12-21 09:56:13,193 Portfolio information
+2020-12-21 09:56:16,641 Order execution 오스템임플란트(체결), order:200, executed:154, order number:56814, original number:0
+2020-12-21 09:56:16,644 Balance information
+2020-12-21 09:56:17,679 Deposit information
+2020-12-21 09:56:17,699 Order history information
+2020-12-21 09:56:18,038 Order execution 오스템임플란트(체결), order:200, executed:174, order number:56814, original number:0
+2020-12-21 09:56:18,041 Balance information
+2020-12-21 09:56:19,202 Portfolio information
+2020-12-21 09:56:19,219 Deposit information
+2020-12-21 09:56:19,240 Order history information
+2020-12-21 09:56:24,551 Order execution 오스템임플란트(체결), order:200, executed:175, order number:56814, original number:0
+2020-12-21 09:56:24,553 Balance information
+2020-12-21 09:56:25,580 Deposit information
+2020-12-21 09:56:25,609 Order history information
+2020-12-21 09:56:26,439 Order execution 오스템임플란트(체결), order:200, executed:177, order number:56814, original number:0
+2020-12-21 09:56:26,442 Balance information
+2020-12-21 09:56:27,469 Deposit information
+2020-12-21 09:56:27,483 Portfolio information
+2020-12-21 09:56:27,516 Order history information
+2020-12-21 09:56:29,746 Order execution 오스템임플란트(체결), order:200, executed:178, order number:56814, original number:0
+2020-12-21 09:56:29,749 Balance information
+2020-12-21 09:56:30,785 Deposit information
+2020-12-21 09:56:30,810 Order history information
+2020-12-21 09:56:32,967 Portfolio information
+2020-12-21 09:57:16,937 Order execution 오스템임플란트(체결), order:200, executed:185, order number:56814, original number:0
+2020-12-21 09:57:16,940 Balance information
+2020-12-21 09:57:17,991 Order history information
+2020-12-21 09:57:27,745 Deposit information
+2020-12-21 09:57:28,795 Portfolio information
+2020-12-21 09:57:32,448 Order execution 오스템임플란트(체결), order:200, executed:186, order number:56814, original number:0
+2020-12-21 09:57:32,451 Balance information
+2020-12-21 09:57:33,468 Deposit information
+2020-12-21 09:57:33,489 Order history information
+2020-12-21 09:57:34,127 Portfolio information
+2020-12-21 09:57:46,944 Order execution 오스템임플란트(체결), order:200, executed:191, order number:56814, original number:0
+2020-12-21 09:57:46,948 Balance information
+2020-12-21 09:57:47,974 Deposit information
+2020-12-21 09:57:47,999 Order history information
+2020-12-21 09:57:49,741 Order execution 오스템임플란트(체결), order:200, executed:192, order number:56814, original number:0
+2020-12-21 09:57:49,744 Balance information
+2020-12-21 09:57:50,772 Deposit information
+2020-12-21 09:57:50,791 Order execution 오스템임플란트(체결), order:200, executed:193, order number:56814, original number:0
+2020-12-21 09:57:50,793 Balance information
+2020-12-21 09:57:51,772 Order execution 오스템임플란트(체결), order:200, executed:194, order number:56814, original number:0
+2020-12-21 09:57:51,789 Balance information
+2020-12-21 09:57:52,783 Order execution 오스템임플란트(체결), order:200, executed:199, order number:56814, original number:0
+2020-12-21 09:57:52,785 Balance information
+2020-12-21 09:57:53,789 Order history information
+2020-12-21 09:57:53,793 Portfolio information
+2020-12-21 09:57:53,796 Deposit information
+2020-12-21 09:58:01,735 Order execution 오스템임플란트(체결), order:200, executed:200, order number:56814, original number:0
+2020-12-21 09:58:01,737 Balance information
+2020-12-21 09:58:02,255 Deposit information
+2020-12-21 09:58:02,795 Order history information
+2020-12-21 09:58:03,754 Portfolio information
