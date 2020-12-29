@@ -99,3 +99,103 @@
 2020-12-21 09:58:02,255 Deposit information
 2020-12-21 09:58:02,795 Order history information
 2020-12-21 09:58:03,754 Portfolio information
+2020-12-21 09:59:23,310 Kiwoom initializing...
+2020-12-21 09:59:31,566 Kiwoom log in success
+2020-12-21 09:59:31,567 Account information
+2020-12-21 09:59:32,079 Deposit information
+2020-12-21 09:59:33,752 Portfolio information
+2020-12-21 09:59:37,109 Order history information
+2020-12-21 10:00:21,387 오스템임플란트 trading information begins to be monitored
+2020-12-21 10:00:23,879 KODEX 레버리지 trading information begins to be monitored
+2020-12-21 10:00:26,068 KODEX 200선물인버스2X trading information begins to be monitored
+2020-12-21 11:03:50,647 Kiwoom initializing...
+2020-12-21 11:03:59,319 Kiwoom log in success
+2020-12-21 11:03:59,320 Account information
+2020-12-21 11:03:59,829 Deposit information
+2020-12-21 11:04:02,604 Portfolio information
+2020-12-21 11:04:11,696 오스템임플란트 trading information begins to be monitored
+2020-12-21 11:04:15,080 KODEX 200선물인버스2X trading information begins to be monitored
+2020-12-21 11:04:18,041 KODEX 레버리지 trading information begins to be monitored
+2020-12-21 11:04:48,472 Running algorithm
+2020-12-21 11:04:48,625 Order execution KODEX 레버리지(접수), order:100, executed:0, order number:96453, original number:0
+2020-12-21 11:04:48,662 Order history information
+2020-12-21 11:12:20,720 Kiwoom initializing...
+2020-12-21 11:12:25,380 Kiwoom log in success
+2020-12-21 11:12:25,381 Account information
+2020-12-21 11:12:25,889 Deposit information
+2020-12-21 11:12:48,885 Portfolio information
+2020-12-21 11:12:50,900 Order history information
+2020-12-21 11:12:54,008 Running algorithm
+2020-12-21 11:13:15,433 Kiwoom initializing...
+2020-12-21 11:13:19,964 Kiwoom log in success
+2020-12-21 11:13:19,964 Account information
+2020-12-21 11:13:20,477 Deposit information
+2020-12-21 11:13:20,840 Portfolio information
+2020-12-21 11:13:28,644 Running algorithm
+2020-12-21 11:13:28,800 Order execution KODEX 레버리지(접수), order:100, executed:0, order number:100465, original number:0
+2020-12-21 11:13:28,837 Order history information
+2020-12-21 11:17:42,388 Kiwoom initializing...
+2020-12-21 11:17:46,973 Kiwoom log in success
+2020-12-21 11:17:46,974 Account information
+2020-12-21 11:17:47,481 Deposit information
+2020-12-21 11:17:50,515 Portfolio information
+2020-12-21 11:17:52,892 Running algorithm
+2020-12-21 11:17:53,063 Order execution KODEX 레버리지(접수), order:100, executed:0, order number:102568, original number:0
+2020-12-21 11:17:53,098 Order history information
+2020-12-21 11:18:16,135 KODEX 레버리지 trading information begins to be monitored
+2020-12-21 11:46:00,611 Kiwoom initializing...
+2020-12-21 11:46:19,391 Kiwoom log in success
+2020-12-21 11:46:19,391 Account information
+2020-12-21 11:46:19,902 Deposit information
+2020-12-21 11:46:21,090 Portfolio information
+2020-12-21 11:46:28,375 Running algorithm
+2020-12-21 11:46:28,570 Order execution KODEX 레버리지(접수), order:100, executed:0, order number:114890, original number:0
+2020-12-21 11:46:28,601 Order history information
+2020-12-21 11:50:41,829 Kiwoom initializing...
+2020-12-21 11:50:47,369 Kiwoom log in success
+2020-12-21 11:50:47,369 Account information
+2020-12-21 11:50:47,882 Deposit information
+2020-12-21 11:50:50,840 Portfolio information
+2020-12-21 11:50:59,106 Running algorithm
+2020-12-21 11:50:59,344 Order execution KODEX 레버리지(접수), order:100, executed:0, order number:117097, original number:0
+2020-12-21 11:50:59,374 Order history information
+2020-12-21 12:26:39,737 Kiwoom initializing...
+2020-12-21 12:26:50,317 Kiwoom log in success
+2020-12-21 12:26:50,318 Account information
+2020-12-21 12:26:50,830 Deposit information
+2020-12-21 12:26:56,287 Portfolio information
+2020-12-21 12:27:22,669 Running algorithm
+2020-12-21 13:11:56,739 Kiwoom initializing...
+2020-12-21 13:12:01,724 Kiwoom log in success
+2020-12-21 13:12:01,724 Account information
+2020-12-21 13:12:02,239 Deposit information
+2020-12-21 13:12:03,420 Portfolio information
+2020-12-21 14:58:53,280 Kiwoom initializing...
+2020-12-21 15:00:06,328 Kiwoom initializing...
+2020-12-21 15:01:11,584 Something is wrong during log-in
+2020-12-21 15:01:11,584 Login error -100
+2020-12-21 15:01:11,585 Account information
+2020-12-21 15:01:23,093 Kiwoom initializing...
+2020-12-21 15:01:50,388 Something is wrong during log-in
+2020-12-21 15:01:50,388 Login error -100
+2020-12-21 15:01:50,389 Account information
+2020-12-21 15:01:50,420 Something is wrong during log-in
+2020-12-21 15:01:50,421 Login error -106
+2020-12-21 15:01:50,478 Something is wrong during log-in
+2020-12-21 15:01:50,478 Login error -106
+2020-12-21 15:01:59,207 Kiwoom initializing...
+2020-12-21 15:03:04,393 Something is wrong during log-in
+2020-12-21 15:03:04,393 Login error -100
+2020-12-21 15:03:04,394 Account information
+2020-12-21 15:04:16,343 Kiwoom initializing...
+2020-12-21 15:04:39,320 Kiwoom initializing...
+2020-12-21 15:11:05,250 Kiwoom initializing...
+2020-12-21 15:12:35,287 Something is wrong during log-in
+2020-12-21 15:12:35,287 Login error -100
+2020-12-21 15:12:35,288 Account information
+2020-12-21 15:12:35,314 Something is wrong during log-in
+2020-12-21 15:12:35,315 Login error -106
+2020-12-21 15:12:35,334 Something is wrong during log-in
+2020-12-21 15:12:35,334 Login error -106
+2020-12-21 15:14:46,094 Closing process initializing...
+2020-12-21 15:14:46,095 All screens are disconnected

@@ -101,6 +101,7 @@ REQUEST_YEAR_PRICE = 'opt10094'
 REAL_TYPE_STOCK_TRADED = '주식체결'
 REAL_TYPE_MARKET_OPENING_TIME = '장시작시간'
 REAL_TYPE_BALANCE = '잔고'
+REAL_TYPE_FUTURES_TRADED = '선물시세'
 
 # Chejan codes
 CHEJAN_EXECUTED_ORDER = '0'
@@ -123,6 +124,15 @@ EVALUATION_FEE = '평가수수료'
 TAX = '세금'
 TOTAL_FEE = '수수료합'
 HOLDING_RATIO = '보유비중(%)'
+
+# 주식분봉차트조회요청
+CURRENT_PRICE = '현재가'
+VOLUME = '거래량'
+TRANSACTION_TIME = '체결시간'
+OPEN_PRICE = '시가'
+HIGH_PRICE = '고가'
+LOW_PRICE = '저가'
+CORRECTED_PRICE_TYPE = '수정주가구분'
 
 # 실시간미체결요청 (opt10075)
 ACCOUNT_NUMBER = '계좌번호'
@@ -218,5 +228,6 @@ MARKET_ETF = '8'
 CODES = {
     '122630': 'KODEX 레버리지',
     '252670': 'KODEX 200선물인버스2X',
-    '048260': '오스템임플란트'
+    '048260': '오스템임플란트',
+    '101R3000': 'F 202103'
 }

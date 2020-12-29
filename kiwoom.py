@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QTableWidgetItem
 from PyQt5.QtCore import QObject, QThread
+import pandas
 from datetime import datetime
 import time
 from kiwoombase import KiwoomBase
@@ -22,7 +23,9 @@ class Kiwoom(KiwoomBase):
 
         self.demand_market_state_info()
 
-        self.portfolio_request_complete = True
+        self.count = 0
+
+        # self.portfolio_request_complete = True
 
     def auto_login(self):
         self.dynamicCall('CommConnect()')
@@ -74,7 +77,14 @@ class Kiwoom(KiwoomBase):
         self.set_input_value(TRADE_POSITION, POSITION.ALL)
         self.set_input_value(ITEM_CODE, item_code)
         self.set_input_value(ORDER_EXECUTION_TYPE, ORDER.ALL)
-        self.comm_rq_data('order_history', REQUEST_OPEN_ORDER, sPrevNext, self.screen_open_order)
+        self.comm_rq_data('order history', REQUEST_OPEN_ORDER, sPrevNext, self.screen_open_order)
+
+    def request_stock_price_min(self, item_code, sPrevNext='0'):
+        self.check_request_time()
+        self.set_input_value(ITEM_CODE, item_code)
+        self.set_input_value(TICK_RANGE, MIN_1)
+        self.set_input_value(CORRECTED_PRICE_TYPE, '1')
+        self.comm_rq_data('stock price min', REQUEST_MINUTE_PRICE, sPrevNext, self.screen_stock_price)
 
     def demand_market_state_info(self):
         self.set_real_reg(self.screen_operation_state, ' ', FID.MARKET_OPERATION_STATE, '0')
@@ -110,15 +120,19 @@ class Kiwoom(KiwoomBase):
             self.get_portfolio_info(sTrCode, sRecordName, sScrNo, sPrevNext)
         elif sRQName == 'order':
             self.get_order_state(sTrCode, sRecordName, sScrNo, sPrevNext)
-        elif sRQName == 'order_history':
+        elif sRQName == 'order history':
             self.get_order_history(sTrCode, sRecordName, sScrNo, sPrevNext)
+        elif sRQName == 'stock price min':
+            self.get_stock_price_min(sTrCode, sRecordName, sScrNo, sPrevNext)
 
     def on_receive_real_data(self, sCode, sRealType, sRealData):
         # self.debug('real_data', sCode, sRealType, sRealData)
-        if sRealType == REAL_TYPE_STOCK_TRADED:
-            self.update_trading_items(sCode)
-        elif sRealType == REAL_TYPE_MARKET_OPENING_TIME:
+        if sRealType == REAL_TYPE_MARKET_OPENING_TIME:
             self.update_market_state(sCode)
+        elif sRealType == REAL_TYPE_STOCK_TRADED:
+            self.update_trading_items(sCode)
+        elif sRealType == REAL_TYPE_FUTURES_TRADED:
+            self.update_futures_trading_items(sCode)
 
     def on_receive_chejan_data(self, sGubun, nItemCnt, nFidList):
         # self.debug('chejan', sGubun, nItemCnt, nFidList)
@@ -151,10 +165,10 @@ class Kiwoom(KiwoomBase):
             stock.holding_amount = get_comm_data(HOLDING_AMOUNT)
             stock.purchase_sum = get_comm_data(PURCHASE_SUM)
             stock.evaluation_sum = get_comm_data(EVALUATION_SUM)
+            stock.total_fee = get_comm_data(TOTAL_FEE)
+            stock.tax = get_comm_data(TAX)
             stock.profit = get_comm_data(PROFIT)
             stock.profit_rate = get_comm_data(PROFIT_RATE)
-            stock.evaluation_fee = get_comm_data(EVALUATION_FEE)
-            stock.tax = get_comm_data(TAX)
 
             self.portfolio[stock.item_code] = stock
 
@@ -202,6 +216,35 @@ class Kiwoom(KiwoomBase):
             self.init_screen(sScrNo)
             self.order_history_requester.quit()
 
+    def get_stock_price_min(self, sTrCode, sRecordName, sScrNo, sPrevNext):
+        number_of_item = self.get_repeat_count(sTrCode, sRecordName)
+        today = int(datetime.today().strftime('%Y%m%d'))
+        item_code = self.get_comm_data(sTrCode, sRecordName, 0, ITEM_CODE)
+        self.stock_prices.clear()
+
+        for count in range(number_of_item):
+            get_comm_data = self.new_get_comm_data(sTrCode, sRecordName, count)
+            transaction_time = str(get_comm_data(TRANSACTION_TIME))
+            current_date = int(transaction_time[:8])
+
+            if current_date < today:
+                self.stock_prices.reverse()
+                self.signal('chart')
+                self.init_screen(sScrNo)
+                return
+
+            open_price = int(abs(get_comm_data(OPEN_PRICE)))
+            high_price = int(abs(get_comm_data(HIGH_PRICE)))
+            low_price = int(abs(get_comm_data(LOW_PRICE)))
+            current_price = int(abs(get_comm_data(CURRENT_PRICE)))
+            volume = int(abs(get_comm_data(VOLUME)))
+
+            data = [transaction_time, open_price, high_price, low_price, current_price, volume]
+            self.stock_prices.append(data)
+
+        if sPrevNext == '2':
+            self.request_stock_price_min(item_code, sPrevNext)
+
     def get_order_state(self, sTrCode, sRecordName, sScrNo, sPrevNext):
         get_comm_data = self.new_get_comm_data(sTrCode, sRecordName)
         order_number = get_comm_data(0, ORDER_NUMBER)
@@ -216,9 +259,9 @@ class Kiwoom(KiwoomBase):
         remaining_time = self.get_comm_real_data(sCode, FID.MARKET_OPERATION_REMAINING_TIME, time=True)
         self.info('market operation state', operation_state, present_time, remaining_time)
 
-    def update_trading_items(self, sCode):
-        stock = self.trading_items[sCode]
-        get_comm_real_data = self.new_get_comm_real_data(sCode)
+    def update_trading_items(self, item_code):
+        stock = self.trading_items[item_code]
+        get_comm_real_data = self.new_get_comm_real_data(item_code)
 
         stock.transaction_time = get_comm_real_data(FID.TRANSACTION_TIME)
         stock.current_price = get_comm_real_data(FID.CURRENT_PRICE)
@@ -234,7 +277,57 @@ class Kiwoom(KiwoomBase):
 
         self.signal('trading_items_table')
 
-        # self.portfolio_requester.start()
+        if stock.current_price < 0:
+            stock.current_price = stock.current_price * -1
+
+        time = datetime.now().strftime('%Y%m%d%H%M')
+        price = stock.current_price
+        if self.stock_prices == []:
+            self.request_stock_price_min(item_code)
+            # self.stock_prices = [['202012291305', 22000, 22000, 22000, 22000, 22000]]
+            self.timer.start()
+            return
+        elif time != self.stock_prices[-1][0]:
+            price_data = [time, price, price, price, price, stock.volume]
+            self.stock_prices.append(price_data)
+        else:
+            if price > self.stock_prices[-1][2]:
+                self.stock_prices[-1][2] = price
+            elif price < self.stock_prices[-1][3]:
+                self.stock_prices[-1][3] = price
+            self.stock_prices[-1][4] = price
+            self.stock_prices[-1][5] += stock.volume
+        self.signal('chart')
+
+        self.count += 1
+        print(self.count)
+
+        if item_code in self.portfolio:
+            self.update_portfolio(item_code, stock.current_price)
+
+    def update_futures_trading_items(self, item_code):
+        stock = self.trading_items[item_code]
+        get_comm_real_data = self.new_get_comm_real_data(item_code)
+
+        stock.transaction_time = get_comm_real_data(FID.TRANSACTION_TIME)
+        stock.current_price = get_comm_real_data(FID.CURRENT_PRICE)
+        stock.price_increase_amount = get_comm_real_data(FID.PRICE_INCREASE_AMOUNT)
+        stock.ask_price = get_comm_real_data(FID.ASK_PRICE)
+        stock.bid_price = get_comm_real_data(FID.BID_PRICE)
+        stock.volume = get_comm_real_data(FID.VOLUME)
+        stock.accumulated_volume = get_comm_real_data(FID.ACCUMULATED_VOLUME)
+        stock.high_price = get_comm_real_data(FID.HIGH_PRICE)
+        stock.low_price = get_comm_real_data(FID.LOW_PRICE)
+        stock.open_price = get_comm_real_data(FID.OPEN_PRICE)
+        # stock.price_increase_ratio = get_comm_real_data(FID.PRICE_INCREASE_RATIO)
+
+        self.signal('trading_items_table')
+
+        if stock.current_price < 0:
+            stock.current_price = stock.current_price * -1
+
+        if item_code in self.portfolio:
+            self.update_portfolio(item_code, stock.current_price)
 
     def obtain_executed_order_info(self):
         stock = Stock()
@@ -250,6 +343,7 @@ class Kiwoom(KiwoomBase):
         stock.order_price = self.get_chejan_data(FID.ORDER_PRICE)
         stock.executed_price = self.get_chejan_data(FID.EXECUTED_PRICE)
         stock.order_position = self.get_chejan_data(FID.ORDER_POSITION)
+        stock.current_price = self.get_chejan_data(FID.CURRENT_PRICE)
 
         stock.order_state = self.get_chejan_data(FID.ORDER_STATE)
         stock.order_type = self.get_chejan_data(FID.ORDER_POSITION)
@@ -259,17 +353,20 @@ class Kiwoom(KiwoomBase):
         stock.transaction_fee = self.get_chejan_data(FID.TRANSACTION_FEE)
         stock.tax = self.get_chejan_data(FID.TRANSACTION_TAX)
 
+        if self.algorithm_manager.hold(stock):
+            self.algorithm_manager.add_stock(stock)
+            self.signal('algorithm_trading_table')
+
         self.open_orders[stock.order_number] = stock
         if (stock.order_number in self.open_orders) and (stock.open_amount == 0):
             del self.open_orders[stock.order_number]
+        self.signal('open_orders_table')
+        self.order_history_requester.start()
 
         message = 'Order execution {}({}), '.format(stock.item_name, stock.order_state)
         message += 'order:{}, executed:{}, '.format(stock.order_amount, stock.executed_amount)
         message += 'order number:{}, original number:{}'.format(stock.order_number, stock.original_order_number)
         self.log(message)
-        self.signal('open_orders_table')
-
-        self.order_history_requester.start()
 
     def obtain_balance_info(self):
         stock = Stock()
@@ -290,7 +387,7 @@ class Kiwoom(KiwoomBase):
 
         self.balance[stock.item_code] = stock
         self.signal('balance_table')
-        self.log('Balance information')
+        self.info('Balance information')
 
         self.request_deposit_info()
         self.request_portfolio_info()
@@ -298,16 +395,59 @@ class Kiwoom(KiwoomBase):
         # self.portfolio_requester.start()
 
     def execute_algorithm(self):
-        self.log('running algorithm')
-        # send_order('122630', 19000, 30, ORDER_TYPE['LIMIT'], '')
+        self.log('Running algorithm started')
+
+        stock = Stock()
+        stock.item_code = '122630'
+        stock.order_price = 21400
+        stock.order_amount = 100
+        stock.trade_position = 'BUY'
+        stock.order_type = ORDER_TYPE['LIMIT']
+
+        order_parameters = [stock.item_code, stock.order_price, stock.order_amount]
+        order_parameters += [stock.trade_position, stock.order_type, stock.order_number]
+        self.algorithm_manager.add_stock(stock)
+
+        self.order(*order_parameters)
+
+    def update_portfolio(self, item_code, current_price):
+        stock = self.portfolio[item_code]
+        evaluation_sum = stock.holding_amount * current_price
+        evaluation_fee = int(evaluation_sum * 0.00035) * 10
+        purchase_sum = stock.purchase_price * stock.holding_amount
+        purchase_fee = round(int(purchase_sum * 0.00035 * 10), -1)
+        total_fee = evaluation_fee + purchase_fee
+        tax = int(evaluation_sum * 0.0025)
+        profit = evaluation_sum - purchase_sum - total_fee - tax
+        profit_rate = round((profit / purchase_sum) * 100, 2)
+
+        stock.current_price = current_price
+        stock.evaluation_sum = evaluation_sum
+        stock.profit = profit
+        stock.profit_rate = profit_rate
+        stock.total_fee = total_fee
+        stock.tax = tax
+
+        self.signal('portfolio_table')
+
+    def on_every_min(self):
+        self.debug('Timer worked')
+        time = datetime.now().strftime('%Y%m%d%H%M')
+        if self.stock_prices == []:
+            return
+        if time != self.stock_prices[-1][0]:
+            price = self.stock_prices[-1][4]
+            data = [time, price, price, price, price, 0]
+            self.stock_prices.append(data)
+        self.signal('chart')
 
     def check_request_time(self):
         current_time = time.time()
         interval = current_time - self.request_time
         waiting_time = self.request_interval_limit - interval
-        self.debug('===== Request time check =====', interval)
+        # self.debug('===== Request time check =====', interval)
         if interval < self.request_interval_limit:
-            self.debug('===== Waiting for time interval ===== ', waiting_time)
+            # self.debug('===== Waiting for time interval ===== ', waiting_time)
             time.sleep(waiting_time)
         self.request_time = time.time()
 

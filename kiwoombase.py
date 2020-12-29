@@ -1,10 +1,12 @@
 from PyQt5.QAxContainer import QAxWidget
-from PyQt5.QtCore import QEventLoop, QThread, Qt, QMutex
+from PyQt5.QtCore import QEventLoop, QThread, Qt, QMutex, QTimer
 from PyQt5.QtWidgets import QTableWidgetItem
+import pandas
 from queue import Queue
 import time, os, re
 import pickle
 from wookutil import WookCipher, WookLog, WookTimer, WookUtil
+from wookstock import StockManager
 from wookdata import *
 
 class KiwoomBase(QAxWidget, WookLog, WookUtil):
@@ -23,7 +25,10 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         self.login_event_loop = QEventLoop()
         self.event_loop = QEventLoop()
         self.timer_event_loop = QEventLoop()
-        self.timer = WookTimer(self.timer_event_loop)
+        self.wook_timer = WookTimer(self.timer_event_loop)
+        self.timer = QTimer()
+        self.timer.setInterval(60000)
+        self.timer.timeout.connect(self.on_every_min)
 
         self.deposit_requester = QThread()
         self.moveToThread(self.deposit_requester)
@@ -51,9 +56,11 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
 
         self.portfolio = dict()
         self.trading_items = dict()
-        self.open_orders = dict()
         self.balance = dict()
+        self.open_orders = dict()
         self.order_history = dict()
+        self.stock_prices = list()
+        self.algorithm_manager = StockManager()
 
         self.inquiry_count = 0
         self.previous_time = 0.0
@@ -72,6 +79,7 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         self.screen_operation_state = '0040'
         self.screen_portfolio = '0060'
         self.screen_send_order = '0080'
+        self.screen_stock_price = '0120'
         self.screen_test = '9999'
 
     def dynamic_call(self, function_name, *args):
@@ -192,6 +200,6 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         self.reference_time.put(current_time)
 
     def sleep(self, time):
-        self.timer.sleep(time)
-        self.timer.start()
+        self.wook_timer.sleep(time)
+        self.wook_timer.start()
         self.timer_event_loop.exec()

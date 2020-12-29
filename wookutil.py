@@ -199,6 +199,14 @@ class WookUtil:
         table_item.setTextAlignment((Qt.AlignRight | Qt.AlignVCenter))
         return table_item
 
+    def to_item_center(self, data):
+        item_data = str(data)
+        table_item = QTableWidgetItem(item_data)
+        table_item.setTextAlignment((Qt.AlignCenter))
+        if (data[0] == '-') or (data[0] == '+'):
+            table_item.setText(data[1:])
+        return table_item
+
     def to_item_time(self, data):
         data = str(data)
         time_format = data[:2] + ':' + data[2:4] + ':' + data[4:]

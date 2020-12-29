@@ -1,8 +1,11 @@
 from PyQt5.QtWidgets import QTableWidgetItem, QFileDialog, QTableWidgetSelectionRange
 from PyQt5.QtCore import Qt, QThread
 from PyQt5.QtGui import QPixmap
-import pandas as pd
+import pandas
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+from mplfinance.original_flavor import candlestick2_ohlc
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import mplfinance
 from datetime import datetime
 from traderbase import TraderBase
@@ -23,20 +26,41 @@ class Trader(TraderBase):
         self.connect_kiwoom()
         self.kiwoom.request_deposit_info()
         self.kiwoom.request_portfolio_info()
-        self.thread_collector.start()
+        # self.thread_collector.start()
 
         # For debugging convenience
-        self.cbb_item_code.setCurrentIndex(2)
+        # self.cbb_item_code.setCurrentIndex(2)
 
     def test(self):
         self.debug('test button clicked')
 
-        self.get_graph()
-        image = QPixmap('./test.png')
-        self.image_scene.addPixmap(image)
+        # self.get_graph()
+        # image = QPixmap('./test.png')
+        # self.image_scene.addPixmap(image)
+
+        item_code = self.cbb_item_code.currentText()
+        self.kiwoom.request_stock_price_min(item_code)
+        # self.display_chart()
+
+
+        # l = ['20201220', 20345, 20555, 23485, 30485, 3344545]
+        # l2 = ['20201221', 10345, 10555, 13485, 40485, 4344545]
+        #
+        # df = self.kiwoom.stock_prices
+        # self.kiwoom.stock_prices.loc[0] = l
+        # self.kiwoom.stock_prices.loc[1] = l2
+        # df.loc[0] = l
+        # df.loc[1] = l2
+        #
+        # df['Time'] = pandas.to_datetime(df['Time'])
+        #
+        #
+        # print(self.kiwoom.stock_prices)
+        #
+        # self.display_chart()
 
     def go(self):
-        pass
+        self.kiwoom.execute_algorithm()
 
     def initKiwoom(self):
         self.kiwoom.log = self.on_kiwoom_log
@@ -104,10 +128,10 @@ class Trader(TraderBase):
             self.table_portfolio.setItem(row, 3, self.to_item(stock.holding_amount))
             self.table_portfolio.setItem(row, 4, self.to_item(stock.purchase_sum))
             self.table_portfolio.setItem(row, 5, self.to_item(stock.evaluation_sum))
-            self.table_portfolio.setItem(row, 6, self.to_item_sign(stock.profit))
-            self.table_portfolio.setItem(row, 7, self.to_item_sign(stock.profit_rate))
-            self.table_portfolio.setItem(row, 8, self.to_item(stock.evaluation_fee))
-            self.table_portfolio.setItem(row, 9, self.to_item(stock.tax))
+            self.table_portfolio.setItem(row, 6, self.to_item(stock.total_fee))
+            self.table_portfolio.setItem(row, 7, self.to_item(stock.tax))
+            self.table_portfolio.setItem(row, 8, self.to_item_sign(stock.profit))
+            self.table_portfolio.setItem(row, 9, self.to_item_sign(stock.profit_rate))
         self.table_portfolio.sortItems(0, Qt.DescendingOrder)
 
     def display_trading_items(self):
@@ -155,26 +179,26 @@ class Trader(TraderBase):
             self.table_open_orders.setItem(row, 6, self.to_item_plain(stock.original_order_number))
             self.table_open_orders.setItem(row, 7, self.to_item(stock.order_price))
             self.table_open_orders.setItem(row, 8, self.to_item(stock.executed_price))
-            self.table_open_orders.setItem(row, 9, self.to_item(stock.order_position))
-            self.table_open_orders.setItem(row, 10, self.to_item(stock.order_state))
+            self.table_open_orders.setItem(row, 9, self.to_item_center(stock.order_position))
+            self.table_open_orders.setItem(row, 10, self.to_item_center(stock.order_state))
         self.table_open_orders.sortItems(1, Qt.DescendingOrder)
 
     def display_algorithm_trading(self):
         self.clear_table(self.table_algorithm_trading)
-        for row, stock in enumerate(self.kiwoom.algorithm.values()):
+        for row, stock in enumerate(self.kiwoom.algorithm_manager.get_stocks().values()):
             self.table_algorithm_trading.insertRow(row)
             self.table_algorithm_trading.setRowHeight(row, 8)
             self.table_algorithm_trading.setItem(row, 0, self.to_item(stock.item_name))
-            self.table_algorithm_trading.setItem(row, 1, self.to_item(stock.trade_position))
-            self.table_algorithm_trading.setItem(row, 1, self.to_item(stock.current_price))
-            self.table_algorithm_trading.setItem(row, 2, self.to_item(stock.order_price))
-            self.table_algorithm_trading.setItem(row, 3, self.to_item(stock.executed_price))
-            self.table_algorithm_trading.setItem(row, 4, self.to_item(stock.order_amount))
-            self.table_algorithm_trading.setItem(row, 5, self.to_item(stock.executed_amount))
-            self.table_algorithm_trading.setItem(row, 6, self.to_item_sign(stock.open_amount))
-            self.table_algorithm_trading.setItem(row, 7, self.to_item_sign(stock.profit))
-            self.table_algorithm_trading.setItem(row, 8, self.to_item_sign(stock.profit_rate))
-            self.table_algorithm_trading.setItem(row, 9, self.to_item_sign(stock.order_number))
+            self.table_algorithm_trading.setItem(row, 1, self.to_item_center(stock.trade_position))
+            self.table_algorithm_trading.setItem(row, 2, self.to_item(stock.current_price))
+            self.table_algorithm_trading.setItem(row, 3, self.to_item(stock.order_price))
+            self.table_algorithm_trading.setItem(row, 4, self.to_item(stock.executed_price))
+            self.table_algorithm_trading.setItem(row, 5, self.to_item_plain(stock.order_number))
+            self.table_algorithm_trading.setItem(row, 6, self.to_item(stock.order_amount))
+            self.table_algorithm_trading.setItem(row, 7, self.to_item(stock.executed_amount))
+            self.table_algorithm_trading.setItem(row, 8, self.to_item_sign(stock.open_amount))
+            self.table_algorithm_trading.setItem(row, 9, self.to_item_sign(stock.profit))
+            self.table_algorithm_trading.setItem(row, 10, self.to_item_sign(stock.profit_rate))
         self.table_algorithm_trading.sortItems(0, Qt.DescendingOrder)
 
     def display_order_history(self):
@@ -191,8 +215,8 @@ class Trader(TraderBase):
             self.table_order_history.setItem(row, 6, self.to_item_plain(stock.original_order_number))
             self.table_order_history.setItem(row, 7, self.to_item(stock.order_price))
             self.table_order_history.setItem(row, 8, self.to_item(stock.executed_price))
-            self.table_order_history.setItem(row, 9, self.to_item(stock.order_position))
-            self.table_order_history.setItem(row, 10, self.to_item(stock.order_state))
+            self.table_order_history.setItem(row, 9, self.to_item_center(stock.order_position))
+            self.table_order_history.setItem(row, 10, self.to_item_center(stock.order_state))
 
     def clear_table(self, table):
         for row in range(table.rowCount()):
@@ -207,7 +231,7 @@ class Trader(TraderBase):
         # setup.update(dict(figscale=1.5, figratio=(1920, 1080), volume=True))
 
         save_file = file[:-4] + '.png'
-        df = pd.read_csv(file, index_col=0, parse_dates=True)
+        df = pandas.read_csv(file, index_col=0, parse_dates=True)
         max = df['High'].max()
         min = df['Low'].min()
         max_ceiling = math.ceil(max / interval) * interval
@@ -218,6 +242,56 @@ class Trader(TraderBase):
         setup.update(dict(savefig=save_file, figscale=1, figratio=(1127, 568), volume=True))
         setup.update(dict(hlines=dict(hlines=yticks[:-1], linewidths=0.1, colors='silver', alpha=1)))
         mplfinance.plot(df, **setup)
+
+    def display_chart(self):
+        if self.kiwoom.stock_prices == []:
+            return
+        time = datetime.now().strftime('%Y%m%d%H%M')
+
+        mpl_color = mplfinance.make_marketcolors(up='tab:red', down='tab:blue', volume='Goldenrod')
+        mpl_style = mplfinance.make_mpf_style(base_mpl_style='seaborn', marketcolors=mpl_color)
+
+        # max = df['Price'].max()
+        # min = df['Price'].min()
+        # max_ceiling = math.ceil(max / interval) * interval
+        # min_floor = math.floor(min / interval) * interval
+        # yticks = list(range(min_floor, max_ceiling + interval, interval))
+
+        # max = self.kiwoom.stock_prices['High'].max()
+        # min = self.kiwoom.stock_prices['Low'].min()
+        # max_ceiling = math.ceil(max / interval) * interval
+        # min_floor = math.floor(min / interval) * interval
+        # yticks = list(range(min_floor, max_ceiling + interval, interval))
+
+        # setup = dict(type='candle', style=mpl_style, tight_layout=True, title=fig_title)
+        # setup = dict(type='candle', style=mpl_style, tight_layout=True)
+        # setup.update(dict(savefig=save_file, figscale=1, figratio=(1127, 568), volume=True))
+        # setup.update(dict(hlines=dict(hlines=yticks[:-1], linewidths=0.1, colors='silver', alpha=1)))
+        # mplfinance.plot(self.kiwoom.stock_prices, **setup)
+
+        df = pandas.DataFrame(self.kiwoom.stock_prices, columns=['Time', 'Open', 'High', 'Low', 'Close', 'Volume'])
+
+        self.fig.clear()
+        ax = self.fig.add_subplot(1, 1, 1)
+        # ax.clear()
+
+        # plt.cla()
+        # plt.clf()
+
+        candlestick2_ohlc(ax, df['Open'], df['High'], df['Low'], df['Close'], width=0.4, colorup='r', colordown='b')
+
+        self.fig.tight_layout()
+        self.canvas.draw()
+
+    def go_chart(self):
+        item_code = self.cbb_item_code.currentText()
+        item_name = self.cbb_item_name.currentText()
+        self.kiwoom.request_stock_price_min(item_code)
+        self.info('Chart', item_name)
+
+    def stop_chart(self):
+        pass
+        # self.go_chart_flag = False
 
     def on_select_account(self, account):
         self.kiwoom.account_number = int(account)
@@ -255,7 +329,7 @@ class Trader(TraderBase):
         self.kiwoom.trading_items[item_code] = stock
         self.display_trading_items()
         self.kiwoom.demand_trading_item_info(item_code)
-        self.kiwoom.log(stock.item_name, 'trading information begins to be monitored')
+        self.info(stock.item_name, 'trading information begins to be monitored')
 
     def on_remove_item(self):
         item_code = self.cbb_item_code.currentText()
@@ -269,7 +343,7 @@ class Trader(TraderBase):
         del self.kiwoom.trading_items[item_code]
         self.table_trading_items.clearContents()
         self.display_trading_items()
-        self.kiwoom.log(item_name, 'stock information monitoring is finished')
+        self.info(item_name, 'stock information monitoring is finished')
 
     def on_select_portfolio_table(self, row, column):
         column_count = self.table_portfolio.columnCount() - 1
@@ -361,15 +435,16 @@ class Trader(TraderBase):
         order_price = self.process_type(order_price_item.text())
         self.sb_price.setValue(order_price)
 
-        open_amount_column = 5
+        order_number_column = 5
+        order_number_item = self.table_algorithm_trading.item(row, order_number_column)
+        order_number = order_number_item.text()
+        self.le_order_number.setText(order_number)
+
+        open_amount_column = 8
         open_amount_item = self.table_open_orders.item(row, open_amount_column)
         open_amount = int(open_amount_item.text())
         self.sb_amount.setValue(open_amount)
 
-        order_number_column = 10
-        order_number_item = self.table_algorithm_trading.item(row, order_number_column)
-        order_number = order_number_item.text()
-        self.le_order_number.setText(order_number)
 
     def on_select_order_history_table(self, row, column):
         column_count = self.table_order_history.columnCount() - 1
@@ -427,6 +502,8 @@ class Trader(TraderBase):
             self.display_algorithm_trading()
         elif signal == 'order_history_table':
             self.display_order_history()
+        elif signal == 'chart':
+            self.display_chart()
 
     def on_kiwoom_log(self, *args):
         message = str(args[0])
