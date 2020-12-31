@@ -130,6 +130,18 @@ class WookThreadCollector(QThread, WookLog):
                 self.debug('Portfolio requester is running. Collecting threads...')
                 self.kiwoom.portfolio_requester.quit()
 
+class ChartDrawer(QThread):
+    def __init__(self):
+        super().__init__()
+        self.item_code = ''
+        self.display_chart = None
+
+    def set(self, display_chart):
+        self.display_chart = display_chart
+
+    def run(self):
+        self.display_chart()
+
 class WookUtil:
     def __init__(self):
         pass

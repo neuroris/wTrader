@@ -11,7 +11,7 @@ from datetime import datetime
 from traderbase import TraderBase
 from kiwoom import Kiwoom
 from wookstock import Stock
-from wookutil import WookThreadCollector
+from wookutil import WookThreadCollector, ChartDrawer
 from wookdata import *
 import time, math
 
@@ -33,39 +33,17 @@ class Trader(TraderBase):
 
     def test(self):
         self.debug('test button clicked')
-
-        # self.get_graph()
-        # image = QPixmap('./test.png')
-        # self.image_scene.addPixmap(image)
-
         item_code = self.cbb_item_code.currentText()
-        self.kiwoom.request_stock_price_min(item_code)
-        # self.display_chart()
 
-
-        # l = ['20201220', 20345, 20555, 23485, 30485, 3344545]
-        # l2 = ['20201221', 10345, 10555, 13485, 40485, 4344545]
-        #
-        # df = self.kiwoom.stock_prices
-        # self.kiwoom.stock_prices.loc[0] = l
-        # self.kiwoom.stock_prices.loc[1] = l2
-        # df.loc[0] = l
-        # df.loc[1] = l2
-        #
-        # df['Time'] = pandas.to_datetime(df['Time'])
-        #
-        #
-        # print(self.kiwoom.stock_prices)
-        #
-        # self.display_chart()
-
-    def go(self):
-        self.kiwoom.execute_algorithm()
+        import random
+        price = random.randrange(20000, 25000, 5)
+        self.kiwoom.update_chart_prices(price, 200)
 
     def initKiwoom(self):
         self.kiwoom.log = self.on_kiwoom_log
         self.kiwoom.signal = self.on_kiwoom_signal
         self.kiwoom.status = self.on_kiwoom_status
+        self.kiwoom.draw_chart.set(self.display_chart)
 
     def connect_kiwoom(self):
         if self.cb_auto_login.isChecked():
@@ -106,6 +84,19 @@ class Trader(TraderBase):
     def get_order_history(self):
         item_code = self.cbb_item_code.currentText()
         self.kiwoom.request_order_history(item_code)
+
+    def go(self):
+        self.kiwoom.execute_algorithm()
+
+    def go_chart(self):
+        item_code = self.cbb_item_code.currentText()
+        item_name = self.cbb_item_name.currentText()
+        self.kiwoom.go_chart(item_code)
+        self.info('Go Charting', item_name)
+
+    def stop_chart(self):
+        self.kiwoom.stop_chart()
+        self.info('Stop Charting')
 
     def send_order(self):
         item_code = self.cbb_item_code.currentText()
@@ -222,31 +213,10 @@ class Trader(TraderBase):
         for row in range(table.rowCount()):
             table.removeRow(0)
 
-    def get_graph(self):
-        interval = 2000
-        file = './test.csv'
-
-        mpl_color = mplfinance.make_marketcolors(up='tab:red', down='tab:blue', volume='Goldenrod')
-        mpl_style = mplfinance.make_mpf_style(base_mpl_style='seaborn', marketcolors=mpl_color)
-        # setup.update(dict(figscale=1.5, figratio=(1920, 1080), volume=True))
-
-        save_file = file[:-4] + '.png'
-        df = pandas.read_csv(file, index_col=0, parse_dates=True)
-        max = df['High'].max()
-        min = df['Low'].min()
-        max_ceiling = math.ceil(max / interval) * interval
-        min_floor = math.floor(min / interval) * interval
-        yticks = list(range(min_floor, max_ceiling + interval, interval))
-        # setup = dict(type='candle', style=mpl_style, tight_layout=True, title=fig_title)
-        setup = dict(type='candle', style=mpl_style, tight_layout=True)
-        setup.update(dict(savefig=save_file, figscale=1, figratio=(1127, 568), volume=True))
-        setup.update(dict(hlines=dict(hlines=yticks[:-1], linewidths=0.1, colors='silver', alpha=1)))
-        mplfinance.plot(df, **setup)
-
     def display_chart(self):
-        if self.kiwoom.stock_prices == []:
+        if not self.kiwoom.chart_prices:
             return
-        time = datetime.now().strftime('%Y%m%d%H%M')
+        current_time = datetime.now().strftime('%Y%m%d%H%M')
 
         mpl_color = mplfinance.make_marketcolors(up='tab:red', down='tab:blue', volume='Goldenrod')
         mpl_style = mplfinance.make_mpf_style(base_mpl_style='seaborn', marketcolors=mpl_color)
@@ -257,41 +227,14 @@ class Trader(TraderBase):
         # min_floor = math.floor(min / interval) * interval
         # yticks = list(range(min_floor, max_ceiling + interval, interval))
 
-        # max = self.kiwoom.stock_prices['High'].max()
-        # min = self.kiwoom.stock_prices['Low'].min()
-        # max_ceiling = math.ceil(max / interval) * interval
-        # min_floor = math.floor(min / interval) * interval
-        # yticks = list(range(min_floor, max_ceiling + interval, interval))
-
-        # setup = dict(type='candle', style=mpl_style, tight_layout=True, title=fig_title)
-        # setup = dict(type='candle', style=mpl_style, tight_layout=True)
-        # setup.update(dict(savefig=save_file, figscale=1, figratio=(1127, 568), volume=True))
-        # setup.update(dict(hlines=dict(hlines=yticks[:-1], linewidths=0.1, colors='silver', alpha=1)))
-        # mplfinance.plot(self.kiwoom.stock_prices, **setup)
-
-        df = pandas.DataFrame(self.kiwoom.stock_prices, columns=['Time', 'Open', 'High', 'Low', 'Close', 'Volume'])
+        df = pandas.DataFrame(self.kiwoom.chart_prices, columns=['Time', 'Open', 'High', 'Low', 'Close', 'Volume'])
 
         self.fig.clear()
         ax = self.fig.add_subplot(1, 1, 1)
         # ax.clear()
-
-        # plt.cla()
-        # plt.clf()
-
         candlestick2_ohlc(ax, df['Open'], df['High'], df['Low'], df['Close'], width=0.4, colorup='r', colordown='b')
-
         self.fig.tight_layout()
         self.canvas.draw()
-
-    def go_chart(self):
-        item_code = self.cbb_item_code.currentText()
-        item_name = self.cbb_item_name.currentText()
-        self.kiwoom.request_stock_price_min(item_code)
-        self.info('Chart', item_name)
-
-    def stop_chart(self):
-        pass
-        # self.go_chart_flag = False
 
     def on_select_account(self, account):
         self.kiwoom.account_number = int(account)

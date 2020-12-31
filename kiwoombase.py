@@ -5,7 +5,7 @@ import pandas
 from queue import Queue
 import time, os, re
 import pickle
-from wookutil import WookCipher, WookLog, WookTimer, WookUtil
+from wookutil import WookCipher, WookLog, WookTimer, WookUtil, ChartDrawer
 from wookstock import StockManager
 from wookdata import *
 
@@ -26,9 +26,12 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         self.event_loop = QEventLoop()
         self.timer_event_loop = QEventLoop()
         self.wook_timer = WookTimer(self.timer_event_loop)
-        self.timer = QTimer()
-        self.timer.setInterval(60000)
-        self.timer.timeout.connect(self.on_every_min)
+
+        self.draw_chart = ChartDrawer()
+        self.chart_prices = list()
+        self.min_timer = QTimer()
+        self.min_timer.setInterval(60000)
+        self.min_timer.timeout.connect(self.on_every_min)
 
         self.deposit_requester = QThread()
         self.moveToThread(self.deposit_requester)
@@ -59,7 +62,6 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         self.balance = dict()
         self.open_orders = dict()
         self.order_history = dict()
-        self.stock_prices = list()
         self.algorithm_manager = StockManager()
 
         self.inquiry_count = 0
@@ -80,6 +82,7 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         self.screen_portfolio = '0060'
         self.screen_send_order = '0080'
         self.screen_stock_price = '0120'
+        self.screen_futures_stock_price = '0140'
         self.screen_test = '9999'
 
     def dynamic_call(self, function_name, *args):

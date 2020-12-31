@@ -23,10 +23,6 @@ class Kiwoom(KiwoomBase):
 
         self.demand_market_state_info()
 
-        self.count = 0
-
-        # self.portfolio_request_complete = True
-
     def auto_login(self):
         self.dynamicCall('CommConnect()')
         self.login_event_loop.exec()
@@ -49,9 +45,9 @@ class Kiwoom(KiwoomBase):
         self.account_list = account_list.split(';')
         self.account_list.pop()
         if self.account_list is None:
-            self.log('Failed to get account information')
+            self.info('Failed to get account information')
         else:
-            self.log('Account information')
+            self.info('Account information')
         return self.account_list
 
     def request_deposit_info(self, sPrevNext='0'):
@@ -85,6 +81,11 @@ class Kiwoom(KiwoomBase):
         self.set_input_value(TICK_RANGE, MIN_1)
         self.set_input_value(CORRECTED_PRICE_TYPE, '1')
         self.comm_rq_data('stock price min', REQUEST_MINUTE_PRICE, sPrevNext, self.screen_stock_price)
+
+    def request_futures_stock_price_min(self, item_code, sPrevNext='0'):
+        self.set_input_value(ITEM_CODE, item_code)
+        self.set_input_value(TIME_UNIT, MIN_1)
+        self.comm_rq_data('future min', REQUEST_FUTURE_MIN, sPrevNext, self.screen_futures_stock_price)
 
     def demand_market_state_info(self):
         self.set_real_reg(self.screen_operation_state, ' ', FID.MARKET_OPERATION_STATE, '0')
@@ -124,6 +125,8 @@ class Kiwoom(KiwoomBase):
             self.get_order_history(sTrCode, sRecordName, sScrNo, sPrevNext)
         elif sRQName == 'stock price min':
             self.get_stock_price_min(sTrCode, sRecordName, sScrNo, sPrevNext)
+        elif sRQName == 'future min':
+            self.get_futures_stock_price_min(sTrCode, sRecordName, sScrNo, sPrevNext)
 
     def on_receive_real_data(self, sCode, sRealType, sRealData):
         # self.debug('real_data', sCode, sRealType, sRealData)
@@ -220,16 +223,16 @@ class Kiwoom(KiwoomBase):
         number_of_item = self.get_repeat_count(sTrCode, sRecordName)
         today = int(datetime.today().strftime('%Y%m%d'))
         item_code = self.get_comm_data(sTrCode, sRecordName, 0, ITEM_CODE)
-        self.stock_prices.clear()
+        self.chart_prices.clear()
 
         for count in range(number_of_item):
             get_comm_data = self.new_get_comm_data(sTrCode, sRecordName, count)
             transaction_time = str(get_comm_data(TRANSACTION_TIME))
             current_date = int(transaction_time[:8])
 
-            if current_date < today:
-                self.stock_prices.reverse()
-                self.signal('chart')
+            if current_date < today-1:
+                self.chart_prices.reverse()
+                self.draw_chart.start()
                 self.init_screen(sScrNo)
                 return
 
@@ -240,10 +243,41 @@ class Kiwoom(KiwoomBase):
             volume = int(abs(get_comm_data(VOLUME)))
 
             data = [transaction_time, open_price, high_price, low_price, current_price, volume]
-            self.stock_prices.append(data)
+            self.chart_prices.append(data)
 
         if sPrevNext == '2':
             self.request_stock_price_min(item_code, sPrevNext)
+
+    def get_futures_stock_price_min(self, sTrCode, sRecordName, sScrNo, sPrevNext):
+        number_of_item = self.get_repeat_count(sTrCode, sRecordName)
+        today = int(datetime.today().strftime('%Y%m%d'))
+        item_code = self.get_comm_data(sTrCode, sRecordName, 0, ITEM_CODE)
+        self.chart_prices.clear()
+
+        for count in range(number_of_item):
+            get_comm_data = self.new_get_comm_data(sTrCode, sRecordName, count)
+            transaction_time = str(get_comm_data(TRANSACTION_TIME))
+            current_date = int(transaction_time[:8])
+
+            if current_date < today-1:
+                self.chart_prices.reverse()
+                self.draw_chart.start()
+                self.init_screen(sScrNo)
+                return
+
+            open_price = float(abs(get_comm_data(OPEN_PRICE)))
+            high_price = float(abs(get_comm_data(HIGH_PRICE)))
+            low_price = float(abs(get_comm_data(LOW_PRICE)))
+            current_price = float(abs(get_comm_data(CURRENT_PRICE)))
+            volume = int(abs(get_comm_data(VOLUME)))
+
+            data = [transaction_time, open_price, high_price, low_price, current_price, volume]
+            self.chart_prices.append(data)
+
+            self.debug(*data)
+
+        if sPrevNext == '2':
+            self.request_futures_stock_price_min(item_code, sPrevNext)
 
     def get_order_state(self, sTrCode, sRecordName, sScrNo, sPrevNext):
         get_comm_data = self.new_get_comm_data(sTrCode, sRecordName)
@@ -264,7 +298,7 @@ class Kiwoom(KiwoomBase):
         get_comm_real_data = self.new_get_comm_real_data(item_code)
 
         stock.transaction_time = get_comm_real_data(FID.TRANSACTION_TIME)
-        stock.current_price = get_comm_real_data(FID.CURRENT_PRICE)
+        stock.current_price = abs(get_comm_real_data(FID.CURRENT_PRICE))
         stock.price_increase_amount = get_comm_real_data(FID.PRICE_INCREASE_AMOUNT)
         stock.ask_price = get_comm_real_data(FID.ASK_PRICE)
         stock.bid_price = get_comm_real_data(FID.BID_PRICE)
@@ -274,33 +308,10 @@ class Kiwoom(KiwoomBase):
         stock.low_price = get_comm_real_data(FID.LOW_PRICE)
         stock.open_price = get_comm_real_data(FID.OPEN_PRICE)
         # stock.price_increase_ratio = get_comm_real_data(FID.PRICE_INCREASE_RATIO)
-
         self.signal('trading_items_table')
 
-        if stock.current_price < 0:
-            stock.current_price = stock.current_price * -1
-
-        time = datetime.now().strftime('%Y%m%d%H%M')
-        price = stock.current_price
-        if self.stock_prices == []:
-            self.request_stock_price_min(item_code)
-            # self.stock_prices = [['202012291305', 22000, 22000, 22000, 22000, 22000]]
-            self.timer.start()
-            return
-        elif time != self.stock_prices[-1][0]:
-            price_data = [time, price, price, price, price, stock.volume]
-            self.stock_prices.append(price_data)
-        else:
-            if price > self.stock_prices[-1][2]:
-                self.stock_prices[-1][2] = price
-            elif price < self.stock_prices[-1][3]:
-                self.stock_prices[-1][3] = price
-            self.stock_prices[-1][4] = price
-            self.stock_prices[-1][5] += stock.volume
-        self.signal('chart')
-
-        self.count += 1
-        print(self.count)
+        if item_code == self.draw_chart.item_code:
+            self.update_chart_prices(stock.current_price, stock.volume)
 
         if item_code in self.portfolio:
             self.update_portfolio(item_code, stock.current_price)
@@ -328,6 +339,46 @@ class Kiwoom(KiwoomBase):
 
         if item_code in self.portfolio:
             self.update_portfolio(item_code, stock.current_price)
+
+    def update_chart_prices(self, price, volume):
+        current_time = datetime.now().strftime('%Y%m%d%H%M')
+        if not self.chart_prices:
+            price_data = [current_time, price, price, price, price, volume]
+            self.chart_prices.append(price_data)
+        elif current_time != self.chart_prices[-1][0]:
+            price_data = [current_time, price, price, price, price, volume]
+            self.chart_prices.append(price_data)
+        else:
+            if price > self.chart_prices[-1][2]:
+                self.chart_prices[-1][2] = price
+            elif price < self.chart_prices[-1][3]:
+                self.chart_prices[-1][3] = price
+            last_price = self.chart_prices[-1][4]
+            self.chart_prices[-1][4] = price
+            self.chart_prices[-1][5] += volume
+            if last_price == price:
+                return
+        self.draw_chart.start()
+
+    def update_portfolio(self, item_code, current_price):
+        stock = self.portfolio[item_code]
+        evaluation_sum = stock.holding_amount * current_price
+        evaluation_fee = int(evaluation_sum * 0.00035) * 10
+        purchase_sum = stock.purchase_price * stock.holding_amount
+        purchase_fee = round(int(purchase_sum * 0.00035 * 10), -1)
+        total_fee = evaluation_fee + purchase_fee
+        tax = int(evaluation_sum * 0.0025)
+        profit = evaluation_sum - purchase_sum - total_fee - tax
+        profit_rate = round((profit / purchase_sum) * 100, 2)
+
+        stock.current_price = current_price
+        stock.evaluation_sum = evaluation_sum
+        stock.profit = profit
+        stock.profit_rate = profit_rate
+        stock.total_fee = total_fee
+        stock.tax = tax
+
+        self.signal('portfolio_table')
 
     def obtain_executed_order_info(self):
         stock = Stock()
@@ -410,36 +461,27 @@ class Kiwoom(KiwoomBase):
 
         self.order(*order_parameters)
 
-    def update_portfolio(self, item_code, current_price):
-        stock = self.portfolio[item_code]
-        evaluation_sum = stock.holding_amount * current_price
-        evaluation_fee = int(evaluation_sum * 0.00035) * 10
-        purchase_sum = stock.purchase_price * stock.holding_amount
-        purchase_fee = round(int(purchase_sum * 0.00035 * 10), -1)
-        total_fee = evaluation_fee + purchase_fee
-        tax = int(evaluation_sum * 0.0025)
-        profit = evaluation_sum - purchase_sum - total_fee - tax
-        profit_rate = round((profit / purchase_sum) * 100, 2)
+    def go_chart(self, item_code):
+        self.draw_chart.item_code = item_code
+        if item_code[:3] == FUTURES_CODE:
+            self.request_futures_stock_price_min(item_code)
+        else:
+            self.request_stock_price_min(item_code)
+        self.min_timer.start()
 
-        stock.current_price = current_price
-        stock.evaluation_sum = evaluation_sum
-        stock.profit = profit
-        stock.profit_rate = profit_rate
-        stock.total_fee = total_fee
-        stock.tax = tax
-
-        self.signal('portfolio_table')
+    def stop_chart(self):
+        self.draw_chart.item_code = ''
+        self.min_timer.stop()
 
     def on_every_min(self):
-        self.debug('Timer worked')
-        time = datetime.now().strftime('%Y%m%d%H%M')
-        if self.stock_prices == []:
+        current_time = datetime.now().strftime('%Y%m%d%H%M')
+        if not self.chart_prices:
             return
-        if time != self.stock_prices[-1][0]:
-            price = self.stock_prices[-1][4]
-            data = [time, price, price, price, price, 0]
-            self.stock_prices.append(data)
-        self.signal('chart')
+        if current_time != self.chart_prices[-1][0]:
+            price = self.chart_prices[-1][4]
+            data = [current_time, price, price, price, price, 0]
+            self.chart_prices.append(data)
+            self.draw_chart.start()
 
     def check_request_time(self):
         current_time = time.time()

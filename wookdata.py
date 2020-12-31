@@ -46,6 +46,8 @@ DAY_DATA = '일'
 WEEK_DATA = '주'
 MONTH_DATA = '월'
 YEAR_DATA = '년'
+TIME_UNIT = '시간단위'
+FUTURES_CODE = '101'
 
 # Korean parameters with subfields
 TRADE_POSITION = '매매구분'
@@ -96,6 +98,7 @@ REQUEST_DAY_PRICE = 'opt10081'
 REQUEST_WEEK_PRICE = 'opt10082'
 REQUEST_MONTH_PRICE = 'opt10083'
 REQUEST_YEAR_PRICE = 'opt10094'
+REQUEST_FUTURE_MIN = 'OPT50029'
 
 # Real types
 REAL_TYPE_STOCK_TRADED = '주식체결'
@@ -152,6 +155,15 @@ EXECUTED_ORDER_PRICE = '체결가'
 EXECUTED_ORDER_AMOUNT = '체결량'
 TRANSACTION_FEE_TODAY = '당일매매수수료'
 TAX_TODAY = '당일매매세금'
+
+# 선물옵션분차트요청
+CURRENT_PRICE = '현재가'
+VOLUME = '거래량'
+TRANSACTION_TIME = '체결시간'
+OPEN_PRICE = '시가'
+HIGH_PRICE = '고가'
+LOW_PRICE = '저가'
+LAST_DAY_CLOSE_PRICE = '전일종가'
 
 class FID:
     # 주식체결
