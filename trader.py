@@ -35,9 +35,11 @@ class Trader(TraderBase):
         self.debug('test button clicked')
         item_code = self.cbb_item_code.currentText()
 
-        import random
-        price = random.randrange(20000, 25000, 5)
-        self.kiwoom.update_chart_prices(price, 200)
+        self.kiwoom.deposit_requester.start()
+
+        # import random
+        # price = random.randrange(20000, 25000, 5)
+        # self.kiwoom.update_chart_prices(price, 200)
 
     def initKiwoom(self):
         self.kiwoom.log = self.on_kiwoom_log
@@ -218,8 +220,6 @@ class Trader(TraderBase):
             return
         current_time = datetime.now().strftime('%Y%m%d%H%M')
 
-        mpl_color = mplfinance.make_marketcolors(up='tab:red', down='tab:blue', volume='Goldenrod')
-        mpl_style = mplfinance.make_mpf_style(base_mpl_style='seaborn', marketcolors=mpl_color)
 
         # max = df['Price'].max()
         # min = df['Price'].min()

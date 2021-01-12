@@ -131,3 +131,20 @@
 2020-12-31 19:12:48,104 Deposit information
 2020-12-31 19:12:48,168 Portfolio information
 2020-12-31 19:13:17,340 Go Charting F 202103
+2020-12-31 19:14:52,712 Kiwoom initializing...
+2020-12-31 19:14:57,234 Kiwoom log in success
+2020-12-31 19:14:57,235 Account information
+2020-12-31 19:14:57,750 Deposit information
+2020-12-31 19:14:57,799 Portfolio information
+2020-12-31 19:15:02,048 Go Charting KODEX 레버리지
+2020-12-31 19:15:11,043 Go Charting F 202103
+2020-12-31 19:15:37,870 Go Charting KODEX 레버리지
+2020-12-31 19:16:01,933 Go Charting F 202103
+2020-12-31 19:16:33,016 Go Charting KODEX 200선물인버스2X
+2020-12-31 19:17:32,761 Go Charting 오스템임플란트
+2020-12-31 19:17:50,465 Go Charting F 202103
+2020-12-31 19:17:57,702 Go Charting KODEX 레버리지
+2020-12-31 19:18:13,640 Go Charting F 202103
+2020-12-31 19:20:07,198 Go Charting KODEX 레버리지
+2020-12-31 19:21:19,440 Go Charting F 202103
+2020-12-31 19:21:37,801 Go Charting KODEX 레버리지

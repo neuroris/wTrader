@@ -76,6 +76,9 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         self.request_count_interval = 60
         self.request_count_waiting = 30
 
+        self.fee_ratio = 0.0035
+        self.tax_ratio = 0.0023
+
         self.screen_account = '0010'
         self.screen_open_order = '0020'
         self.screen_operation_state = '0040'
