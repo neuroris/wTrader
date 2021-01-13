@@ -95,9 +95,16 @@ class Kiwoom(KiwoomBase):
 
     def order(self, item_code, price, amount, order_position_text, order_type, order_number):
         self.order_position = order_position_text
-        order_position = ORDER_POSITION_DICT[order_position_text]
-        send_order = self.new_send_order('order', self.screen_send_order, self.account_number)
-        send_order(order_position, item_code, amount, price, order_type, order_number)
+
+        if item_code[:3] == FUTURES_CODE:
+            order_position = FUTURES_ORDER_POSITION[self.order_position]
+            trade_position = FUTURES_TRADE_POSITION[self.order_position]
+            send_order = self.new_send_order_fo('order', self.screen_send_order, self.account_number)
+            send_order(item_code, order_position, trade_position, order_type, amount, price, order_number)
+        else:
+            order_position = ORDER_POSITION_DICT[order_position_text]
+            send_order = self.new_send_order('order', self.screen_send_order, self.account_number)
+            send_order(order_position, item_code, amount, price, order_type, order_number)
 
     def on_login(self, err_code):
         if err_code == 0:

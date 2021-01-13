@@ -18,7 +18,7 @@ import time, math
 class Trader(TraderBase):
     def __init__(self, log, key):
         self.kiwoom = Kiwoom(log, key)
-        self.thread_collector = WookThreadCollector(self.kiwoom, log)
+        # self.thread_collector = WookThreadCollector(self.kiwoom, log)
         super().__init__(log)
 
         # Initial work
@@ -89,7 +89,6 @@ class Trader(TraderBase):
         amount = self.sb_amount.value()
         order_type = ORDER_TYPE[self.cbb_order_type.currentText()]
         order_number = self.le_order_number.text()
-
         if order_type == ORDER_TYPE['MARKET']:
             price = 0
 
@@ -268,6 +267,13 @@ class Trader(TraderBase):
                 CODES[item_code] = item_name
                 self.cbb_item_code.addItem(item_code)
                 self.cbb_item_name.addItem(item_name)
+
+        if item_code[:3] == FUTURES_CODE:
+            self.cbb_order_type.clear()
+            self.cbb_order_type.addItems(FUTURES_ORDER_TYPE)
+        else:
+            self.cbb_order_type.clear()
+            self.cbb_order_type.addItems(ORDER_TYPE)
 
         self.cbb_item_name.setCurrentText(item_name)
         self.update_order_variables()

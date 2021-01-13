@@ -77,23 +77,6 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         account_gbox.setLayout(account_grid)
 
         ##### Manual Order
-        # Item information
-        lb_item_code = QLabel('Code')
-        lb_item_name = QLabel('Name')
-        self.cbb_item_code = QComboBox()
-        self.cbb_item_name = QComboBox()
-        self.cbb_item_code.setEditable(True)
-        self.cbb_item_name.setEditable(True)
-        self.cbb_item_code.editTextChanged.connect(self.on_select_item_code)
-        self.cbb_item_name.currentIndexChanged.connect(self.on_select_item_name)
-        self.cbb_item_code.addItems(CODES)
-        self.cbb_item_name.addItems(CODES.values())
-        self.btn_add_item = QPushButton('Add')
-        self.btn_add_item.clicked.connect(self.on_add_item)
-        self.btn_remove_item = QPushButton('Remove')
-        self.btn_remove_item.clicked.connect(self.on_remove_item)
-        self.btn_remove_item.setMinimumWidth(150)
-
         # Order Parameters
         lb_price = QLabel('Price')
         self.sb_price = QSpinBox()
@@ -119,6 +102,23 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         self.btn_order = QPushButton('Order')
         self.btn_order.setStyleSheet('font-weight:bold; background-color:peru')
         self.btn_order.clicked.connect(self.send_order)
+
+        # Item information
+        lb_item_code = QLabel('Code')
+        lb_item_name = QLabel('Name')
+        self.cbb_item_code = QComboBox()
+        self.cbb_item_name = QComboBox()
+        self.cbb_item_code.setEditable(True)
+        self.cbb_item_name.setEditable(True)
+        self.cbb_item_code.editTextChanged.connect(self.on_select_item_code)
+        self.cbb_item_name.currentIndexChanged.connect(self.on_select_item_name)
+        self.cbb_item_code.addItems(CODES)
+        self.cbb_item_name.addItems(CODES.values())
+        self.btn_add_item = QPushButton('Add')
+        self.btn_add_item.clicked.connect(self.on_add_item)
+        self.btn_remove_item = QPushButton('Remove')
+        self.btn_remove_item.clicked.connect(self.on_remove_item)
+        self.btn_remove_item.setMinimumWidth(150)
 
         # Order Correction
         lb_order_number = QLabel('Order Number')

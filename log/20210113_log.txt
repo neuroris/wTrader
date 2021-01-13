@@ -878,3 +878,49 @@
 2021-01-13 13:03:16,286 Order history information
 2021-01-13 13:03:56,728 F 202103 trading information begins to be monitored
 2021-01-13 13:04:32,363 Go Charting F 202103
+2021-01-13 13:06:40,504 Kiwoom initializing...
+2021-01-13 13:06:44,982 Kiwoom log in success
+2021-01-13 13:06:44,982 Account information
+2021-01-13 13:06:45,487 Deposit information
+2021-01-13 13:06:46,008 Portfolio information
+2021-01-13 13:06:46,091 Order history information
+2021-01-13 13:06:59,701 Go Charting F 202103
+2021-01-13 13:07:02,798 F 202103 trading information begins to be monitored
+2021-01-13 13:17:15,587 KODEX 레버리지 trading information begins to be monitored
+2021-01-13 13:17:17,617 KODEX 200선물인버스2X trading information begins to be monitored
+2021-01-13 13:17:20,264 오스템임플란트 trading information begins to be monitored
+2021-01-13 15:01:41,595 Kiwoom initializing...
+2021-01-13 15:02:19,727 Kiwoom initializing...
+2021-01-13 15:02:32,140 Kiwoom log in success
+2021-01-13 15:02:32,140 Account information
+2021-01-13 15:02:32,645 Deposit information
+2021-01-13 15:02:33,161 Portfolio information
+2021-01-13 15:02:33,250 Order history information
+2021-01-13 15:03:00,228 Kiwoom initializing...
+2021-01-13 15:03:04,524 Kiwoom log in success
+2021-01-13 15:03:04,524 Account information
+2021-01-13 15:03:05,044 Deposit information
+2021-01-13 15:03:05,558 Portfolio information
+2021-01-13 15:03:05,659 Order history information
+2021-01-13 15:05:47,374 Kiwoom initializing...
+2021-01-13 15:05:51,722 Kiwoom log in success
+2021-01-13 15:05:51,722 Account information
+2021-01-13 15:05:52,227 Deposit information
+2021-01-13 15:05:52,737 Portfolio information
+2021-01-13 15:05:52,840 Order history information
+2021-01-13 15:16:59,411 Kiwoom initializing...
+2021-01-13 15:17:03,871 Kiwoom log in success
+2021-01-13 15:17:03,872 Account information
+2021-01-13 15:17:04,381 Deposit information
+2021-01-13 15:17:04,903 Portfolio information
+2021-01-13 15:17:04,991 Order history information
+2021-01-13 15:17:52,630 Kiwoom initializing...
+2021-01-13 15:18:16,179 Kiwoom initializing...
+2021-01-13 15:20:57,023 Kiwoom initializing...
+2021-01-13 15:21:01,472 Kiwoom log in success
+2021-01-13 15:21:01,472 Account information
+2021-01-13 15:21:01,976 Deposit information
+2021-01-13 15:21:02,487 Portfolio information
+2021-01-13 15:21:02,580 Order history information
+2021-01-13 15:21:54,633 market operation state 2 152200 000800
+2021-01-13 15:22:54,624 market operation state 2 152300 000700

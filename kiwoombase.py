@@ -165,7 +165,7 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
     def new_send_order_fo(self, *precedent_args):
         def custom_send_order(*args):
             new_args = precedent_args + args
-            result = self.send_order(*new_args)
+            result = self.send_order_fo(*new_args)
             return result
 
         return custom_send_order

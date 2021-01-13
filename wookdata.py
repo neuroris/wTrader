@@ -84,7 +84,38 @@ ORDER_TYPE = {
     'MARGINAL': '07',
     'BEFORE': '61',
     'CLOSING': '62',
-    'AFTER': '81',
+    'AFTER': '81'
+}
+
+FUTURES_ORDER_POSITION = {
+    'BUY': '1',
+    'SELL': '1',
+    'CORRECT BUY': '2',
+    'CORRECT SELL': '2',
+    'CANCEL BUY': '3',
+    'CANCEL SELL': '3'
+}
+
+FUTURES_TRADE_POSITION = {
+    'BUY': '2',
+    'SELL': '1',
+    'CORRECT BUY': '2',
+    'CORRECT SELL': '1',
+    'CANCEL BUY': '1',
+    'CANCEL SELL': '2'
+}
+
+FUTURES_ORDER_TYPE = {
+    'LIMIT': '1',
+    'CONDITIONAL': '2',
+    'MARKET': '3',
+    'COVER': '4',
+    'LIMIT IOC': '5',
+    'LIMIT FOK': '6',
+    'MARKET IOC': '7',
+    'MARKET FOK': '8',
+    'COVER IOC': '9',
+    'COVER FOK': 'A'
 }
 
 # Request codes
