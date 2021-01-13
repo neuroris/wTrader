@@ -157,6 +157,19 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
             return result
         return custom_send_order
 
+    def send_order_fo(self, sRQName, sScreenNo, sAccNo, sCode, IOrdKind, sSlbyTp, sOrdTp, IQty, sPrice, sOrgOrderNo=''):
+        self.check_time_rule()
+        result = self.dynamic_call('SendOrderFO', sRQName, sScreenNo, sAccNo, sCode, IOrdKind, sSlbyTp, sOrdTp, IQty, sPrice, sOrgOrderNo)
+        return result
+
+    def new_send_order_fo(self, *precedent_args):
+        def custom_send_order(*args):
+            new_args = precedent_args + args
+            result = self.send_order(*new_args)
+            return result
+
+        return custom_send_order
+
     def get_chejan_data(self, nFid, number=False):
         result = self.dynamic_call('GetChejanData', nFid)
         processed_result = self.process_type(result, number)

@@ -26,6 +26,7 @@ class Trader(TraderBase):
         self.connect_kiwoom()
         self.kiwoom.request_deposit_info()
         self.kiwoom.request_portfolio_info()
+        self.kiwoom.request_order_history()
         # self.thread_collector.start()
 
         # For debugging convenience
@@ -61,6 +62,39 @@ class Trader(TraderBase):
         if account_list is not None:
             self.cbb_account.addItems(self.kiwoom.account_list)
 
+    def get_deposit(self):
+        self.kiwoom.request_deposit_info()
+
+    def get_portfolio(self):
+        self.kiwoom.request_portfolio_info()
+
+    def get_order_history(self):
+        item_code = self.cbb_item_code.currentText()
+        self.kiwoom.request_order_history(item_code)
+
+    def go_chart(self):
+        item_code = self.cbb_item_code.currentText()
+        item_name = self.cbb_item_name.currentText()
+        self.kiwoom.go_chart(item_code)
+        self.info('Go Charting', item_name)
+
+    def stop_chart(self):
+        self.kiwoom.stop_chart()
+        self.info('Stop Charting')
+
+    def send_order(self):
+        item_code = self.cbb_item_code.currentText()
+        order_position = self.cbb_order_position.currentText()
+        price = self.sb_price.value()
+        amount = self.sb_amount.value()
+        order_type = ORDER_TYPE[self.cbb_order_type.currentText()]
+        order_number = self.le_order_number.text()
+
+        if order_type == ORDER_TYPE['MARKET']:
+            price = 0
+
+        self.kiwoom.order(item_code, price, amount, order_position, order_type, order_number)
+
     def update_deposit_info(self):
         deposit = '\\' + self.formalize(self.kiwoom.deposit)
         orderable_money = '\\' + self.formalize(self.kiwoom.orderable_money)
@@ -83,32 +117,8 @@ class Trader(TraderBase):
         self.lb_sellable.setText(self.formalize(stock.holding_amount))
         self.sb_price.setValue(stock.current_price)
 
-    def get_order_history(self):
-        item_code = self.cbb_item_code.currentText()
-        self.kiwoom.request_order_history(item_code)
-
     def go(self):
         self.kiwoom.execute_algorithm()
-
-    def go_chart(self):
-        item_code = self.cbb_item_code.currentText()
-        item_name = self.cbb_item_name.currentText()
-        self.kiwoom.go_chart(item_code)
-        self.info('Go Charting', item_name)
-
-    def stop_chart(self):
-        self.kiwoom.stop_chart()
-        self.info('Stop Charting')
-
-    def send_order(self):
-        item_code = self.cbb_item_code.currentText()
-        order_position = self.cbb_order_position.currentText()
-        price = self.sb_price.value()
-        amount = self.sb_amount.value()
-        order_type = ORDER_TYPE[self.cbb_order_type.currentText()]
-        order_number = self.le_order_number.text()
-
-        self.kiwoom.order(item_code, price, amount, order_position, order_type, order_number)
 
     def display_portfolio(self):
         self.clear_table(self.table_portfolio)
@@ -166,15 +176,33 @@ class Trader(TraderBase):
             self.table_open_orders.setItem(row, 0, self.to_item(stock.item_name))
             self.table_open_orders.setItem(row, 1, self.to_item_time(stock.order_executed_time))
             self.table_open_orders.setItem(row, 2, self.to_item(stock.order_amount))
-            self.table_open_orders.setItem(row, 3, self.to_item(stock.executed_amount))
+            self.table_open_orders.setItem(row, 3, self.to_item(stock.executed_amount_sum))
             self.table_open_orders.setItem(row, 4, self.to_item(stock.open_amount))
             self.table_open_orders.setItem(row, 5, self.to_item_plain(stock.order_number))
             self.table_open_orders.setItem(row, 6, self.to_item_plain(stock.original_order_number))
             self.table_open_orders.setItem(row, 7, self.to_item(stock.order_price))
-            self.table_open_orders.setItem(row, 8, self.to_item(stock.executed_price))
+            self.table_open_orders.setItem(row, 8, self.to_item(stock.executed_price_average))
             self.table_open_orders.setItem(row, 9, self.to_item_center(stock.order_position))
             self.table_open_orders.setItem(row, 10, self.to_item_center(stock.order_state))
         self.table_open_orders.sortItems(1, Qt.DescendingOrder)
+
+    def display_order_history(self):
+        self.clear_table(self.table_order_history)
+        for row, stock in enumerate(self.kiwoom.order_history.values()):
+            self.table_order_history.insertRow(row)
+            self.table_order_history.setRowHeight(row, 8)
+            self.table_order_history.setItem(row, 0, self.to_item(stock.item_name))
+            self.table_order_history.setItem(row, 1, self.to_item_time(stock.order_executed_time))
+            self.table_order_history.setItem(row, 2, self.to_item(stock.order_amount))
+            self.table_order_history.setItem(row, 3, self.to_item(stock.executed_amount_sum))
+            self.table_order_history.setItem(row, 4, self.to_item(stock.open_amount))
+            self.table_order_history.setItem(row, 5, self.to_item_plain(stock.order_number))
+            self.table_order_history.setItem(row, 6, self.to_item_plain(stock.original_order_number))
+            self.table_order_history.setItem(row, 7, self.to_item(stock.order_price))
+            self.table_order_history.setItem(row, 8, self.to_item(stock.executed_price_average))
+            self.table_order_history.setItem(row, 9, self.to_item_center(stock.order_position))
+            self.table_order_history.setItem(row, 10, self.to_item_center(stock.order_state))
+        self.table_order_history.sortItems(1, Qt.DescendingOrder)
 
     def display_algorithm_trading(self):
         self.clear_table(self.table_algorithm_trading)
@@ -185,31 +213,14 @@ class Trader(TraderBase):
             self.table_algorithm_trading.setItem(row, 1, self.to_item_center(stock.trade_position))
             self.table_algorithm_trading.setItem(row, 2, self.to_item(stock.current_price))
             self.table_algorithm_trading.setItem(row, 3, self.to_item(stock.order_price))
-            self.table_algorithm_trading.setItem(row, 4, self.to_item(stock.executed_price))
+            self.table_algorithm_trading.setItem(row, 4, self.to_item(stock.executed_price_average))
             self.table_algorithm_trading.setItem(row, 5, self.to_item_plain(stock.order_number))
             self.table_algorithm_trading.setItem(row, 6, self.to_item(stock.order_amount))
-            self.table_algorithm_trading.setItem(row, 7, self.to_item(stock.executed_amount))
+            self.table_algorithm_trading.setItem(row, 7, self.to_item(stock.executed_amount_sum))
             self.table_algorithm_trading.setItem(row, 8, self.to_item_sign(stock.open_amount))
             self.table_algorithm_trading.setItem(row, 9, self.to_item_sign(stock.profit))
             self.table_algorithm_trading.setItem(row, 10, self.to_item_sign(stock.profit_rate))
         self.table_algorithm_trading.sortItems(0, Qt.DescendingOrder)
-
-    def display_order_history(self):
-        self.clear_table(self.table_order_history)
-        for row, stock in enumerate(self.kiwoom.order_history.values()):
-            self.table_order_history.insertRow(row)
-            self.table_order_history.setRowHeight(row, 8)
-            self.table_order_history.setItem(row, 0, self.to_item(stock.item_name))
-            self.table_order_history.setItem(row, 1, self.to_item_time(stock.order_executed_time))
-            self.table_order_history.setItem(row, 2, self.to_item(stock.order_amount))
-            self.table_order_history.setItem(row, 3, self.to_item(stock.executed_amount))
-            self.table_order_history.setItem(row, 4, self.to_item(stock.open_amount))
-            self.table_order_history.setItem(row, 5, self.to_item_plain(stock.order_number))
-            self.table_order_history.setItem(row, 6, self.to_item_plain(stock.original_order_number))
-            self.table_order_history.setItem(row, 7, self.to_item(stock.order_price))
-            self.table_order_history.setItem(row, 8, self.to_item(stock.executed_price))
-            self.table_order_history.setItem(row, 9, self.to_item_center(stock.order_position))
-            self.table_order_history.setItem(row, 10, self.to_item_center(stock.order_state))
 
     def clear_table(self, table):
         for row in range(table.rowCount()):
@@ -231,6 +242,16 @@ class Trader(TraderBase):
 
         self.fig.clear()
         ax = self.fig.add_subplot(1, 1, 1)
+
+        # a = df['Time'].astype(int)
+        # dd = a.tolist()
+        time_column = df.Time
+        time_list = time_column.tolist()
+        time_int = list(map(int, time_list))
+        ax.tick_params(axis='x', labelsize=10)
+        ax.set_xticks(time_int)
+        ax.set_xticklabels(time_int, rotation=75)
+
         # ax.clear()
         candlestick2_ohlc(ax, df['Open'], df['High'], df['Low'], df['Close'], width=0.4, colorup='r', colordown='b')
         self.fig.tight_layout()
@@ -362,33 +383,6 @@ class Trader(TraderBase):
         order_price = self.process_type(order_price_item.text())
         self.sb_price.setValue(order_price)
 
-    def on_select_algorithm_trading_table(self, row, column):
-        column_count = self.table_algorithm_trading.columnCount() - 1
-        selection_range = QTableWidgetSelectionRange(row, 0, row, column_count)
-        self.table_algorithm_trading.setRangeSelected(selection_range, True)
-
-        item_name_column = 0
-        item_name_item = self.table_algorithm_trading.item(row, item_name_column)
-        item_name = item_name_item.text()
-        index = self.cbb_item_name.findText(item_name)
-        self.cbb_item_name.setCurrentIndex(index)
-
-        order_price_column = 3
-        order_price_item = self.table_algorithm_trading.item(row, order_price_column)
-        order_price = self.process_type(order_price_item.text())
-        self.sb_price.setValue(order_price)
-
-        order_number_column = 5
-        order_number_item = self.table_algorithm_trading.item(row, order_number_column)
-        order_number = order_number_item.text()
-        self.le_order_number.setText(order_number)
-
-        open_amount_column = 8
-        open_amount_item = self.table_open_orders.item(row, open_amount_column)
-        open_amount = int(open_amount_item.text())
-        self.sb_amount.setValue(open_amount)
-
-
     def on_select_order_history_table(self, row, column):
         column_count = self.table_order_history.columnCount() - 1
         selection_range = QTableWidgetSelectionRange(row, 0, row, column_count)
@@ -414,6 +408,32 @@ class Trader(TraderBase):
         order_price_item = self.table_order_history.item(row, order_price_column)
         order_price = self.process_type(order_price_item.text())
         self.sb_price.setValue(order_price)
+
+    def on_select_algorithm_trading_table(self, row, column):
+        column_count = self.table_algorithm_trading.columnCount() - 1
+        selection_range = QTableWidgetSelectionRange(row, 0, row, column_count)
+        self.table_algorithm_trading.setRangeSelected(selection_range, True)
+
+        item_name_column = 0
+        item_name_item = self.table_algorithm_trading.item(row, item_name_column)
+        item_name = item_name_item.text()
+        index = self.cbb_item_name.findText(item_name)
+        self.cbb_item_name.setCurrentIndex(index)
+
+        order_price_column = 3
+        order_price_item = self.table_algorithm_trading.item(row, order_price_column)
+        order_price = self.process_type(order_price_item.text())
+        self.sb_price.setValue(order_price)
+
+        order_number_column = 5
+        order_number_item = self.table_algorithm_trading.item(row, order_number_column)
+        order_number = order_number_item.text()
+        self.le_order_number.setText(order_number)
+
+        open_amount_column = 8
+        open_amount_item = self.table_open_orders.item(row, open_amount_column)
+        open_amount = int(open_amount_item.text())
+        self.sb_amount.setValue(open_amount)
 
     def on_edit_save_file(self):
         file = self.le_save_file.text()

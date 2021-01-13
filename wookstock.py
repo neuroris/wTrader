@@ -21,10 +21,7 @@ class Stock:
         self.low_price = 0
         self.order_price = 0
         self.executed_price = 0
-
-        self.unit_executed_price = 0
-
-
+        self.executed_price_average = 0
         self.open_price = 0
         self.reference_price = 0
         self.purchase_price_avg = 0
@@ -33,13 +30,7 @@ class Stock:
         self.purchase_amount_net_today = 0
         self.order_amount = 0
         self.executed_amount = 0
-
-
-        self.unit_executed_amount = 0
-
-
-        self.previous_executed_amount = 0
-        self.previous_purchase_increment = 0
+        self.executed_amount_sum = 0
         self.open_amount = 0
         self.holding_amount = 0
         self.sellable_amount = 0

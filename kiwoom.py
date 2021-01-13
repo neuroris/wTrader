@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QTableWidgetItem
 from PyQt5.QtCore import QObject, QThread
 import pandas
 from datetime import datetime
-import time
+import time, math
 from kiwoombase import KiwoomBase
 from wookauto import LoginPasswordThread, AccountPasswordThread
 from wookstock import Stock
@@ -145,16 +145,10 @@ class Kiwoom(KiwoomBase):
             self.obtain_balance_info()
 
     def get_deposit_info(self, sTrCode, sRecordName, sScrNo, sPrevNext):
-        old_orderable = self.orderable_money
-
         get_comm_data = self.new_get_comm_data(sTrCode, sRecordName, 0)
         self.deposit = get_comm_data(DEPOSIT)
         self.withdrawable = get_comm_data(WITHDRAWABLE)
         self.orderable_money = get_comm_data(ORDERABLE)
-
-        new_orderable = self.orderable_money
-        difference = new_orderable - old_orderable
-        self.debug('Request', old_orderable, new_orderable, difference)
 
         self.signal('deposit')
         self.info('Deposit information')
@@ -179,9 +173,6 @@ class Kiwoom(KiwoomBase):
             stock.profit = get_comm_data(PROFIT)
             stock.profit_rate = get_comm_data(PROFIT_RATE)
 
-            if stock.item_code in self.portfolio:
-                stock.previous_executed_amount = self.portfolio[stock.item_code].previous_executed_amount
-
             self.portfolio[stock.item_code] = stock
 
         if sPrevNext == '2':
@@ -204,12 +195,12 @@ class Kiwoom(KiwoomBase):
             stock.item_name = get_comm_data(ITEM_NAME)
             stock.order_executed_time = get_comm_data(TIME)
             stock.order_amount = get_comm_data(ORDER_AMOUNT)
-            stock.executed_amount = get_comm_data(EXECUTED_ORDER_AMOUNT)
+            stock.executed_amount_sum = get_comm_data(EXECUTED_ORDER_AMOUNT)
             stock.open_amount = get_comm_data(OPEN_AMOUNT)
             stock.order_number = get_comm_data(ORDER_NUMBER)
             stock.original_order_number = get_comm_data(ORIGINAL_ORDER_NUMBER)
             stock.order_price = get_comm_data(ORDER_PRICE)
-            stock.executed_price = get_comm_data(EXECUTED_ORDER_PRICE)
+            stock.executed_price_average = get_comm_data(EXECUTED_ORDER_PRICE)
             stock.order_position = get_comm_data(ORDER_POSITION)
             stock.order_state = get_comm_data(ORDER_STATE)
             # stock.trade_position = get_comm_data(TRADE_POSITION)
@@ -283,8 +274,6 @@ class Kiwoom(KiwoomBase):
             data = [transaction_time, open_price, high_price, low_price, current_price, volume]
             self.chart_prices.append(data)
 
-            self.debug(*data)
-
         if sPrevNext == '2':
             self.request_futures_stock_price_min(item_code, sPrevNext)
 
@@ -319,12 +308,13 @@ class Kiwoom(KiwoomBase):
         # stock.price_increase_ratio = get_comm_real_data(FID.PRICE_INCREASE_RATIO)
         self.signal('trading_items_table')
 
+        if item_code in self.portfolio:
+            portfolio_stock = self.portfolio[item_code]
+            if portfolio_stock.current_price != stock.current_price:
+                self.update_portfolio_info(stock)
+
         if item_code == self.draw_chart.item_code:
             self.update_chart_prices(stock.current_price, stock.volume)
-
-        if item_code in self.portfolio:
-            self.update_portfolio_info(stock)
-            # self.update_portfolio_price(item_code, stock.current_price)
 
     def update_futures_trading_items(self, item_code):
         stock = self.trading_items[item_code]
@@ -348,7 +338,81 @@ class Kiwoom(KiwoomBase):
             stock.current_price = stock.current_price * -1
 
         if item_code in self.portfolio:
-            self.update_portfolio_price(item_code, stock.current_price)
+            portfolio_stock = self.portfolio[item_code]
+            if portfolio_stock.current_price != stock.current_price:
+                self.update_portfolio_info(stock)
+
+        if item_code == self.draw_chart.item_code:
+            self.update_chart_prices(stock.current_price, stock.volume)
+
+    def update_execution_info(self, stock):
+        # Algorithm Trading Update
+        if self.algorithm_manager.hold(stock):
+            self.algorithm_manager.add_stock(stock)
+            self.signal('algorithm_trading_table')
+
+        # Order History Update
+        self.order_history[stock.order_number] = stock
+        self.signal('order_history_table')
+
+        # Open Orders Update
+        self.open_orders[stock.order_number] = stock
+        if (stock.order_number in self.open_orders) and (stock.open_amount == 0):
+            del self.open_orders[stock.order_number]
+        self.signal('open_orders_table')
+
+        # Portfolio, Deposit Update
+        if stock.order_state == ORDER_EXECUTED:
+            if stock.order_position[-2:] in (PURCHASE, SELL):
+                self.update_portfolio_info(stock)
+                self.update_deposit_info(stock)
+
+        # Log messege
+        message = 'Order execution {}({}), '.format(stock.item_name, stock.order_state)
+        message += 'order:{}, executed:{}, '.format(stock.order_amount, stock.executed_amount_sum)
+        message += 'order number:{}, original number:{}'.format(stock.order_number, stock.original_order_number)
+        self.log(message)
+
+    def update_deposit_info(self, stock):
+        orderable_increment = abs(stock.executed_price * stock.executed_amount)
+        if stock.order_position[-2:] == SELL:
+            sell_cost = math.ceil(orderable_increment * (self.fee_ratio + self.tax_ratio))
+            self.orderable_money += orderable_increment - sell_cost
+        else:
+            self.orderable_money -= orderable_increment
+
+        self.signal('deposit')
+
+    def update_portfolio_info(self, updated_stock):
+        if updated_stock.item_code not in self.portfolio:
+            self.portfolio[updated_stock.item_code] = updated_stock
+        stock = self.portfolio[updated_stock.item_code]
+
+        order_position = updated_stock.order_position[-2:]
+        if order_position == SELL:
+            updated_stock.executed_amount = -abs(updated_stock.executed_amount)
+
+        purchase_price = stock.purchase_sum / stock.holding_amount
+        stock.current_price = updated_stock.current_price
+        stock.holding_amount += updated_stock.executed_amount
+        stock.evaluation_sum = stock.current_price * stock.holding_amount
+
+        if order_position == PURCHASE:
+            stock.purchase_sum += updated_stock.executed_price * updated_stock.executed_amount
+            stock.purchase_price = int(stock.purchase_sum / stock.holding_amount)
+        else:
+            stock.purchase_sum += int(purchase_price * updated_stock.executed_amount)
+
+        stock.purchase_fee = int(stock.purchase_sum * self.fee_ratio / 10) * 10
+        stock.evaluation_fee = int(stock.evaluation_sum * self.fee_ratio / 10) * 10
+        stock.total_fee = stock.purchase_fee + stock.evaluation_fee
+        stock.tax = int(stock.evaluation_sum * self.tax_ratio)
+        calculated_purchase_sum = stock.purchase_price * stock.holding_amount
+        stock.profit = stock.evaluation_sum - calculated_purchase_sum - stock.total_fee - stock.tax
+        stock.profit_rate = round(stock.profit / stock.purchase_sum * 100, 2)
+
+        self.signal('portfolio_table')
+        # self.debug('Update ', updated_stock.executed_price, stock.current_price, stock.purchase_price, stock.holding_amount, stock.purchase_sum, stock.evaluation_sum, stock.total_fee, stock.tax, stock.profit, stock.profit_rate)
 
     def update_chart_prices(self, price, volume):
         current_time = datetime.now().strftime('%Y%m%d%H%M')
@@ -370,113 +434,21 @@ class Kiwoom(KiwoomBase):
                 return
         self.draw_chart.start()
 
-    def update_portfolio_info(self, updated_stock):
-        if updated_stock.item_code not in self.portfolio:
-            self.portfolio[updated_stock.item_code] = updated_stock
-        stock = self.portfolio[updated_stock.item_code]
-
-        order_position = updated_stock.order_position[-2:]
-        if order_position == SELL:
-            updated_stock.executed_amount = -abs(updated_stock.executed_amount)
-
-        purchase_price = stock.purchase_sum / stock.holding_amount
-        stock.executed_amount = updated_stock.executed_amount - stock.previous_executed_amount
-        stock.previous_executed_amount = updated_stock.executed_amount
-        stock.current_price = updated_stock.current_price
-        stock.holding_amount += stock.executed_amount
-        stock.evaluation_sum = stock.current_price * stock.holding_amount
-
-        if order_position == PURCHASE:
-            purchase_increment = updated_stock.executed_price * updated_stock.executed_amount
-            stock.purchase_sum += purchase_increment - stock.previous_purchase_increment
-            stock.previous_purchase_increment = purchase_increment
-            stock.purchase_price = int(stock.purchase_sum / stock.holding_amount)
-        else:
-            stock.purchase_sum += int(purchase_price * stock.executed_amount)
-
-        stock.purchase_fee = int(stock.purchase_sum * self.fee_ratio / 10) * 10
-        stock.evaluation_fee = int(stock.evaluation_sum * self.fee_ratio / 10) * 10
-        stock.total_fee = stock.purchase_fee + stock.evaluation_fee
-        stock.tax = int(stock.evaluation_sum * self.tax_ratio)
-        calculated_purchase_sum = stock.purchase_price * stock.holding_amount
-        stock.profit = stock.evaluation_sum - calculated_purchase_sum - stock.total_fee - stock.tax
-        stock.profit_rate = round(stock.profit / stock.purchase_sum * 100, 2)
-
-        if updated_stock.order_amount == abs(updated_stock.executed_amount):
-            stock.previous_executed_amount = 0
-            stock.previous_purchase_increment = 0
-
-        self.signal('portfolio_table')
-        # self.debug('Update ', updated_stock.executed_price, stock.current_price, stock.purchase_price, stock.holding_amount, stock.purchase_sum, stock.evaluation_sum, stock.total_fee, stock.tax, stock.profit, stock.profit_rate)
-
-        # purchase_price = stock.purchase_sum / stock.holding_amount
-        # stock.executed_amount = updated_stock.executed_amount - stock.previous_executed_amount
-        # stock.previous_executed_amount = updated_stock.executed_amount
-        # stock.current_price = updated_stock.current_price
-        # stock.holding_amount += stock.executed_amount
-        # stock.evaluation_sum = stock.current_price * stock.holding_amount
-        #
-        # if order_position == PURCHASE:
-        #     purchase_increment = updated_stock.executed_price * updated_stock.executed_amount
-        #     stock.purchase_sum += purchase_increment - stock.previous_purchase_increment
-        #     stock.previous_purchase_increment = purchase_increment
-        #     stock.purchase_price = int(stock.purchase_sum / stock.holding_amount)
-        # else:
-        #     stock.purchase_sum += int(purchase_price * stock.executed_amount)
-        #
-        # stock.purchase_fee = int(stock.purchase_sum * self.fee_ratio / 10) * 10
-        # stock.evaluation_fee = int(stock.evaluation_sum * self.fee_ratio / 10) * 10
-        # stock.total_fee = stock.purchase_fee + stock.evaluation_fee
-        # stock.tax = int(stock.evaluation_sum * self.tax_ratio)
-        # calculated_purchase_sum = stock.purchase_price * stock.holding_amount
-        # stock.profit = stock.evaluation_sum - calculated_purchase_sum - stock.total_fee - stock.tax
-        # stock.profit_rate = round(stock.profit / stock.purchase_sum * 100, 2)
-        #
-        # if updated_stock.order_amount == abs(updated_stock.executed_amount):
-        #     stock.previous_executed_amount = 0
-        #     stock.previous_purchase_increment = 0
-        #
-        # self.signal('portfolio_table')
-
-    def update_deposit_info(self, stock):
-        old_orderable = self.orderable_money
-
-        stock.executed_amount = abs(stock.executed_amount) - stock.previous_executed_amount
-        orderable_increment = stock.executed_price * stock.executed_amount
-
-        if stock.order_position[-2:] == SELL:
-            sell_cost = round(orderable_increment * (self.fee_ratio + self.tax_ratio))
-            self.orderable_money += orderable_increment - sell_cost
-        else:
-            self.orderable_money -= orderable_increment
-
-        # self.debug('Update ', old_orderable, self.orderable_money, orderable_increment, stock.executed_amount, stock.executed_price, sell_cost)
-        self.debug('Update ', old_orderable, self.orderable_money, orderable_increment, stock.executed_amount, stock.executed_price)
-        self.request_deposit_info()
-
-        # stock.executed_amount = abs(stock.executed_amount)
-        # orderable_increment = stock.executed_price * stock.executed_amount
-        #
-        # if stock.order_position[-2:] == SELL:
-        #     sell_cost = round(orderable_increment * (self.fee_ratio + self.tax_ratio))
-        #     self.orderable_money += orderable_increment - sell_cost
-        # else:
-        #     self.orderable_money -= orderable_increment
-
-
     def obtain_executed_order_info(self):
         stock = Stock()
         stock.item_code = self.get_chejan_data(FID.ITEM_CODE)[1:]
         stock.item_name = self.get_item_name(stock.item_code)
         stock.order_executed_time = self.get_chejan_data(FID.ORDER_EXECUTED_TIME)
         stock.order_amount = self.get_chejan_data(FID.ORDER_AMOUNT, number=True)
-        stock.executed_amount = self.get_chejan_data(FID.EXECUTED_AMOUNT, number=True)
+        stock.executed_amount = self.get_chejan_data(FID.UNIT_EXECUTED_AMOUNT, number=True)
+        stock.executed_amount_sum = self.get_chejan_data(FID.EXECUTED_AMOUNT, number=True)
         stock.open_amount = self.get_chejan_data(FID.OPEN_AMOUNT, number=True)
         stock.order_number = self.get_chejan_data(FID.ORDER_NUMBER)
         stock.original_order_number = self.get_chejan_data(FID.ORIGINAL_ORDER_NUMBER)
         stock.executed_order_number = self.get_chejan_data(FID.EXECUTED_ORDER_NUMBER)
         stock.order_price = self.get_chejan_data(FID.ORDER_PRICE, number=True)
-        stock.executed_price = self.get_chejan_data(FID.EXECUTED_PRICE, number=True)
+        stock.executed_price = self.get_chejan_data(FID.UNIT_EXECUTED_PRICE, number=True)
+        stock.executed_price_average = self.get_chejan_data(FID.EXECUTED_PRICE, number=True)
         stock.order_position = self.get_chejan_data(FID.ORDER_POSITION)
         stock.current_price = abs(self.get_chejan_data(FID.CURRENT_PRICE, number=True))
 
@@ -485,35 +457,10 @@ class Kiwoom(KiwoomBase):
         stock.transaction_type = self.get_chejan_data(FID.TRANSACTION_TYPE)
         stock.transaction_price = self.get_chejan_data(FID.EXECUTED_PRICE, number=True)
         stock.volume = self.get_chejan_data(FID.VOLUME, number=True)
-        stock.transaction_fee = self.get_chejan_data(FID.TRANSACTION_FEE, number=True)
-        stock.tax = self.get_chejan_data(FID.TRANSACTION_TAX, number=True)
+        # stock.transaction_fee = self.get_chejan_data(FID.TRANSACTION_FEE, number=True)
+        # stock.tax = self.get_chejan_data(FID.TRANSACTION_TAX, number=True)
 
-
-        stock.unit_executed_price = self.get_chejan_data(FID.UNIT_EXECUTED_PRICE, number=True)
-        stock.unit_executed_amount = self.get_chejan_data(FID.UNIT_EXECUTED_AMOUNT, number=True)
-        self.debug(stock.executed_price, stock.unit_executed_price)
-        self.debug(stock.executed_amount, stock.unit_executed_amount)
-
-
-        if self.algorithm_manager.hold(stock):
-            self.algorithm_manager.add_stock(stock)
-            self.signal('algorithm_trading_table')
-
-        self.open_orders[stock.order_number] = stock
-        if (stock.order_number in self.open_orders) and (stock.open_amount == 0):
-            del self.open_orders[stock.order_number]
-        self.signal('open_orders_table')
-        self.order_history_requester.start()
-
-        message = 'Order execution {}({}), '.format(stock.item_name, stock.order_state)
-        message += 'order:{}, executed:{}, '.format(stock.order_amount, stock.executed_amount)
-        message += 'order number:{}, original number:{}'.format(stock.order_number, stock.original_order_number)
-        self.log(message)
-
-        if stock.order_state == ORDER_EXECUTED:
-            if stock.order_position[-2:] in (PURCHASE, SELL):
-                self.update_portfolio_info(stock)
-                self.update_deposit_info(stock)
+        self.update_execution_info(stock)
 
     def obtain_balance_info(self):
         stock = Stock()
@@ -535,12 +482,6 @@ class Kiwoom(KiwoomBase):
         self.balance[stock.item_code] = stock
         self.signal('balance_table')
         self.info('Balance information')
-
-        # self.request_deposit_info()
-        # self.request_portfolio_info()
-        # self.deposit_requester.start()
-        # self.portfolio_requester.start()
-
 
     def execute_algorithm(self):
         self.log('Running algorithm started')
