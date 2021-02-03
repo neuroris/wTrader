@@ -142,9 +142,119 @@ class ChartDrawer(QThread):
     def run(self):
         self.display_chart()
 
+class wmath:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def get_bottom(cls, price, interval):
+        bottom = (price // interval) * interval
+        return bottom
+
+    @classmethod
+    def get_loss_cut(cls, price, interval, loss_cut):
+        cut_value = interval - loss_cut
+        quotient, remainder = divmod(price - 1, interval)
+        fraction = remainder / cut_value
+        factor = int(fraction)
+        if factor:
+            factor = cut_value
+        processed_price = quotient * interval + factor
+
+        return processed_price
+
+    @classmethod
+    def custom_get_loss_cut(cls, interval, loss_cut):
+        def new_get_floor(price):
+            result = cls.get_floor(price, interval, loss_cut)
+            return result
+
+        return new_get_floor
+
+    # @classmethod
+    # def get_ceiling(cls, price, interval, loss_cut):
+    #     cut_value = interval - loss_cut
+    #     quotient, remainder = divmod(price, interval)
+    #     fraction = remainder / cut_value
+    #     factor = int(fraction)
+    #     if factor:
+    #         factor = loss_cut
+    #     processed_price = quotient * interval + cut_value + factor
+    #
+    #     return processed_price
+    #
+    # @classmethod
+    # def custom_get_ceiling(cls, interval, loss_cut):
+    #     def new_get_ceiling(price):
+    #         result = cls.get_ceiling(price, interval, loss_cut)
+    #         return result
+    #
+    #     return new_get_ceiling
+
+    # @classmethod
+    # def get_floor(cls, price, interval, loss_cut):
+    #     cut_value = interval - loss_cut
+    #     quotient, remainder = divmod(price - 1, interval)
+    #     fraction = remainder / cut_value
+    #     factor = int(fraction)
+    #     if factor:
+    #         factor = cut_value
+    #     processed_price = quotient * interval + factor
+    #
+    #     return processed_price
+    #
+    # @classmethod
+    # def custom_get_floor(cls, interval, loss_cut):
+    #     def new_get_floor(price):
+    #         result = cls.get_floor(price, interval, loss_cut)
+    #         return result
+    #
+    #     return new_get_floor
+    #
+    # @classmethod
+    # def get_ceiling(cls, price, interval, loss_cut):
+    #     cut_value = interval - loss_cut
+    #     quotient, remainder = divmod(price, interval)
+    #     fraction = remainder / cut_value
+    #     factor = int(fraction)
+    #     if factor:
+    #         factor = loss_cut
+    #     processed_price = quotient * interval + cut_value + factor
+    #
+    #     return processed_price
+    #
+    # @classmethod
+    # def custom_get_ceiling(cls, interval, loss_cut):
+    #     def new_get_ceiling(price):
+    #         result = cls.get_ceiling(price, interval, loss_cut)
+    #         return result
+    #
+    #     return new_get_ceiling
+
+    @classmethod
+    def at_cut_price(cls, interval, price):
+        check_result = False
+        if price % interval:
+            check_result = True
+        return check_result
+
+    @classmethod
+    def custom_at_cut_price(cls, interval):
+        def new_at_cut_price(price):
+            result = cls.at_cut_price(interval, price)
+            return result
+        return new_at_cut_price
+
 class WookUtil:
     def __init__(self):
         pass
+
+    def to_min_count(self, time_text):
+        time_text = time_text.replace(':', '')
+        hour = int(time_text[:2])
+        minute = int(time_text[2:])
+        time_count = (hour - 9) * 60 + minute
+        return time_count
 
     def process_type(self, raw_data, number=False, time=False):
         data = str(raw_data)
@@ -215,6 +325,8 @@ class WookUtil:
         item_data = str(data)
         table_item = QTableWidgetItem(item_data)
         table_item.setTextAlignment((Qt.AlignCenter))
+        if data == '':
+            return table_item
         if (data[0] == '-') or (data[0] == '+'):
             table_item.setText(data[1:])
         return table_item

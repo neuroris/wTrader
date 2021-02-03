@@ -6,7 +6,7 @@ from queue import Queue
 import time, os, re
 import pickle
 from wookutil import WookCipher, WookLog, WookTimer, WookUtil, ChartDrawer
-from wookstock import StockManager
+from wookalgorithm import Algorithm
 from wookdata import *
 
 class KiwoomBase(QAxWidget, WookLog, WookUtil):
@@ -15,6 +15,7 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         WookLog.custom_init(self, log)
         WookUtil.__init__(self)
 
+        # Password
         wc = WookCipher(key)
         wc.decrypt_data()
         self.login_id = wc.login_id
@@ -22,17 +23,20 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         self.account_password = wc.account_password
         self.certificate_password = wc.certificate_password
 
+        # Eventloop
         self.login_event_loop = QEventLoop()
         self.event_loop = QEventLoop()
         self.timer_event_loop = QEventLoop()
         self.wook_timer = WookTimer(self.timer_event_loop)
 
+        # Chart
         self.draw_chart = ChartDrawer()
         self.chart_prices = list()
         self.min_timer = QTimer()
         self.min_timer.setInterval(60000)
         self.min_timer.timeout.connect(self.on_every_min)
 
+        # Requesters
         self.deposit_requester = QThread()
         self.moveToThread(self.deposit_requester)
         self.deposit_requester.started.connect(self.request_deposit_info)
@@ -47,23 +51,32 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         self.request_interval_limit = 0.5
         self.order_position = ''
 
+        # Signals
         self.log = None
         self.signal = None
         self.status = None
 
+        # Deposit
         self.account_list = None
         self.account_number = 0
         self.deposit = 0
         self.withdrawable_money = 0
         self.orderable_money = 0
 
+        # Items and Orders
         self.portfolio = dict()
-        self.trading_items = dict()
+        self.monitoring_items = dict()
         self.balance = dict()
         self.open_orders = dict()
         self.order_history = dict()
-        self.algorithm_manager = StockManager()
+        self.algorithm = None
 
+        # Pending order
+        self.pending_order = None
+        self.cancel_confirmed = False
+        self.cancel_order_number = 0
+
+        # Request limit
         self.inquiry_count = 0
         self.previous_time = 0.0
         self.reference_time = Queue()
@@ -76,9 +89,11 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         self.request_count_interval = 60
         self.request_count_waiting = 30
 
+        # Fee and Tax
         self.fee_ratio = 0.0035
         self.tax_ratio = 0.0023
 
+        # Screen numbers
         self.screen_account = '0010'
         self.screen_open_order = '0020'
         self.screen_operation_state = '0040'

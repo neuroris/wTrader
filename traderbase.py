@@ -45,10 +45,6 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         self.initUI()
 
     def initUI(self):
-        # Test Button
-        self.btn_test = QPushButton('Test')
-        self.btn_test.clicked.connect(self.test)
-
         ###### Account
         self.cb_auto_login = QCheckBox('Auto')
         self.cb_auto_login.setChecked(True)
@@ -80,11 +76,13 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         # Order Parameters
         lb_price = QLabel('Price')
         self.sb_price = QSpinBox()
+        self.sb_price.setGroupSeparatorShown(True)
         self.sb_price.setMinimumHeight(30)
         self.sb_price.setRange(0, 9000000)
         self.sb_price.setSingleStep(5)
         lb_amount = QLabel('Amount')
         self.sb_amount = QSpinBox()
+        self.sb_amount.setGroupSeparatorShown(True)
         self.sb_amount.setMinimumHeight(30)
         self.sb_amount.setRange(0, 9000000)
         self.cbb_order_position = QComboBox()
@@ -149,6 +147,15 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         self.btn_stop_chart = QPushButton('Stop Chart')
         self.btn_stop_chart.clicked.connect(self.stop_chart)
 
+        # Test
+        self.le_test = QLineEdit()
+        self.le_test.setMaximumWidth(150)
+        self.btn_test1 = QPushButton('Test1')
+        self.btn_test1.clicked.connect(self.test1)
+        self.btn_test1.setMaximumWidth(70)
+        self.btn_test2 = QPushButton('Test2')
+        self.btn_test2.clicked.connect(self.test2)
+
         # Manual Check
         self.btn_deposit = QPushButton('Deposit')
         self.btn_deposit.clicked.connect(self.get_deposit)
@@ -176,7 +183,9 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         order_grid.addLayout(tradeable_hbox, 2, 3, 1, 3)
         order_grid.addWidget(self.btn_go_chart, 2, 6)
         order_grid.addWidget(self.btn_stop_chart, 2, 7)
-        order_grid.addWidget(self.btn_test, 3, 0, 1, 5)
+        order_grid.addWidget(self.le_test, 3, 0, 1, 2)
+        order_grid.addWidget(self.btn_test1, 3, 2, 1, 2)
+        order_grid.addWidget(self.btn_test2, 3, 4, 1, 1)
         order_grid.addWidget(self.btn_deposit, 3, 5)
         order_grid.addWidget(self.btn_portfolio, 3, 6)
         order_grid.addWidget(self.btn_order_history, 3, 7)
@@ -200,21 +209,21 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         portfolio_grid.addWidget(self.table_portfolio)
         portfolio_gbox.setLayout(portfolio_grid)
 
-        ##### Trading items table
-        trading_items_header = ['Item', 'Time', 'Price', 'Ask', 'Bid']
-        trading_items_header += ['Volume', 'Volume(A)', 'High', 'Low', 'Open']
-        self.table_trading_items = QTableWidget(0, 10)
-        self.table_trading_items.cellClicked.connect(self.on_select_trading_items_table)
-        self.table_trading_items.setHorizontalHeaderLabels(trading_items_header)
-        for column in range(1, self.table_trading_items.columnCount()):
-            self.table_trading_items.setColumnWidth(column, 100)
-        self.table_trading_items.setColumnWidth(0, 215)
-        self.table_trading_items.setColumnWidth(6, 120)
+        ##### Monitoring items table
+        monitoring_items_header = ['Item', 'Time', 'Price', 'Ask', 'Bid']
+        monitoring_items_header += ['Volume', 'Volume(A)', 'High', 'Low', 'Open']
+        self.table_monitoring_items = QTableWidget(0, 10)
+        self.table_monitoring_items.cellClicked.connect(self.on_select_trading_items_table)
+        self.table_monitoring_items.setHorizontalHeaderLabels(monitoring_items_header)
+        for column in range(1, self.table_monitoring_items.columnCount()):
+            self.table_monitoring_items.setColumnWidth(column, 100)
+        self.table_monitoring_items.setColumnWidth(0, 215)
+        self.table_monitoring_items.setColumnWidth(6, 120)
 
-        trading_items_gbox = QGroupBox('Trading Items')
-        trading_items_grid = QGridLayout()
-        trading_items_grid.addWidget(self.table_trading_items)
-        trading_items_gbox.setLayout(trading_items_grid)
+        monitoring_items_gbox = QGroupBox('Monitoring')
+        monitoring_items_grid = QGridLayout()
+        monitoring_items_grid.addWidget(self.table_monitoring_items)
+        monitoring_items_gbox.setLayout(monitoring_items_grid)
 
         ##### Balance table
         balance_header = ['Item', 'Current\nPrice', 'Reference\nPrice', 'Purchase\nPrice']
@@ -242,15 +251,46 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         info_gbox.setMinimumHeight(500)
 
         ##### Go Algorithm
+        lb_capital = QLabel('Capital')
+        self.sb_capital = QSpinBox()
+        self.sb_capital.setGroupSeparatorShown(True)
+        self.sb_capital.setMinimumHeight(30)
+        self.sb_capital.setRange(0, 100000000)
+        self.sb_capital.setSingleStep(1000000)
+        lb_interval = QLabel('Interval')
+        self.sb_interval = QSpinBox()
+        self.sb_interval.setMinimumHeight(30)
+        self.sb_interval.setRange(0, 300)
+        self.sb_interval.setSingleStep(5)
+        lb_loss_cut = QLabel('Loss-cut')
+        self.sb_loss_cut = QSpinBox()
+        self.sb_loss_cut.setMinimumHeight(30)
+        self.sb_loss_cut.setRange(0, 200)
+        self.sb_loss_cut.setSingleStep(5)
+        self.btn_algorithm_set = QPushButton('Set')
+        self.btn_algorithm_set.clicked.connect(self.set_algorithm_parameters)
         self.btn_go_algorithm = QPushButton('&Go')
         self.btn_go_algorithm.clicked.connect(self.go)
-        # self.btn_go_algorithm.setMinimumHeight(120)
+        self.btn_go_algorithm.setStyleSheet('font-weight:bold; background-color:Goldenrod')
+        self.btn_stop_algorithm = QPushButton('&Stop')
+        self.btn_stop_algorithm.clicked.connect(self.stop)
+        self.btn_stop_algorithm.setStyleSheet('font-weight:bold; background-color:IndianRed')
+
+        # Algorithm inital setting
+        self.sb_interval.setValue(50)
+        self.sb_loss_cut.setValue(30)
+        self.sb_capital.setValue(1000000)
 
         algorithm_grid = QGridLayout()
-        # algorithm_grid.addWidget(self.btn_go_chart, 0, 0, 1, 1)
-        # algorithm_grid.addWidget(self.btn_stop_chart, 1, 0, 1, 1)
-        # algorithm_grid.addWidget(self.btn_go_algorithm, 1, 1, 2, 9)
-        algorithm_grid.addWidget(self.btn_go_algorithm, 0, 0)
+        algorithm_grid.addWidget(lb_capital, 0, 0)
+        algorithm_grid.addWidget(self.sb_capital, 0, 1)
+        algorithm_grid.addWidget(lb_interval, 0, 2)
+        algorithm_grid.addWidget(self.sb_interval, 0, 3)
+        algorithm_grid.addWidget(lb_loss_cut, 0, 4)
+        algorithm_grid.addWidget(self.sb_loss_cut, 0, 5)
+        algorithm_grid.addWidget(self.btn_algorithm_set, 0, 6)
+        algorithm_grid.addWidget(self.btn_go_algorithm, 0, 7, 1, 15)
+        algorithm_grid.addWidget(self.btn_stop_algorithm, 0, 22, 1, 15)
         algorithm_gbox = QGroupBox('Algorithm')
         algorithm_gbox.setLayout(algorithm_grid)
 
@@ -288,8 +328,8 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         order_history_gbox.setLayout(order_history_grid)
 
         ##### Algorithm Trading Table
-        algorithm_trading_header = ['Item', 'Trade\nPosition', 'Current\nPrice', 'Order\nPrice']
-        algorithm_trading_header += ['Executed\nPrice', 'Order\nNumber', 'Order\nAmount', 'Executed\nAmount']
+        algorithm_trading_header = ['Item', 'Time', 'Order\nNumber', 'Order\nPosition', 'Order\nPrice']
+        algorithm_trading_header += ['Executed\nPrice', 'Order\nAmount', 'Executed\nAmount']
         algorithm_trading_header += ['Open\nAmount', 'Profit', 'Total\nProfit']
         self.table_algorithm_trading = QTableWidget(0, 11)
         self.table_algorithm_trading.cellClicked.connect(self.on_select_algorithm_trading_table)
@@ -324,7 +364,7 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         left_vbox = QVBoxLayout()
         left_vbox.addLayout(left_top_grid)
         left_vbox.addWidget(portfolio_gbox)
-        left_vbox.addWidget(trading_items_gbox)
+        left_vbox.addWidget(monitoring_items_gbox)
         left_vbox.addWidget(balance_gbox)
         left_vbox.addWidget(info_gbox)
         # left_vbox.addWidget(self.btn_test)

@@ -12,10 +12,11 @@ INQUIRY_TYPE = '조회구분'
 CORRECTED_PRICE_TYPE = '수정주가구분'
 RECEIPT = '접수'
 CONFIRMED = '확인'
+CANCEL = '취소'
 ORDER_EXECUTED = '체결'
 ORDER_PRICE = '주문가격'
-PURCHASE = '매수'
-SELL = '매도'
+PURCHASE = '+매수'
+SELL = '-매도'
 CANCEL_PURCHASE = '매수취소'
 CANCEL_SELL = '매도취소'
 CORRECT_PURCHASE = '매수정정'
@@ -48,6 +49,14 @@ MONTH_DATA = '월'
 YEAR_DATA = '년'
 TIME_UNIT = '시간단위'
 FUTURES_CODE = '101'
+
+# Chart index
+TIME_ = 0
+OPEN = 1
+HIGH = 2
+LOW = 3
+CLOSE = 4
+VOLUME_ = 5
 
 # Korean parameters with subfields
 TRADE_POSITION = '매매구분'
