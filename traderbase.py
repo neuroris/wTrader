@@ -11,30 +11,6 @@ from wookutil import WookLog, WookUtil
 from wookdata import *
 import datetime, os
 
-class WookSingal:
-    def __init__(self):
-        self.slot = None
-
-    def connect(self, slot):
-        self.slot = slot
-
-    def emit(self, *args):
-        self.slot(*args)
-
-class WookImageScene(QGraphicsScene):
-    def __init__(self):
-        super().__init__()
-        self.dropped = WookSingal()
-
-    def dragMoveEvent(self, event):
-        event.accept()
-
-    def dropEvent(self, event):
-        mimeData = event.mimeData()
-        text = mimeData.text()
-        file_name = text[8:]
-        self.dropped.emit(file_name)
-
 class TraderBase(QMainWindow, WookLog, WookUtil):
     def __init__(self, log):
         super().__init__()
@@ -46,13 +22,23 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
 
     def initUI(self):
         ###### Account
-        self.cb_auto_login = QCheckBox('Auto')
-        self.cb_auto_login.setChecked(True)
+        # self.cb_auto_login = QCheckBox('Auto')
+        # self.cb_auto_login.setChecked(True)
+        self.cbb_broker = QComboBox()
+        self.cbb_broker.addItem('Kiwoom')
+        self.cbb_broker.addItem('Bankis')
+        self.cbb_broker.currentTextChanged.connect(self.on_select_broker)
+        self.cbb_broker.setMinimumHeight(30)
+        self.cbb_broker.setEditable(True)
+        self.cbb_broker.lineEdit().setReadOnly(True)
+        self.cbb_broker.lineEdit().setAlignment(Qt.AlignCenter)
+        self.cbb_broker.setStyleSheet('font-weight:bold; color:blue')
         self.btn_login = QPushButton('Login', self)
         self.btn_login.clicked.connect(self.connect_kiwoom)
         lb_account = QLabel('Account')
         self.cbb_account = QComboBox()
         self.cbb_account.currentTextChanged.connect(self.on_select_account)
+        self.cbb_account.setMinimumHeight(30)
         lb_deposit = QLabel('Deposit')
         self.lb_deposit = QLabel('No info')
         self.lb_deposit.setStyleSheet('font-weight:bold; color:brown')
@@ -61,7 +47,8 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         self.lb_orderable.setStyleSheet('font-weight:bold; color:olive')
 
         account_grid = QGridLayout()
-        account_grid.addWidget(self.cb_auto_login, 0, 0)
+        # account_grid.addWidget(self.cb_auto_login, 0, 0)
+        account_grid.addWidget(self.cbb_broker, 0, 0)
         account_grid.addWidget(self.btn_login, 0, 1)
         account_grid.addWidget(lb_account, 1, 0)
         account_grid.addWidget(self.cbb_account, 1, 1)
@@ -328,9 +315,9 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         order_history_gbox.setLayout(order_history_grid)
 
         ##### Algorithm Trading Table
-        algorithm_trading_header = ['Item', 'Time', 'Order\nNumber', 'Order\nPosition', 'Order\nPrice']
-        algorithm_trading_header += ['Executed\nPrice', 'Order\nAmount', 'Executed\nAmount']
-        algorithm_trading_header += ['Open\nAmount', 'Profit', 'Total\nProfit']
+        algorithm_trading_header = ['Item', 'Time', 'Order\nNumber', 'Order\nPosition', 'Order\nState']
+        algorithm_trading_header += ['Order\nPrice', 'Executed\nPrice', 'Order\nAmount', 'Executed\nAmount']
+        algorithm_trading_header += ['Open\nAmount', 'Profit']
         self.table_algorithm_trading = QTableWidget(0, 11)
         self.table_algorithm_trading.cellClicked.connect(self.on_select_algorithm_trading_table)
         self.table_algorithm_trading.setHorizontalHeaderLabels(algorithm_trading_header)

@@ -1,6 +1,5 @@
 from PyQt5.QtWidgets import QTableWidgetItem, QFileDialog, QTableWidgetSelectionRange
 from PyQt5.QtCore import Qt, QThread
-from PyQt5.QtGui import QPixmap
 import pandas
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
@@ -36,9 +35,9 @@ class Trader(TraderBase):
 
         # For debugging convenience
         # self.cbb_item_code.setCurrentIndex(2)
-        self.sb_price.setValue(30000)
+        # self.sb_price.setValue(30000)
         self.sb_amount.setValue(10)
-        self.cbb_order_position.setCurrentIndex(1)
+        # self.cbb_order_position.setCurrentIndex(1)
 
     def test1(self):
         self.debug('test1 button clicked')
@@ -68,11 +67,13 @@ class Trader(TraderBase):
         self.kiwoom.algorithm = self.algorithm
 
     def connect_kiwoom(self):
-        if self.cb_auto_login.isChecked():
-            self.kiwoom.auto_login()
-        else:
-            self.kiwoom.login()
-            self.kiwoom.set_account_password()
+        # if self.cb_auto_login.isChecked():
+        #     self.kiwoom.auto_login()
+        # else:
+        #     self.kiwoom.login()
+        #     self.kiwoom.set_account_password()
+
+        self.kiwoom.auto_login()
 
         self.get_account_list()
 
@@ -240,13 +241,13 @@ class Trader(TraderBase):
             self.table_algorithm_trading.setItem(row, 1, self.to_item_time(order.order_executed_time))
             self.table_algorithm_trading.setItem(row, 2, self.to_item_plain(order.order_number))
             self.table_algorithm_trading.setItem(row, 3, self.to_item_center(order.order_position))
-            self.table_algorithm_trading.setItem(row, 4, self.to_item(order.order_price))
-            self.table_algorithm_trading.setItem(row, 5, self.to_item(order.executed_price_avg))
-            self.table_algorithm_trading.setItem(row, 6, self.to_item(order.order_amount))
-            self.table_algorithm_trading.setItem(row, 7, self.to_item(order.executed_amount_sum))
-            self.table_algorithm_trading.setItem(row, 8, self.to_item_sign(order.open_amount))
-            self.table_algorithm_trading.setItem(row, 9, self.to_item_sign(order.profit))
-            self.table_algorithm_trading.setItem(row, 10, self.to_item_sign(order.profit_rate))
+            self.table_algorithm_trading.setItem(row, 4, self.to_item_center(order.order_state))
+            self.table_algorithm_trading.setItem(row, 5, self.to_item(order.order_price))
+            self.table_algorithm_trading.setItem(row, 6, self.to_item(order.executed_price_avg))
+            self.table_algorithm_trading.setItem(row, 7, self.to_item(order.order_amount))
+            self.table_algorithm_trading.setItem(row, 8, self.to_item(order.executed_amount_sum))
+            self.table_algorithm_trading.setItem(row, 9, self.to_item_sign(order.open_amount))
+            self.table_algorithm_trading.setItem(row, 10, self.to_item_sign(order.profit))
         self.table_algorithm_trading.sortItems(2, Qt.DescendingOrder)
 
     def clear_table(self, table):
@@ -335,6 +336,12 @@ class Trader(TraderBase):
         if self.algorithm.orders:
             ax.axhline(self.algorithm.loss_limit, alpha=1, linewidth=0.2, color='Red')
             ax.text(0, self.algorithm.loss_limit, 'Loss cut')
+
+    def on_select_broker(self, broker):
+        if broker == 'Kiwoom':
+            self.debug('kiwoom man')
+        elif broker == 'Bankis':
+            self.debug('Bankis')
 
     def on_select_account(self, account):
         self.kiwoom.account_number = int(account)

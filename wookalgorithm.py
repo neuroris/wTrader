@@ -9,10 +9,12 @@ class Algorithm(WookUtil, WookLog):
     def __init__(self, log):
         WookLog.custom_init(self, log)
 
-        self.broker = None
-        self.orders = dict()
         self.leverage = None
         self.balance_item = None
+        self.broker = None
+        self.orders = dict()
+        self.log = log
+
         self.is_running = False
         self.capital = 0
         self.interval = 0
@@ -29,6 +31,7 @@ class Algorithm(WookUtil, WookLog):
     def start(self, broker, capital, interval, loss_cut):
         self.leverage = AlgorithmItem('122630')
         self.leverage.set_broker(broker)
+        self.leverage.set_log(self.log)
         self.balance_item = BalanceItem()
         self.broker = broker
         self.capital = capital
@@ -141,8 +144,19 @@ class Algorithm(WookUtil, WookLog):
         self.leverage.update(order)
 
         # Orders update
-        if order.order_amount == order.executed_amount_sum + order.open_amount:
+        if order.open_amount:
+            if order.order_position in (PURCHASE, CORRECT_PURCHASE):
+                self.orders[ALGORITHM_PURCHASE] = order
+            elif order.order_position in (SELL, CORRECT_SELL):
+                self.orders[ALGORITHM_SALE] = order
+
+        if order.order_amount == order.executed_amount_sum:
             self.orders[order.order_number] = order
+
+            if order.order_position == PURCHASE and self.orders[ALGORITHM_PURCHASE]:
+                del self.orders[ALGORITHM_PURCHASE]
+            elif order.order_position == SELL and self.orders[ALGORITHM_SALE]:
+                del self.orders[ALGORITHM_SALE]
 
     def update_balance_info(self, item):
         self.balance_item = item

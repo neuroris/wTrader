@@ -19,8 +19,8 @@ PURCHASE = '+매수'
 SELL = '-매도'
 CANCEL_PURCHASE = '매수취소'
 CANCEL_SELL = '매도취소'
-CORRECT_PURCHASE = '매수정정'
-CORRECT_SELL = '매도정정'
+CORRECT_PURCHASE = '+매수정정'
+CORRECT_SELL = '-매도정정'
 REFERENCE_DATE = '기준일자'
 END_DATE = '끝일자'
 DATE = '일자'
@@ -277,6 +277,10 @@ class FID:
 MARKET_KOSDAQ = '10'
 MARKET_KOSPI = '0'
 MARKET_ETF = '8'
+
+# Algorithms
+ALGORITHM_PURCHASE = '999998'
+ALGORITHM_SALE = '999999'
 
 # Item code list
 CODES = {

@@ -507,9 +507,12 @@ class Kiwoom(KiwoomBase):
                 self.update_deposit_info(order)
 
         # Log messege
-        message = 'Order execution({}) {}({}), '.format(self.order_position, order.item_name, order.order_state)
+        message = 'Order execution({}) {}({}), '.format(order.order_position, order.item_name, order.order_state)
         message += 'order:{}, executed:{}, '.format(order.order_amount, order.executed_amount_sum)
         message += 'order number:{}, original number:{}'.format(order.order_number, order.original_order_number)
+
+        message += order.order_position + str(order.open_amount)
+
         self.log(message)
 
         # Pending order

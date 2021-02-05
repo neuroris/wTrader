@@ -1,3 +1,4 @@
+from wookutil import WookLog
 from wookdata import *
 
 class Item:
@@ -58,87 +59,105 @@ class Order(Item):
         self.order_number = 0
         self.original_order_number = ''
         self.executed_order_number = 0
+        self.ordered = False
 
-class AlgorithmItem(Item):
+class AlgorithmItem(Item, WookLog):
     def __init__(self, item_code):
         super().__init__()
         self.broker = None
         self.item_code = item_code
         self.item_name = CODES[item_code]
-        # self.purchase = OrderManager()
-        # self.sale = OrderManager()
-        self.buy_order = None
-        self.sell_order = None
-        self.buy_ordered = False
-        self.sell_ordered = False
+        self.purchase = Order()
+        self.sale = Order()
 
     def set_broker(self, broker):
         self.broker = broker
 
+    def set_log(self, log):
+        WookLog.custom_init(self, log)
+
     def update(self, order):
+        if order.order_position in (PURCHASE, CORRECT_PURCHASE, CANCEL_PURCHASE):
+            if order.order_number < self.purchase.order_number:
+                return
+        else:
+            if order.order_number < self.sale.order_number:
+                return
+
         executed_amount = abs(order.executed_amount)
         if order.order_position == PURCHASE:
-            self.buy_order = order
+            self.purchase = order
+            if order.order_state == RECEIPT:
+                self.purchase.ordered = False
             if order.order_state == ORDER_EXECUTED:
                 self.holding_amount += executed_amount
-                if not order.open_amount:
-                    self.buy_order = None
-                    self.buy_ordered = False
         elif order.order_position == SELL:
-            self.sell_order = order
+            self.sale = order
+            if order.order_state == RECEIPT:
+                self.sale.ordered = False
             if order.order_state == ORDER_EXECUTED:
                 self.holding_amount -= executed_amount
-                if not order.open_amount:
-                    self.sell_order = None
-                    self.sell_ordered = False
         elif order.order_position == CORRECT_PURCHASE:
-            self.buy_order = order
+            self.purchase = order
         elif order.order_position == CORRECT_SELL:
-            self.sell_order = order
-        elif order.order_position == CANCEL_PURCHASE and order.original_order_number == 0:
-            self.buy_order = None
-        elif order.order_position == CANCEL_SELL and order.original_order_number == 0:
-            self.sell_order = None
+            self.sale = order
+        elif order.order_position == CANCEL_PURCHASE:
+            self.purchase = order
+        elif order.order_position == CANCEL_SELL:
+            self.sale = order
 
     def buy(self, price, amount, order_type='LIMIT'):
-        if self.buy_ordered:
+        if self.purchase.ordered:
             return
 
+        self.purchase.ordered = True
         self.broker.buy(self.item_code, price, amount, order_type)
-        self.buy_ordered = True
 
     def buy_out(self):
-        if self.buy_ordered:
+        if self.purchase.ordered:
             return
 
-        purchase_amount = self.buy_order.order_amount - self.holding_amount
-        refill_amount = purchase_amount - self.buy_order.open_amount
+        purchase_amount = self.purchase.order_amount - self.holding_amount
+        refill_amount = purchase_amount - self.purchase.open_amount
+
+        self.debug('buy_out', 'order_amount:', self.purchase.order_amount, 'holding_amount:', self.holding_amount, 'open_amount:', self.purchase.open_amount, 'refill_amount:', refill_amount)
+
         if refill_amount:
-            self.broker.cancel_and_buy(self.buy_order, self.buy_order.order_price, purchase_amount)
-            self.buy_ordered = True
+            self.purchase.ordered = True
+            self.broker.cancel_and_buy(self.purchase, self.purchase.order_price, purchase_amount)
 
     def sell(self, price, amount, order_type='LIMIT'):
-        if not self.holding_amount or self.sell_ordered:
+        if not self.holding_amount or self.sale.ordered:
             return
 
+        self.sale.ordered = True
         self.broker.sell(self.item_code, price, amount, order_type)
-        self.sell_ordered = True
 
     def sell_out(self, price):
-        if not self.sell_order or self.sell_ordered:
+        if self.sale.ordered:
             return
 
-        sell_amount = self.holding_amount - self.sell_order.order_amount
+        sell_amount = self.holding_amount - self.sale.order_amount
+
+        self.debug('sell_out', 'holding_amount:', self.holding_amount, 'order_amount:', self.sale.order_amount, 'sell_amount:', sell_amount, self.sale.ordered)
+
+
         if sell_amount:
-            if self.sell_order.order_number:
-                self.broker.cancel_and_sell(self.sell_order, price, self.holding_amount)
-                self.sell_ordered = True
+            self.sale.ordered = True
+            if self.sale.order_number:
+                self.broker.cancel_and_sell(self.sale, price, self.holding_amount)
             else:
                 self.sell(price, self.holding_amount)
 
     def sell_off(self):
-        if self.sell_order.order_number:
-            self.broker.cancel_and_sell(self.sell_order, 0, self.holding_amount, 'MARKET')
+        if not self.holding_amount or self.sale.ordered:
+            return
+
+        self.debug('sell_off', 'holding_amount:', self.holding_amount, 'open_amount:', self.sale.open_amount, self.sale.ordered)
+
+        self.sale.ordered = True
+        if self.sale.open_amount:
+            self.broker.cancel_and_sell(self.sale, 0, self.holding_amount, 'MARKET')
         else:
             self.sell(0, self.holding_amount, 'MARKET')
 
@@ -146,20 +165,20 @@ class AlgorithmItem(Item):
         self.broker.cancel(order)
 
     def cancel_purchase(self):
-        self.cancel(self.buy_order)
+        self.cancel(self.purchase)
 
     def cancel_sale(self):
-        self.cancel(self.sell_order)
+        self.cancel(self.sale)
 
     def correct(self, order, price, amount=None):
         self.broker.correct(order, price, amount)
 
     def correct_purchase(self, price):
-        self.correct(self.buy_order, price)
+        self.correct(self.purchase, price)
 
     def correct_sale(self, price):
-        if self.sell_ordered:
-            self.correct(self.sell_order, price)
+        if self.sale.ordered:
+            self.correct(self.sale, price)
 
 class OrderManager:
     def __init__(self):

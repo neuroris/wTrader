@@ -241,3 +241,65 @@
 2021-02-03 15:05:41,539 Algorithm started
 2021-02-03 15:05:42,134 Send order (BUY) command committed successfully KOA_NORMAL_BUY_KP_ORD
 2021-02-03 15:06:21,564 Order execution(BUY) KODEX 레버리지(접수), order:36, executed:0, order number:197760, original number:0
+2021-02-03 15:08:04,179 Kiwoom initializing...
+2021-02-03 15:08:09,853 Kiwoom log in success
+2021-02-03 15:08:09,853 Account information
+2021-02-03 15:08:10,357 Deposit information
+2021-02-03 15:08:10,901 Order history information
+2021-02-03 15:08:11,860 Portfolio information
+2021-02-03 15:19:58,268 market operation state 2 152000 001000
+2021-02-03 15:20:58,260 market operation state 2 152100 000900
+2021-02-03 15:21:58,262 market operation state 2 152200 000800
+2021-02-03 15:22:58,273 market operation state 2 152300 000700
+2021-02-03 15:23:58,263 market operation state 2 152400 000600
+2021-02-03 15:24:58,269 market operation state 2 152500 000500
+2021-02-03 15:25:58,261 market operation state 2 152600 000400
+2021-02-03 15:26:58,264 market operation state 2 152700 000300
+2021-02-03 15:27:58,256 market operation state 2 152800 000200
+2021-02-03 15:28:58,256 market operation state 2 152900 000100
+2021-02-03 15:29:08,255 market operation state 2 152910 000050
+2021-02-03 15:29:18,258 market operation state 2 152920 000040
+2021-02-03 15:29:28,255 market operation state 2 152930 000030
+2021-02-03 15:29:38,263 market operation state 2 152940 000020
+2021-02-03 15:29:48,251 market operation state 2 152950 000010
+2021-02-03 15:29:58,258 market operation state 4 153000 000000
+2021-02-03 15:30:38,256 market operation state 8 888888 000000
+2021-02-03 15:34:58,253 market operation state s 153500 000000
+2021-02-03 15:34:58,254 market operation state s 153500 000000
+2021-02-03 15:34:58,343 market operation state s 153500 000000
+2021-02-03 15:34:58,344 market operation state s 153500 000000
+2021-02-03 15:34:58,344 market operation state s 153500 000000
+2021-02-03 15:34:58,344 market operation state s 153500 000000
+2021-02-03 15:34:58,345 market operation state s 153500 000000
+2021-02-03 15:34:58,345 market operation state s 153500 000000
+2021-02-03 15:34:58,345 market operation state s 153500 000000
+2021-02-03 15:34:58,345 market operation state s 153500 000000
+2021-02-03 15:34:58,448 market operation state s 153500 000000
+2021-02-03 15:34:58,448 market operation state s 153500 000000
+2021-02-03 15:34:58,449 market operation state s 153500 000000
+2021-02-03 15:34:58,449 market operation state s 153500 000000
+2021-02-03 15:34:58,449 market operation state s 153500 000000
+2021-02-03 15:34:58,450 market operation state s 153500 000000
+2021-02-03 15:34:58,450 market operation state s 153500 000000
+2021-02-03 15:39:58,534 market operation state a 154000 000000
+2021-02-03 15:44:58,432 market operation state e 154500 000000
+2021-02-03 15:44:58,536 market operation state e 154500 000000
+2021-02-03 15:44:58,536 market operation state e 154500 000000
+2021-02-03 15:44:58,628 market operation state e 154500 000000
+2021-02-03 15:44:58,628 market operation state e 154500 000000
+2021-02-03 15:44:58,736 market operation state e 154500 000000
+2021-02-03 15:44:58,737 market operation state e 154500 000000
+2021-02-03 15:44:58,842 market operation state e 154500 000000
+2021-02-03 15:44:58,933 market operation state e 154500 000000
+2021-02-03 15:44:58,933 market operation state e 154500 000000
+2021-02-03 15:44:59,041 market operation state e 154500 000000
+2021-02-03 15:44:59,042 market operation state e 154500 000000
+2021-02-03 15:44:59,433 market operation state e 154500 000000
+2021-02-03 15:44:59,539 market operation state e 154500 000000
+2021-02-03 15:44:59,736 market operation state e 154500 000000
+2021-02-03 15:45:00,038 market operation state e 154500 000000
+2021-02-03 15:45:00,146 market operation state e 154500 000000
+2021-02-03 15:59:58,418 market operation state b 160000 000000
+2021-02-03 15:59:58,419 market operation state c 160000 000000
+2021-02-03 17:59:58,342 market operation state d 180000 000000
+2021-02-03 18:01:18,040 market operation state 9 999999 000000
