@@ -2,7 +2,7 @@ import copy
 from datetime import datetime
 from PyQt5.QtCore import QEventLoop
 from wookutil import WookUtil, WookLog, wmath
-from wookitem import Item, BalanceItem, Order, AlgorithmItem, OrderManager
+from wookitem import Item, BalanceItem, Order, AlgorithmItem
 from wookdata import *
 
 class Algorithm(WookUtil, WookLog):
@@ -12,6 +12,7 @@ class Algorithm(WookUtil, WookLog):
         self.leverage = None
         self.balance_item = None
         self.broker = None
+        self.signal = None
         self.orders = dict()
         self.log = log
 
@@ -25,8 +26,10 @@ class Algorithm(WookUtil, WookLog):
         self.reference_price = 0
         self.buy_limit = 0
         self.loss_limit = 0
+        self.sell_off_ordered = False
 
-        self.display = ''
+        self.previous_situation = ''
+        self.previous_msg = ()
 
     def start(self, broker, capital, interval, loss_cut):
         self.leverage = AlgorithmItem('122630')
@@ -100,63 +103,112 @@ class Algorithm(WookUtil, WookLog):
             return
 
         # Trade
-        if item.current_price >= self.reference_price + self.interval:
-            current_display = 'situation 1'
-            if current_display != self.display:
-                self.debug('situation 1')
-                self.display = current_display
+        if self.sell_off_ordered:
+            msg = ('sale.ordered:'+str(self.leverage.sale.ordered), 'open_amount:'+str(self.leverage.sale.open_amount))
+            self.post('(TRANSACTION:SELL_OFF)', *msg)
+            if self.leverage.sale.ordered or self.leverage.sale.open_amount:
+                return
+            self.sell_off_ordered = False
 
+        if item.current_price >= self.reference_price + self.interval:
+            self.display_situation('Situation 1')
             self.shift_reference_up()
             self.leverage.correct_purchase(self.buy_limit)
         elif item.current_price >= self.buy_limit + self.loss_cut:
-            current_display = 'situation 2'
-            if current_display != self.display:
-                self.debug('situation 2')
-                self.display = current_display
-
+            self.display_situation('Situation 2')
             self.leverage.sell_out(self.reference_price)
         elif item.current_price <= self.loss_limit:
-            current_display = 'situation 4'
-            if current_display != self.display:
-                self.debug('situation 4')
-                self.display = current_display
-
+            self.display_situation('Situation 4')
+            self.sell_off_ordered = True
             self.leverage.sell_off()
             self.shift_reference_down()
-            self.leverage.buy(self.buy_limit, self.capital // item.current_price)
         elif item.current_price <= self.reference_price - self.loss_cut:
-            current_display = 'situation 3'
-            if current_display != self.display:
-                self.debug('situation 3')
-                self.display = current_display
+            self.display_situation('Situation 3')
+            self.leverage.buy_up()
 
-            self.leverage.buy_out()
-        # else:
-        #     current_display = 'situation 5'
-        #     if current_display != self.display:
-        #         self.debug('situation 5')
-        #         self.display = current_display
+        # for register_number in self.orders:
+        #     order = self.orders[register_number]
+        #     self.post('\033[92m@@@@@@@@@\033[97m', register_number, order.order_number,
+        #                order.order_position, order.order_state, order.profit, order.profit_rate)
 
-        self.broker.signal('algorithm_trading_table')
+        # self.signal('algorithm_trading_table')
 
     def update_execution_info(self, order):
-        # Leverage update
-        self.leverage.update(order)
+        # Leverage update execution
+        self.leverage.update_execution_info(order)
 
-        # Orders update
-        if order.open_amount:
-            if order.order_position in (PURCHASE, CORRECT_PURCHASE):
-                self.orders[ALGORITHM_PURCHASE] = order
-            elif order.order_position in (SELL, CORRECT_SELL):
-                self.orders[ALGORITHM_SALE] = order
+        # Buy after sale completed
+        if order.order_position in (SELL, CORRECT_SELL) and order.order_state == ORDER_EXECUTED:
+            self.signal('total_profit')
+            if not order.open_amount and not self.leverage.purchase.open_amount:
+                self.leverage.buy_over(self.buy_limit, self.capital // order.current_price)
 
-        if order.order_amount == order.executed_amount_sum:
+        # if order.order_amount == order.executed_amount_sum:
+        #     self.orders[order.order_number] = order
+
+        # if order.open_amount:
+        #     if order.order_position in (PURCHASE, CORRECT_PURCHASE):
+        #         self.orders[ALGORITHM_PURCHASE] = order
+        #     elif order.order_position in (SELL, CORRECT_SELL):
+        #         self.orders[ALGORITHM_SALE] = order
+
+        # if order.order_amount == order.executed_amount_sum:
+        #     self.orders[order.order_number] = order
+        #
+        #     if ALGORITHM_PURCHASE in self.orders and order.order_position in (PURCHASE, CORRECT_PURCHASE):
+        #         del self.orders[ALGORITHM_PURCHASE]
+        #     elif ALGORITHM_SALE in self.orders and order.order_position in (SELL, CORRECT_SELL):
+        #         del self.orders[ALGORITHM_SALE]
+
+        # if order.order_position in (PURCHASE, CORRECT_PURCHASE):
+        #     if order.order_amount == order.executed_amount_sum:
+        #         self.orders[order.order_number] = order
+        # elif order.order_position in (SELL, CORRECT_SELL):
+        #     if order.order_state == ORDER_EXECUTED:
+        #         self.orders[order.order_number] = order
+
+        # if order.order_state == ORDER_EXECUTED:
+        #     if order.order_position in (PURCHASE, CORRECT_PURCHASE):
+        #         self.orders[order.order_number] = order
+        #     elif order.order_position in (SELL, CORRECT_SELL):
+        #         self.orders[order.order_number] = order
+
+        if order.order_position in (PURCHASE, CORRECT_PURCHASE):
+            self.orders[order.order_number] = order
+        elif order.order_position in (SELL, CORRECT_SELL):
             self.orders[order.order_number] = order
 
-            if order.order_position == PURCHASE and self.orders[ALGORITHM_PURCHASE]:
-                del self.orders[ALGORITHM_PURCHASE]
-            elif order.order_position == SELL and self.orders[ALGORITHM_SALE]:
-                del self.orders[ALGORITHM_SALE]
+        if order.order_position in (CORRECT_PURCHASE, CORRECT_SELL) and order.order_state == CONFIRMED:
+            del self.orders[order.original_order_number]
+        elif order.order_position in (CANCEL_PURCHASE, CANCEL_SELL) and order.order_state == CONFIRMED:
+            original_order = self.orders[order.original_order_number]
+            if not original_order.executed_amount_sum:
+                del self.orders[order.original_order_number]
+
+
+        # if order.order_amount == order.executed_amount_sum:
+        #     if ALGORITHM_PURCHASE in self.orders and order.order_position in (PURCHASE, CORRECT_PURCHASE):
+        #         del self.orders[ALGORITHM_PURCHASE]
+        #     elif ALGORITHM_SALE in self.orders and order.order_position in (SELL, CORRECT_SELL):
+        #         del self.orders[ALGORITHM_SALE]
+        #
+
+        # for register_number in self.orders:
+        #     order = self.orders[register_number]
+        #     self.post('\033[92m@@@@@@@@@\033[97m', register_number, order.order_number,
+        #                order.order_position, order.order_state, order.profit)
+
+        # self.signal('algorithm_trading_table')
 
     def update_balance_info(self, item):
         self.balance_item = item
+
+    def display_situation(self, current_situation):
+        if current_situation != self.previous_situation:
+            self.post(current_situation)
+            self.previous_situation = current_situation
+
+    def post(self, *args):
+        if args != self.previous_msg:
+            self.debug('\033[93mALGORITHM', *args, '\033[97m')
+            self.previous_msg = args

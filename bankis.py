@@ -2,16 +2,16 @@ from PyQt5.QtWidgets import QTableWidgetItem
 from PyQt5.QtCore import QObject, QThread
 import pandas
 from datetime import datetime
-import time, math, copy
-from kiwoombase import KiwoomBase
+import time, math
+from bankisbase import BankisBase
 from wookauto import LoginPasswordThread, AccountPasswordThread
 from wookitem import Item, BalanceItem, Order
 from wookdata import *
 
-class Kiwoom(KiwoomBase):
+class Bankis(BankisBase):
     def __init__(self, log, key):
         super().__init__(log, key)
-        self.info('Kiwoom initializing...')
+        self.info('Bankis initializing...')
 
         # Connect slots
         self.OnEventConnect.connect(self.on_login)
@@ -110,7 +110,7 @@ class Kiwoom(KiwoomBase):
 
     def on_login(self, err_code):
         if err_code == 0:
-            self.log('Kiwoom log in success')
+            self.log('Bankis log in success')
         else:
             self.log('Something is wrong during log-in')
             self.error('Login error', err_code)
@@ -223,7 +223,7 @@ class Kiwoom(KiwoomBase):
                 self.open_orders[order.order_number] = order
 
         if sPrevNext == '2':
-            self.request_order_history('122630', sPrevNext)
+            self.request_order_history(sPrevNext)
         else:
             self.signal('order_history_table')
             self.signal('open_orders_table')
@@ -397,8 +397,7 @@ class Kiwoom(KiwoomBase):
         item.purchase_fee = int(item.purchase_sum * self.fee_ratio / 10) * 10
         item.evaluation_fee = int(item.evaluation_sum * self.fee_ratio / 10) * 10
         item.total_fee = item.purchase_fee + item.evaluation_fee
-        # item.tax = int(item.evaluation_sum * self.tax_ratio * item.tax_factor)
-        item.tax = self.get_tax(item)
+        item.tax = int(item.evaluation_sum * self.tax_ratio)
         calculated_purchase_sum = item.purchase_price * item.holding_amount
         item.profit = item.evaluation_sum - calculated_purchase_sum - item.total_fee - item.tax
         item.profit_rate = round(item.profit / item.purchase_sum * 100, 2)
@@ -407,34 +406,28 @@ class Kiwoom(KiwoomBase):
 
     def update_portfolio(self, order):
         if order.item_code not in self.portfolio:
-            order = copy.deepcopy(order)
             self.portfolio[order.item_code] = order
-
         item = self.portfolio[order.item_code]
 
-        if order.order_position == SELL:
+        order_position = order.order_position
+        if order_position == SELL:
             order.executed_amount = -abs(order.executed_amount)
 
+        purchase_price = item.purchase_sum / item.holding_amount
         item.current_price = order.current_price
         item.holding_amount += order.executed_amount
         item.evaluation_sum = order.current_price * item.holding_amount
 
-        if not item.holding_amount:
-            del self.portfolio[order.item_code]
-            self.signal('portfolio_table')
-            return
-
-        if order.order_position in (PURCHASE, CORRECT_PURCHASE):
+        if order_position == PURCHASE:
             item.purchase_sum += order.executed_price * order.executed_amount
             item.purchase_price = int(item.purchase_sum / item.holding_amount)
         else:
-            purchase_price_exact = item.purchase_sum / (item.holding_amount - order.executed_amount)
-            item.purchase_sum += int(purchase_price_exact * order.executed_amount)
+            item.purchase_sum += int(purchase_price * order.executed_amount)
 
         item.purchase_fee = int(item.purchase_sum * self.fee_ratio / 10) * 10
         item.evaluation_fee = int(item.evaluation_sum * self.fee_ratio / 10) * 10
         item.total_fee = item.purchase_fee + item.evaluation_fee
-        item.tax = self.get_tax(item)
+        item.tax = int(item.evaluation_sum * self.tax_ratio)
         calculated_purchase_sum = item.purchase_price * item.holding_amount
         item.profit = item.evaluation_sum - calculated_purchase_sum - item.total_fee - item.tax
         item.profit_rate = round(item.profit / item.purchase_sum * 100, 2)
@@ -492,19 +485,35 @@ class Kiwoom(KiwoomBase):
         self.update_execution_info(order)
 
     def update_execution_info(self, order):
-        # Log message
-        message = 'Order execution({}) {}({}), '.format(order.order_position, order.item_name, order.order_state)
-        message += 'order:{}, executed_sum:{}, '.format(order.order_amount, order.executed_amount_sum)
-        message += 'open:{}, '.format(order.open_amount)
-        message += 'number:{}, original:{}'.format(order.order_number, order.original_order_number)
-        self.log(message)
-
         # Algorithm Trading Update
         if self.algorithm.is_running:
-            if order.order_number != self.previous_order.original_order_number:
-                self.algorithm.update_execution_info(order)
-                self.signal('algorithm_trading_table')
-            self.previous_order = order
+            self.algorithm.update_execution_info(order)
+            self.signal('algorithm_trading_table')
+
+        # Order History Update
+        self.order_history[order.order_number] = order
+        self.signal('order_history_table')
+
+        # Open Orders Update
+        self.open_orders[order.order_number] = order
+        if (order.order_number in self.open_orders) and (order.open_amount == 0):
+            del self.open_orders[order.order_number]
+        self.signal('open_orders_table')
+
+        # Portfolio, Deposit Update
+        if order.order_state == ORDER_EXECUTED:
+            if order.order_position[-2:] in (PURCHASE, SELL):
+                self.update_portfolio(order)
+                self.update_deposit_info(order)
+
+        # Log messege
+        message = 'Order execution({}) {}({}), '.format(order.order_position, order.item_name, order.order_state)
+        message += 'order:{}, executed:{}, '.format(order.order_amount, order.executed_amount_sum)
+        message += 'order number:{}, original number:{}'.format(order.order_number, order.original_order_number)
+
+        message += order.order_position + str(order.open_amount)
+
+        self.log(message)
 
         # Pending order
         if self.pending_order:
@@ -514,25 +523,6 @@ class Kiwoom(KiwoomBase):
                 self.pending_order()
                 self.pending_order = None
                 self.cancel_confirmed = False
-
-        # Portfolio, Deposit Update
-        if order.order_state == ORDER_EXECUTED:
-            # if order.order_position in (PURCHASE, CORRECT_PURCHASE, SELL, CORRECT_SELL):
-            #     self.update_portfolio(order)
-            #     self.update_deposit_info(order)
-
-            self.update_portfolio(order)
-            self.update_deposit_info(order)
-
-        # Open Orders Update
-        self.open_orders[order.order_number] = order
-        if (order.order_number in self.open_orders) and (order.open_amount == 0):
-            del self.open_orders[order.order_number]
-        self.signal('open_orders_table')
-
-        # Order History Update
-        self.order_history[order.order_number] = order
-        self.signal('order_history_table')
 
     def obtain_balance_info(self):
         item = BalanceItem()
@@ -599,11 +589,9 @@ class Kiwoom(KiwoomBase):
         self.cancel_order_number = order.order_number
         self.order(order.item_code, order.order_price, amount, order_position, order_type, order.order_number)
 
-    def cancel_and_buy(self, order, price, amount=None, order_type='LIMIT'):
+    def cancel_and_buy(self, order, price, amount, order_type='LIMIT'):
         item_code = order.item_code
         order_position = 'BUY'
-        if amount is None:
-            amount = order.order_amount
         self.cancel(order)
         self.pending_order = self.new_order(item_code, price, amount, order_position, order_type)
 

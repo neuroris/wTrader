@@ -21,7 +21,7 @@ if __name__ == '__main__':
     console_handler.setFormatter(console_formatter)
     file_formatter = logging.Formatter('%(asctime)s %(message)s')
     file_handler = logging.FileHandler(log_folder+log_file, mode='a')
-    file_handler.setLevel(logging.INFO)
+    file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(file_formatter)
     log = logging.getLogger('kiwoom')
     log.addHandler(console_handler)

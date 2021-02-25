@@ -5,12 +5,11 @@ import pandas
 from queue import Queue
 import time, os, re
 import pickle
-from wookitem import Order
 from wookutil import WookCipher, WookLog, WookTimer, WookUtil, ChartDrawer
 from wookalgorithm import Algorithm
 from wookdata import *
 
-class KiwoomBase(QAxWidget, WookLog, WookUtil):
+class BankisBase(QAxWidget, WookLog, WookUtil):
     def __init__(self, log, key):
         super().__init__('KHOPENAPI.KHOpenAPICtrl.1')
         WookLog.custom_init(self, log)
@@ -70,7 +69,6 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         self.balance = dict()
         self.open_orders = dict()
         self.order_history = dict()
-        self.previous_order = Order()
         self.algorithm = None
 
         # Pending order
@@ -239,9 +237,3 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         self.wook_timer.sleep(time)
         self.wook_timer.start()
         self.timer_event_loop.exec()
-
-    def get_tax(self, item):
-        tax = 0
-        if item.item_name[:5] != 'KODEX':
-            tax = int(item.evaluation_sum * self.tax_ratio)
-        return tax

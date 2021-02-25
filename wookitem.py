@@ -20,6 +20,7 @@ class Item:
         self.purchase_amount_net_today = 0
         self.order_amount = 0
         self.holding_amount = 0
+        self.target_amount = 0
         self.sellable_amount = 0
         self.volume = 0
         self.accumulated_volume = 0
@@ -61,7 +62,7 @@ class Order(Item):
         self.executed_order_number = 0
         self.ordered = False
 
-class AlgorithmItem(Item, WookLog):
+class AlgorithmItem(Order, WookLog):
     def __init__(self, item_code):
         super().__init__()
         self.broker = None
@@ -69,6 +70,9 @@ class AlgorithmItem(Item, WookLog):
         self.item_name = CODES[item_code]
         self.purchase = Order()
         self.sale = Order()
+        self.total_profit = 0
+
+        self.previous_msg = ()
 
     def set_broker(self, broker):
         self.broker = broker
@@ -76,55 +80,82 @@ class AlgorithmItem(Item, WookLog):
     def set_log(self, log):
         WookLog.custom_init(self, log)
 
-    def update(self, order):
-        if order.order_position in (PURCHASE, CORRECT_PURCHASE, CANCEL_PURCHASE):
-            if order.order_number < self.purchase.order_number:
-                return
-        else:
-            if order.order_number < self.sale.order_number:
-                return
-
+    def update_execution_info(self, order):
         executed_amount = abs(order.executed_amount)
-        if order.order_position == PURCHASE:
+        if order.order_position in (PURCHASE, CORRECT_PURCHASE):
             self.purchase = order
-            if order.order_state == RECEIPT:
-                self.purchase.ordered = False
+            self.purchase.ordered = False
             if order.order_state == ORDER_EXECUTED:
                 self.holding_amount += executed_amount
-        elif order.order_position == SELL:
-            self.sale = order
-            if order.order_state == RECEIPT:
-                self.sale.ordered = False
+                self.purchase_sum += executed_amount * order.executed_price
+                self.purchase_price_avg = self.purchase_sum / self.holding_amount
+        elif order.order_position in (SELL, CORRECT_SELL):
             if order.order_state == ORDER_EXECUTED:
                 self.holding_amount -= executed_amount
-        elif order.order_position == CORRECT_PURCHASE:
-            self.purchase = order
-        elif order.order_position == CORRECT_SELL:
+                self.purchase_sum = self.purchase_price_avg * self.holding_amount
+                profit = int((order.executed_price_avg - self.purchase_price_avg) * order.executed_amount)
+                order.profit = self.sale.profit + profit
+                self.total_profit += profit
+
+                # msg = ('price_avg:'+str(order.executed_price_avg), 'executed_amount:'+str(executed_amount))
+                # msg += ('sale.profit:'+str(self.sale.profit), 'purchase_sum:'+str(int(self.purchase_sum)))
+                # msg += ('profit:'+str(profit), 'order.profit:'+str(order.profit), 'total:'+str(self.total_profit))
+                # self.post('(UPDATE:SELL)', *msg)
+
             self.sale = order
-        elif order.order_position == CANCEL_PURCHASE:
-            self.purchase = order
-        elif order.order_position == CANCEL_SELL:
-            self.sale = order
+            self.sale.ordered = False
+            if not order.open_amount:
+                self.sale = Order()
+
+        # Update message
+        msg = (order.order_position, order.order_state, 'holding:'+str(self.holding_amount))
+        msg += ('order:'+str(order.order_amount), 'executed_each:'+str(order.executed_amount))
+        msg += ('open:'+str(order.open_amount), 'number:'+str(order.order_number))
+        msg += ('time:'+str(order.order_executed_time),)
+        self.post_update('(EXECUTION)', *msg)
 
     def buy(self, price, amount, order_type='LIMIT'):
         if self.purchase.ordered:
             return
 
         self.purchase.ordered = True
+        self.target_amount = amount
         self.broker.buy(self.item_code, price, amount, order_type)
 
-    def buy_out(self):
+    def buy_over(self, price, amount, order_type='LIMIT'):
         if self.purchase.ordered:
             return
 
-        purchase_amount = self.purchase.order_amount - self.holding_amount
+        msg = ('holding:' + str(self.holding_amount), 'open:' + str(self.purchase.open_amount))
+
+        self.purchase.ordered = True
+        self.target_amount = amount
+        if self.purchase.open_amount:
+            self.broker.cancel_and_buy(self.purchase, price, amount, order_type)
+        else:
+            self.broker.buy(self.item_code, price, amount, order_type)
+
+        self.post('(BUY_OVER)', *msg)
+
+    def buy_up(self):
+        if self.purchase.ordered:
+            return
+
+        purchase_amount = self.target_amount - self.holding_amount
         refill_amount = purchase_amount - self.purchase.open_amount
 
-        self.debug('buy_out', 'order_amount:', self.purchase.order_amount, 'holding_amount:', self.holding_amount, 'open_amount:', self.purchase.open_amount, 'refill_amount:', refill_amount)
+        msg = ('holding:'+str(self.holding_amount), 'order:'+str(self.purchase.order_amount))
+        msg += ('open:'+str(self.purchase.open_amount), 'refill:'+str(refill_amount))
 
         if refill_amount:
+            msg = ('\033[94mEXECUTED\033[97m',) + msg
             self.purchase.ordered = True
-            self.broker.cancel_and_buy(self.purchase, self.purchase.order_price, purchase_amount)
+            if self.purchase.open_amount:
+                self.broker.cancel_and_buy(self.purchase, self.purchase.order_price, purchase_amount)
+            else:
+                self.broker.buy(self.item_code, self.purchase.order_price, purchase_amount)
+
+        self.post('(BUY_UP)', *msg)
 
     def sell(self, price, amount, order_type='LIMIT'):
         if not self.holding_amount or self.sale.ordered:
@@ -137,29 +168,33 @@ class AlgorithmItem(Item, WookLog):
         if self.sale.ordered:
             return
 
-        sell_amount = self.holding_amount - self.sale.order_amount
+        sell_amount = self.holding_amount + self.sale.executed_amount_sum - self.sale.order_amount
 
-        self.debug('sell_out', 'holding_amount:', self.holding_amount, 'order_amount:', self.sale.order_amount, 'sell_amount:', sell_amount, self.sale.ordered)
-
+        msg = ('holding:'+str(self.holding_amount), 'order:'+str(self.sale.order_amount))
+        msg += ('executed:'+str(self.sale.executed_amount_sum), 'open:'+str(self.sale.open_amount))
+        msg += ('sell:'+str(sell_amount),)
 
         if sell_amount:
+            msg = ('\033[94mEXECUTED\033[97m',) + msg
             self.sale.ordered = True
-            if self.sale.order_number:
+            if self.sale.open_amount:
                 self.broker.cancel_and_sell(self.sale, price, self.holding_amount)
             else:
-                self.sell(price, self.holding_amount)
+                self.broker.sell(self.item_code, price, self.holding_amount)
+
+        self.post('(SELL_OUT)', *msg)
 
     def sell_off(self):
         if not self.holding_amount or self.sale.ordered:
             return
 
-        self.debug('sell_off', 'holding_amount:', self.holding_amount, 'open_amount:', self.sale.open_amount, self.sale.ordered)
-
         self.sale.ordered = True
         if self.sale.open_amount:
             self.broker.cancel_and_sell(self.sale, 0, self.holding_amount, 'MARKET')
         else:
-            self.sell(0, self.holding_amount, 'MARKET')
+            self.broker.sell(self.item_code, 0, self.holding_amount, 'MARKET')
+
+        self.post('(SELL_OFF)', 'holding:'+str(self.holding_amount), 'open:'+str(self.sale.open_amount))
 
     def cancel(self, order):
         self.broker.cancel(order)
@@ -174,36 +209,21 @@ class AlgorithmItem(Item, WookLog):
         self.broker.correct(order, price, amount)
 
     def correct_purchase(self, price):
-        self.correct(self.purchase, price)
+        if self.purchase.executed_amount_sum:
+            self.broker.cancel_and_buy(self.purchase, price)
+        else:
+            self.broker.correct(self.purchase, price)
 
     def correct_sale(self, price):
         if self.sale.ordered:
             self.correct(self.sale, price)
 
-class OrderManager:
-    def __init__(self):
-        self.orders = dict()
+    def post(self, *args):
+        if args != self.previous_msg:
+            self.debug('\033[96mALGORITHM', *args, '\033[97m')
+            self.previous_msg = args
 
-    def add(self, order):
-        self.orders[order.order_number] = order
-
-    def remove(self, order):
-        del self.orders[order.order_number]
-
-    def get_order_amount(self):
-        order_amount = 0
-        for order in self.orders.values():
-            order_amount += order.order_amount
-        return order_amount
-
-    def get_open_amount(self):
-        open_amount = 0
-        for order in self.orders.values():
-            open_amount += order.open_amount
-        return open_amount
-
-    def get_executed_amount(self):
-        executed_amount = 0
-        for order in self.orders.values():
-            executed_amount += order.executed_amount_sum
-        return executed_amount
+    def post_update(self, *args):
+        if args != self.previous_msg:
+            self.debug('\033[92mALGORITHM', *args, '\033[97m')
+            self.previous_msg = args

@@ -9,6 +9,7 @@ import mplfinance
 from datetime import datetime
 from traderbase import TraderBase
 from kiwoom import Kiwoom
+from bankis import Bankis
 from wookalgorithm import Algorithm
 from wookitem import Item, Order
 from wookutil import WookThreadCollector, ChartDrawer
@@ -17,23 +18,25 @@ import time, math
 
 class Trader(TraderBase):
     def __init__(self, log, key):
-        self.kiwoom = Kiwoom(log, key)
+        self.broker = Kiwoom(log, key)
+        # self.broker = Bankis(log, key)
         self.algorithm = Algorithm(log)
-        # self.thread_collector = WookThreadCollector(self.kiwoom, log)
         super().__init__(log)
 
         # Initial work
-        self.initKiwoom()
-        self.connect_kiwoom()
-        self.kiwoom.request_deposit_info()
-        self.kiwoom.request_portfolio_info()
-        self.kiwoom.request_order_history()
+        self.init_broker()
+        self.connect_broker()
+        self.get_account_list()
+        self.broker.request_deposit_info()
+        self.broker.request_portfolio_info()
+        self.broker.request_order_history()
+        self.init_algorithm()
 
         # Init Fields
         self.interval = self.sb_interval.value()
         self.loss_cut = self.sb_loss_cut.value()
 
-        # For debugging convenience
+        ### For debugging convenience
         # self.cbb_item_code.setCurrentIndex(2)
         # self.sb_price.setValue(30000)
         self.sb_amount.setValue(10)
@@ -59,48 +62,50 @@ class Trader(TraderBase):
         order.current_price = int(self.le_test.text())
         self.algorithm.update_execution_info(order)
 
-    def initKiwoom(self):
-        self.kiwoom.log = self.log
-        self.kiwoom.signal = self.on_kiwoom_signal
-        self.kiwoom.status = self.status
-        self.kiwoom.draw_chart.set(self.display_chart)
-        self.kiwoom.algorithm = self.algorithm
-
-    def connect_kiwoom(self):
+    def connect_broker(self):
         # if self.cb_auto_login.isChecked():
-        #     self.kiwoom.auto_login()
+        #     self.broker.auto_login()
         # else:
-        #     self.kiwoom.login()
-        #     self.kiwoom.set_account_password()
+        #     self.broker.login()
+        #     self.broker.set_account_password()
 
-        self.kiwoom.auto_login()
+        self.broker.auto_login()
 
-        self.get_account_list()
+
+    def init_broker(self):
+        self.broker.log = self.log
+        self.broker.signal = self.on_kiwoom_signal
+        self.broker.status = self.status
+        self.broker.draw_chart.set(self.display_chart)
+        self.broker.algorithm = self.algorithm
+
+    def init_algorithm(self):
+        self.algorithm.signal = self.on_algorithm_signal
 
     def get_account_list(self):
-        account_list = self.kiwoom.get_account_list()
+        account_list = self.broker.get_account_list()
         if account_list is not None:
-            self.cbb_account.addItems(self.kiwoom.account_list)
+            self.cbb_account.addItems(self.broker.account_list)
 
     def get_deposit(self):
-        self.kiwoom.request_deposit_info()
+        self.broker.request_deposit_info()
 
     def get_portfolio(self):
-        self.kiwoom.request_portfolio_info()
+        self.broker.request_portfolio_info()
 
     def get_order_history(self):
         item_code = self.cbb_item_code.currentText()
-        self.kiwoom.order_history.clear()
-        self.kiwoom.request_order_history(item_code)
+        self.broker.order_history.clear()
+        self.broker.request_order_history(item_code)
 
     def go_chart(self):
         item_code = self.cbb_item_code.currentText()
         item_name = self.cbb_item_name.currentText()
-        self.kiwoom.go_chart(item_code)
+        self.broker.go_chart(item_code)
         self.info('Go Charting', item_name)
 
     def stop_chart(self):
-        self.kiwoom.stop_chart()
+        self.broker.stop_chart()
 
     def send_order(self):
         item_code = self.cbb_item_code.currentText()
@@ -110,26 +115,26 @@ class Trader(TraderBase):
         order_type = self.cbb_order_type.currentText()
         order_number = self.le_order_number.text()
 
-        self.kiwoom.order(item_code, price, amount, order_position, order_type, order_number)
+        self.broker.order(item_code, price, amount, order_position, order_type, order_number)
 
     def update_deposit_info(self):
-        deposit = '\\' + self.formalize(self.kiwoom.deposit)
-        orderable_money = '\\' + self.formalize(self.kiwoom.orderable_money)
+        deposit = '\\' + self.formalize(self.broker.deposit)
+        orderable_money = '\\' + self.formalize(self.broker.orderable_money)
         self.lb_deposit.setText(deposit)
         self.lb_orderable.setText(orderable_money)
 
     def update_order_variables(self):
-        if not self.kiwoom.account_number:
+        if not self.broker.account_number:
             return
 
         item = Item()
         item_code = self.cbb_item_code.currentText()
-        if item_code in self.kiwoom.portfolio:
-            item = self.kiwoom.portfolio[item_code]
+        if item_code in self.broker.portfolio:
+            item = self.broker.portfolio[item_code]
 
         buyable_amount = 'no info'
         if item.current_price != 0:
-            buyable_amount = self.formalize(self.kiwoom.orderable_money // item.current_price)
+            buyable_amount = self.formalize(self.broker.orderable_money // item.current_price)
         self.lb_buyable.setText(buyable_amount)
         self.lb_sellable.setText(self.formalize(item.holding_amount))
         self.sb_price.setValue(item.current_price)
@@ -138,7 +143,7 @@ class Trader(TraderBase):
         interval = self.sb_interval.value()
         loss_cut = self.sb_loss_cut.value()
         capital = self.sb_capital.value()
-        self.algorithm.start(self.kiwoom, capital, interval, loss_cut)
+        self.algorithm.start(self.broker, capital, interval, loss_cut)
         self.log('Algorithm started')
 
     def stop(self):
@@ -147,7 +152,7 @@ class Trader(TraderBase):
 
     def display_portfolio(self):
         self.clear_table(self.table_portfolio)
-        for row, item in enumerate(self.kiwoom.portfolio.values()):
+        for row, item in enumerate(self.broker.portfolio.values()):
             self.table_portfolio.insertRow(row)
             self.table_portfolio.setRowHeight(row, 8)
             self.table_portfolio.setItem(row, 0, self.to_item(item.item_name))
@@ -164,7 +169,7 @@ class Trader(TraderBase):
 
     def display_monitoring_items(self):
         self.clear_table(self.table_monitoring_items)
-        for row, item in enumerate(self.kiwoom.monitoring_items.values()):
+        for row, item in enumerate(self.broker.monitoring_items.values()):
             self.table_monitoring_items.insertRow(row)
             self.table_monitoring_items.setRowHeight(row, 8)
             self.table_monitoring_items.setItem(row, 0, self.to_item(item.item_name))
@@ -181,7 +186,7 @@ class Trader(TraderBase):
 
     def display_balance(self):
         self.clear_table(self.table_balance)
-        for row, item in enumerate(self.kiwoom.balance.values()):
+        for row, item in enumerate(self.broker.balance.values()):
             self.table_balance.insertRow(row)
             self.table_balance.setRowHeight(row, 8)
             self.table_balance.setItem(row, 0, self.to_item(item.item_name))
@@ -198,7 +203,7 @@ class Trader(TraderBase):
 
     def display_open_orders(self):
         self.clear_table(self.table_open_orders)
-        for row, order in enumerate(self.kiwoom.open_orders.values()):
+        for row, order in enumerate(self.broker.open_orders.values()):
             self.table_open_orders.insertRow(row)
             self.table_open_orders.setRowHeight(row, 8)
             self.table_open_orders.setItem(row, 0, self.to_item(order.item_name))
@@ -216,7 +221,7 @@ class Trader(TraderBase):
 
     def display_order_history(self):
         self.clear_table(self.table_order_history)
-        for row, order in enumerate(self.kiwoom.order_history.values()):
+        for row, order in enumerate(self.broker.order_history.values()):
             self.table_order_history.insertRow(row)
             self.table_order_history.setRowHeight(row, 8)
             self.table_order_history.setItem(row, 0, self.to_item(order.item_name))
@@ -254,14 +259,22 @@ class Trader(TraderBase):
         for row in range(table.rowCount()):
             table.removeRow(0)
 
+    def display_algorithm_profit(self):
+        total_profit = self.algorithm.leverage.total_profit
+        formalized_profit = self.formalize(total_profit)
+        profit_rate = round(total_profit / self.sb_capital.value() * 100, 2)
+        profit_display = '{} ({}%)'.format(formalized_profit, profit_rate)
+        self.lb_total_profit.setText(profit_display)
+
     def display_chart(self):
-        if not self.kiwoom.chart_prices:
+        if not self.broker.chart_prices:
             return
 
         self.fig.clear()
         ax = self.fig.add_subplot(1, 1, 1)
 
-        df = pandas.DataFrame(self.kiwoom.chart_prices, columns=['Time', 'Open', 'High', 'Low', 'Close', 'Volume'])
+
+        df = pandas.DataFrame(self.broker.chart_prices, columns=['Time', 'Open', 'High', 'Low', 'Close', 'Volume'])
         df.Time = pandas.to_datetime(df.Time)
         locator = list()
         formatter = list()
@@ -281,8 +294,9 @@ class Trader(TraderBase):
         ortho_prices = list(range(min_floor, max_ceiling + self.interval, self.interval))
         loss_cut_prices = list(range(min_floor + self.interval - self.loss_cut, max_ceiling, self.interval))
         ax.grid(axis='x', alpha=0.5)
-        arrow = dict(arrowstyle='->')
-        # ax.annotate('buy', xy=(30, 28300), xytext=(50, 28200), color='green', arrowprops=arrow)
+        # ax.grid(axis='both', alpha=0.5)
+        ## arrow = dict(arrowstyle='->')
+        ## ax.annotate('buy', xy=(30, 28300), xytext=(50, 28200), color='green', arrowprops=arrow)
         ax.set_yticks(ortho_prices)
         for price in ortho_prices:
             ax.axhline(price, alpha=0.5, linewidth=0.2)
@@ -290,31 +304,13 @@ class Trader(TraderBase):
             ax.axhline(price, alpha=0.4, linewidth=0.2, color='Gray')
 
         # Current Price Annotation
-        current_time = self.to_min_count(self.kiwoom.chart_prices[-1][TIME_][8:12])
-        current_price = self.kiwoom.chart_prices[-1][CLOSE]
+        current_time = self.to_min_count(self.broker.chart_prices[-1][TIME_][8:12])
+        current_price = self.broker.chart_prices[-1][CLOSE]
         ax.text(current_time + 2, current_price, format(current_price, ','))
 
         # Algorithm Annotations
-        # if algorithm.is_running and algorithm.start_price:
         if self.algorithm.is_running and self.algorithm.start_price:
             self.annotate_chart(ax, min_floor)
-
-        # algorithm = self.kiwoom.algorithm
-        # if algorithm.is_running and algorithm.start_price:
-        #     start_time = algorithm.start_time
-        #     start_price = algorithm.start_price
-        #     start_comment = 'start\n' + algorithm.start_time_text + '\n' + format(start_price, ',')
-        #     ax.text(start_time, min_floor, start_comment, color='RebeccaPurple')
-        #     ax.vlines(start_time, min_floor, start_price, alpha=0.8, linewidth=0.2, color='RebeccaPurple')
-        #     ax.plot(start_time, start_price, marker='o', markersize=3, color='Lime')
-        #     ax.axhline(algorithm.reference_price, alpha=1, linewidth=0.2, color='Maroon')
-        #     ax.text(0, algorithm.reference_price, 'Reference price')
-        #     # ax.axhline(algorithm.top_price, alpha=1, linewidth=0.2, color='blue')
-        #     ax.axhline(algorithm.buy_limit, alpha=1, linewidth=0.2, color='LimeGreen')
-        #     ax.text(0, algorithm.buy_limit, 'Bottom price')
-        #     ax.axhline(algorithm.loss_limit, alpha=1, linewidth=0.2, color='Red')
-        #     ax.text(0, algorithm.loss_limit, 'Loss cut')
-
 
         # Draw Chart
         candlestick2_ohlc(ax, df['Open'], df['High'], df['Low'], df['Close'], width=0.4, colorup='r', colordown='b')
@@ -326,7 +322,8 @@ class Trader(TraderBase):
         start_price = self.algorithm.start_price
         start_comment = 'start\n' + self.algorithm.start_time_text + '\n' + format(start_price, ',')
         ax.text(start_time, min_floor, start_comment, color='RebeccaPurple')
-        ax.vlines(start_time, min_floor, start_price, alpha=0.8, linewidth=0.2, color='RebeccaPurple')
+        # ax.vlines(start_time, min_floor, start_price, alpha=0.8, linewidth=0.2, color='RebeccaPurple')
+        ax.vlines(start_time, min_floor, start_price, alpha=0.8, linewidth=0.2, color='Green')
         ax.plot(start_time, start_price, marker='o', markersize=3, color='Lime')
         ax.axhline(self.algorithm.reference_price, alpha=1, linewidth=0.2, color='Maroon')
         ax.text(0, self.algorithm.reference_price, 'Reference')
@@ -337,19 +334,21 @@ class Trader(TraderBase):
             ax.axhline(self.algorithm.loss_limit, alpha=1, linewidth=0.2, color='Red')
             ax.text(0, self.algorithm.loss_limit, 'Loss cut')
 
-    def on_select_broker(self, broker):
-        if broker == 'Kiwoom':
-            self.debug('kiwoom man')
-        elif broker == 'Bankis':
-            self.debug('Bankis')
+    # def on_select_broker(self, broker):
+    #     if broker == 'Kiwoom':
+    #         self.broker = self.kiwoom
+    #         self.info('Kiwoom is selected for broker')
+    #     elif broker == 'Bankis':
+    #         self.broker = self.bankis
+    #         self.info('Bankis is selected for broker')
 
     def on_select_account(self, account):
-        self.kiwoom.account_number = int(account)
+        self.broker.account_number = int(account)
 
     def on_select_item_code(self, item_code):
         item_name = CODES.get(item_code)
         if item_name is None:
-            item_name = self.kiwoom.get_item_name(item_code)
+            item_name = self.broker.get_item_name(item_code)
             if item_name != '':
                 CODES[item_code] = item_name
                 self.cbb_item_code.addItem(item_code)
@@ -367,32 +366,32 @@ class Trader(TraderBase):
 
     def on_select_item_name(self, index):
         item_name = self.cbb_item_name.currentText()
-        item_code = self.kiwoom.get_item_code(item_name)
+        item_code = self.broker.get_item_code(item_name)
         self.cbb_item_code.setCurrentText(item_code)
 
     def on_add_item(self):
         item_code = self.cbb_item_code.currentText()
         item_name = self.cbb_item_name.currentText()
-        if item_code in self.kiwoom.monitoring_items:
+        if item_code in self.broker.monitoring_items:
             return
 
         item = Item()
         item.item_code = item_code
         item.item_name = item_name
-        self.kiwoom.demand_monitoring_items_info(item)
+        self.broker.demand_monitoring_items_info(item)
         self.display_monitoring_items()
         self.info(item.item_name, 'trading information begins to be monitored')
 
     def on_remove_item(self):
         item_code = self.cbb_item_code.currentText()
         item_name = self.cbb_item_name.currentText()
-        if item_code not in self.kiwoom.monitoring_items:
+        if item_code not in self.broker.monitoring_items:
             return
 
         # self.table_trading_items.removeRow(0)
 
-        self.kiwoom.init_screen(item_code)
-        del self.kiwoom.monitoring_items[item_code]
+        self.broker.init_screen(item_code)
+        del self.broker.monitoring_items[item_code]
         self.table_monitoring_items.clearContents()
         self.display_monitoring_items()
         self.info(item_name, 'stock information monitoring is finished')
@@ -412,6 +411,11 @@ class Trader(TraderBase):
         current_price_item = self.table_portfolio.item(row, current_price_column)
         current_price = self.process_type(current_price_item.text())
         self.sb_price.setValue(current_price)
+
+        holding_amount_column = 3
+        holding_amount_item = self.table_portfolio.item(row, holding_amount_column)
+        holding_amount = self.process_type(holding_amount_item.text())
+        self.sb_amount.setValue(holding_amount)
 
     def on_select_trading_items_table(self, row, column):
         column_count = self.table_monitoring_items.columnCount() - 1
@@ -508,18 +512,18 @@ class Trader(TraderBase):
         index = self.cbb_item_name.findText(item_name)
         self.cbb_item_name.setCurrentIndex(index)
 
-        order_price_column = 3
-        order_price_item = self.table_algorithm_trading.item(row, order_price_column)
-        order_price = self.process_type(order_price_item.text())
-        self.sb_price.setValue(order_price)
-
-        order_number_column = 5
+        order_number_column = 2
         order_number_item = self.table_algorithm_trading.item(row, order_number_column)
         order_number = order_number_item.text()
         self.le_order_number.setText(order_number)
 
-        open_amount_column = 8
-        open_amount_item = self.table_open_orders.item(row, open_amount_column)
+        order_price_column = 5
+        order_price_item = self.table_algorithm_trading.item(row, order_price_column)
+        order_price = self.process_type(order_price_item.text())
+        self.sb_price.setValue(order_price)
+
+        open_amount_column = 9
+        open_amount_item = self.table_algorithm_trading.item(row, open_amount_column)
         open_amount = int(open_amount_item.text())
         self.sb_amount.setValue(open_amount)
 
@@ -532,13 +536,13 @@ class Trader(TraderBase):
 
     def on_edit_save_file(self):
         file = self.le_save_file.text()
-        self.kiwoom.log_file = file
+        self.broker.log_file = file
 
     def on_change_save_file(self):
         file = QFileDialog.getOpenFileName(self, 'Select File', self.setting['save_folder'])[0]
         if file != '':
             self.le_save_file.setText(file)
-            self.kiwoom.log_file = file
+            self.broker.log_file = file
 
     def edit_setting(self):
         self.debug('setting')
@@ -556,19 +560,26 @@ class Trader(TraderBase):
             self.display_balance()
         elif signal == 'open_orders_table':
             self.display_open_orders()
-        elif signal == 'algorithm_trading_table':
-            self.display_algorithm_trading()
         elif signal == 'order_history_table':
             self.display_order_history()
+        elif signal == 'algorithm_trading_table':
+            self.display_algorithm_trading()
         elif signal == 'chart':
             self.display_chart()
+
+    def on_algorithm_signal(self, signal, *args):
+        if signal == 'total_profit':
+            # self.lb_total_profit.setText(self.formalize(self.algorithm.leverage.total_profit))
+            self.display_algorithm_profit()
+        elif signal == 'algorithm_trading_table':
+            self.display_algorithm_trading()
 
     def log(self, *args):
         message = str(args[0])
         for arg in args[1:]:
             message += ' ' + str(arg)
-        time = datetime.now().strftime('%H:%M:%S') + ' '
-        self.te_info.append(time + message)
+        current_time = datetime.now().strftime('%H:%M:%S') + ' '
+        self.te_info.append(current_time + message)
         self.info(message)
 
     def status(self, *args):
@@ -578,8 +589,8 @@ class Trader(TraderBase):
         self.status_bar.showMessage(message)
 
     def closeEvent(self, event):
-        self.kiwoom.log('Closing process initializing...')
-        self.kiwoom.close_process()
-        self.kiwoom.clear()
-        self.kiwoom.deleteLater()
+        self.broker.log('Closing process initializing...')
+        self.broker.close_process()
+        self.broker.clear()
+        self.broker.deleteLater()
         self.deleteLater()
