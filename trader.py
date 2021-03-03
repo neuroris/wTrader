@@ -10,7 +10,7 @@ from datetime import datetime
 from traderbase import TraderBase
 from kiwoom import Kiwoom
 from bankis import Bankis
-from wookalgorithm import Algorithm
+from wookalgorithm import Algorithm1
 from wookitem import Item, Order
 from wookutil import WookThreadCollector, ChartDrawer
 from wookdata import *
@@ -20,7 +20,7 @@ class Trader(TraderBase):
     def __init__(self, log, key):
         self.broker = Kiwoom(log, key)
         # self.broker = Bankis(log, key)
-        self.algorithm = Algorithm(log)
+        self.algorithm = Algorithm1(log)
         super().__init__(log)
 
         # Initial work
@@ -260,7 +260,7 @@ class Trader(TraderBase):
             table.removeRow(0)
 
     def display_algorithm_profit(self):
-        total_profit = self.algorithm.leverage.total_profit
+        total_profit = self.algorithm.leverage.profit
         formalized_profit = self.formalize(total_profit)
         profit_rate = round(total_profit / self.sb_capital.value() * 100, 2)
         profit_display = '{} ({}%)'.format(formalized_profit, profit_rate)
@@ -273,16 +273,16 @@ class Trader(TraderBase):
         self.fig.clear()
         ax = self.fig.add_subplot(1, 1, 1)
 
-
         df = pandas.DataFrame(self.broker.chart_prices, columns=['Time', 'Open', 'High', 'Low', 'Close', 'Volume'])
         df.Time = pandas.to_datetime(df.Time)
+
+        # Axis ticker formatting
         locator = list()
         formatter = list()
         for index in range(0, len(df.Time), 30):
             time_format = df.Time.iloc[index].strftime('%H:%M')
             locator.append(index)
             formatter.append(time_format)
-
         ax.xaxis.set_major_locator(ticker.FixedLocator(locator))
         ax.xaxis.set_major_formatter(ticker.FixedFormatter(formatter))
         # ax.set_xticklabels(time_int, rotation=75)
@@ -321,18 +321,20 @@ class Trader(TraderBase):
         start_time = self.algorithm.start_time
         start_price = self.algorithm.start_price
         start_comment = 'start\n' + self.algorithm.start_time_text + '\n' + format(start_price, ',')
-        ax.text(start_time, min_floor, start_comment, color='RebeccaPurple')
-        # ax.vlines(start_time, min_floor, start_price, alpha=0.8, linewidth=0.2, color='RebeccaPurple')
-        ax.vlines(start_time, min_floor, start_price, alpha=0.8, linewidth=0.2, color='Green')
         ax.plot(start_time, start_price, marker='o', markersize=3, color='Lime')
+        ax.vlines(start_time, min_floor, start_price, alpha=0.8, linewidth=0.2, color='Green')
+        ax.text(start_time, min_floor, start_comment, color='RebeccaPurple')
         ax.axhline(self.algorithm.reference_price, alpha=1, linewidth=0.2, color='Maroon')
         ax.text(0, self.algorithm.reference_price, 'Reference')
         ax.axhline(self.algorithm.buy_limit, alpha=1, linewidth=0.2, color='LimeGreen')
         ax.text(0, self.algorithm.buy_limit, 'Buy limit')
 
-        if self.algorithm.orders:
-            ax.axhline(self.algorithm.loss_limit, alpha=1, linewidth=0.2, color='Red')
-            ax.text(0, self.algorithm.loss_limit, 'Loss cut')
+        ax.axhline(self.algorithm.loss_limit, alpha=1, linewidth=0.2, color='Red')
+        ax.text(0, self.algorithm.loss_limit, 'Loss cut')
+
+        # if self.algorithm.orders:
+        #     ax.axhline(self.algorithm.loss_limit, alpha=1, linewidth=0.2, color='Red')
+        #     ax.text(0, self.algorithm.loss_limit, 'Loss cut')
 
     # def on_select_broker(self, broker):
     #     if broker == 'Kiwoom':

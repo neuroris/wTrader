@@ -295,7 +295,7 @@ class Kiwoom(KiwoomBase):
         if order_number:
             self.info('Send order ({}) command committed successfully'.format(self.order_position), sTrCode)
         else:
-            self.info('Send order failed.', 'Please check order variables')
+            self.info('\033[95mSend order failed.', 'Please check order variables\033[0m')
 
     def update_market_state(self, sCode):
         operation_state = self.get_comm_real_data(sCode, FID.MARKET_OPERATION_STATE)

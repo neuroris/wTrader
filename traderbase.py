@@ -242,7 +242,7 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         self.sb_capital = QSpinBox()
         self.sb_capital.setGroupSeparatorShown(True)
         self.sb_capital.setMinimumHeight(30)
-        self.sb_capital.setRange(0, 100000000)
+        self.sb_capital.setRange(0, 900000000)
         self.sb_capital.setSingleStep(1000000)
         lb_interval = QLabel('Interval')
         self.sb_interval = QSpinBox()
@@ -279,9 +279,9 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         self.btn_stop_algorithm.setStyleSheet('font-weight:bold; background-color:IndianRed')
 
         # Algorithm initial setting
-        self.sb_interval.setValue(30)
-        self.sb_loss_cut.setValue(20)
-        self.sb_capital.setValue(10000000)
+        self.sb_interval.setValue(20)
+        self.sb_loss_cut.setValue(10)
+        self.sb_capital.setValue(100000000)
 
         algorithm_grid = QGridLayout()
         algorithm_grid.addWidget(lb_capital, 0, 0)

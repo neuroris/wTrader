@@ -6,7 +6,7 @@ from queue import Queue
 import time, os, re
 import pickle
 from wookutil import WookCipher, WookLog, WookTimer, WookUtil, ChartDrawer
-from wookalgorithm import Algorithm
+from wookalgorithm import Algorithm1
 from wookdata import *
 
 class BankisBase(QAxWidget, WookLog, WookUtil):

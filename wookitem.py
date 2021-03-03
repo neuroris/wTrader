@@ -70,8 +70,6 @@ class AlgorithmItem(Order, WookLog):
         self.item_name = CODES[item_code]
         self.purchase = Order()
         self.sale = Order()
-        self.total_profit = 0
-
         self.previous_msg = ()
 
     def set_broker(self, broker):
@@ -95,11 +93,11 @@ class AlgorithmItem(Order, WookLog):
                 self.purchase_sum = self.purchase_price_avg * self.holding_amount
                 profit = int((order.executed_price_avg - self.purchase_price_avg) * order.executed_amount)
                 order.profit = self.sale.profit + profit
-                self.total_profit += profit
+                self.profit += profit
 
                 # msg = ('price_avg:'+str(order.executed_price_avg), 'executed_amount:'+str(executed_amount))
                 # msg += ('sale.profit:'+str(self.sale.profit), 'purchase_sum:'+str(int(self.purchase_sum)))
-                # msg += ('profit:'+str(profit), 'order.profit:'+str(order.profit), 'total:'+str(self.total_profit))
+                # msg += ('profit:'+str(profit), 'order.profit:'+str(order.profit), 'total:'+str(self.profit))
                 # self.post('(UPDATE:SELL)', *msg)
 
             self.sale = order
@@ -127,6 +125,7 @@ class AlgorithmItem(Order, WookLog):
             return
 
         msg = ('holding:' + str(self.holding_amount), 'open:' + str(self.purchase.open_amount))
+        self.post('(BUY_OVER)', *msg)
 
         self.purchase.ordered = True
         self.target_amount = amount
@@ -134,8 +133,6 @@ class AlgorithmItem(Order, WookLog):
             self.broker.cancel_and_buy(self.purchase, price, amount, order_type)
         else:
             self.broker.buy(self.item_code, price, amount, order_type)
-
-        self.post('(BUY_OVER)', *msg)
 
     def buy_up(self):
         if self.purchase.ordered:
@@ -146,16 +143,16 @@ class AlgorithmItem(Order, WookLog):
 
         msg = ('holding:'+str(self.holding_amount), 'order:'+str(self.purchase.order_amount))
         msg += ('open:'+str(self.purchase.open_amount), 'refill:'+str(refill_amount))
-
         if refill_amount:
             msg = ('\033[94mEXECUTED\033[97m',) + msg
+        self.post('(BUY_UP)', *msg)
+
+        if refill_amount:
             self.purchase.ordered = True
             if self.purchase.open_amount:
                 self.broker.cancel_and_buy(self.purchase, self.purchase.order_price, purchase_amount)
             else:
                 self.broker.buy(self.item_code, self.purchase.order_price, purchase_amount)
-
-        self.post('(BUY_UP)', *msg)
 
     def sell(self, price, amount, order_type='LIMIT'):
         if not self.holding_amount or self.sale.ordered:
@@ -173,28 +170,32 @@ class AlgorithmItem(Order, WookLog):
         msg = ('holding:'+str(self.holding_amount), 'order:'+str(self.sale.order_amount))
         msg += ('executed:'+str(self.sale.executed_amount_sum), 'open:'+str(self.sale.open_amount))
         msg += ('sell:'+str(sell_amount),)
-
         if sell_amount:
             msg = ('\033[94mEXECUTED\033[97m',) + msg
+        self.post('(SELL_OUT)', *msg)
+
+        if sell_amount:
             self.sale.ordered = True
             if self.sale.open_amount:
                 self.broker.cancel_and_sell(self.sale, price, self.holding_amount)
             else:
                 self.broker.sell(self.item_code, price, self.holding_amount)
 
-        self.post('(SELL_OUT)', *msg)
-
     def sell_off(self):
         if not self.holding_amount or self.sale.ordered:
             return
 
+        msg = ('holding:' + str(self.holding_amount), 'purchase.open:' + str(self.purchase.open_amount))
+        msg += ('sale.open:' + str(self.sale.open_amount),)
+        self.post('(SELL_OFF)', *msg)
+
         self.sale.ordered = True
+        if self.purchase.open_amount:
+            self.broker.cancel(self.purchase)
         if self.sale.open_amount:
             self.broker.cancel_and_sell(self.sale, 0, self.holding_amount, 'MARKET')
         else:
             self.broker.sell(self.item_code, 0, self.holding_amount, 'MARKET')
-
-        self.post('(SELL_OFF)', 'holding:'+str(self.holding_amount), 'open:'+str(self.sale.open_amount))
 
     def cancel(self, order):
         self.broker.cancel(order)
@@ -227,3 +228,9 @@ class AlgorithmItem(Order, WookLog):
         if args != self.previous_msg:
             self.debug('\033[92mALGORITHM', *args, '\033[97m')
             self.previous_msg = args
+
+class AlgorithmItemEx(AlgorithmItem):
+    def __init__(self):
+        super().__init__()
+        self.purchase_orders = dict()
+        self.sale_orders = dict()

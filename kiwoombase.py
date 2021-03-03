@@ -7,7 +7,7 @@ import time, os, re
 import pickle
 from wookitem import Order
 from wookutil import WookCipher, WookLog, WookTimer, WookUtil, ChartDrawer
-from wookalgorithm import Algorithm
+from wookalgorithm import Algorithm1
 from wookdata import *
 
 class KiwoomBase(QAxWidget, WookLog, WookUtil):
