@@ -1,12 +1,8 @@
 from PyQt5.QAxContainer import QAxWidget
-from PyQt5.QtCore import QEventLoop, QThread, Qt, QMutex, QTimer
-from PyQt5.QtWidgets import QTableWidgetItem
-import pandas
+from PyQt5.QtCore import QEventLoop, QThread, QTimer
 from queue import Queue
-import time, os, re
-import pickle
+import time
 from wookutil import WookCipher, WookLog, WookTimer, WookUtil, ChartDrawer
-from wookalgorithm import Algorithm1
 from wookdata import *
 
 class BankisBase(QAxWidget, WookLog, WookUtil):

@@ -1,26 +1,22 @@
-from PyQt5.QtWidgets import QTableWidgetItem, QFileDialog, QTableWidgetSelectionRange
-from PyQt5.QtCore import Qt, QThread
+from PyQt5.QtWidgets import QFileDialog, QTableWidgetSelectionRange
+from PyQt5.QtCore import Qt
 import pandas
-import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from mplfinance.original_flavor import candlestick2_ohlc
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-import mplfinance
 from datetime import datetime
 from traderbase import TraderBase
 from kiwoom import Kiwoom
-from bankis import Bankis
-from wookalgorithm import Algorithm1
+from wookalgorithm.quantum1 import QuantumAlgorithm1
 from wookitem import Item, Order
-from wookutil import WookThreadCollector, ChartDrawer
 from wookdata import *
-import time, math
+import math
 
 class Trader(TraderBase):
     def __init__(self, log, key):
         self.broker = Kiwoom(log, key)
         # self.broker = Bankis(log, key)
-        self.algorithm = Algorithm1(log)
+        # self.algorithm = Algorithm1(log)
+        self.algorithm = QuantumAlgorithm1(log)
         super().__init__(log)
 
         # Initial work
@@ -259,8 +255,13 @@ class Trader(TraderBase):
         for row in range(table.rowCount()):
             table.removeRow(0)
 
-    def display_algorithm_profit(self):
-        total_profit = self.algorithm.leverage.profit
+    def display_algorithm_update(self):
+        holding_amount = self.algorithm.inverse.holding_amount
+        formalized_holding_amount = self.formalize(holding_amount)
+        self.lb_holding_amount.setText(formalized_holding_amount)
+
+        # total_profit = self.algorithm.leverage.profit
+        total_profit = self.algorithm.total_profit
         formalized_profit = self.formalize(total_profit)
         profit_rate = round(total_profit / self.sb_capital.value() * 100, 2)
         profit_display = '{} ({}%)'.format(formalized_profit, profit_rate)
@@ -310,14 +311,14 @@ class Trader(TraderBase):
 
         # Algorithm Annotations
         if self.algorithm.is_running and self.algorithm.start_price:
-            self.annotate_chart(ax, min_floor)
+            self.annotate_chart(ax, min_floor, max_ceiling, current_time)
 
         # Draw Chart
         candlestick2_ohlc(ax, df['Open'], df['High'], df['Low'], df['Close'], width=0.4, colorup='r', colordown='b')
         self.fig.tight_layout()
         self.canvas.draw()
 
-    def annotate_chart(self, ax, min_floor):
+    def annotate_chart(self, ax, min_floor, max_ceiling, current_time):
         start_time = self.algorithm.start_time
         start_price = self.algorithm.start_price
         start_comment = 'start\n' + self.algorithm.start_time_text + '\n' + format(start_price, ',')
@@ -332,17 +333,26 @@ class Trader(TraderBase):
         ax.axhline(self.algorithm.loss_limit, alpha=1, linewidth=0.2, color='Red')
         ax.text(0, self.algorithm.loss_limit, 'Loss cut')
 
-        # if self.algorithm.orders:
-        #     ax.axhline(self.algorithm.loss_limit, alpha=1, linewidth=0.2, color='Red')
-        #     ax.text(0, self.algorithm.loss_limit, 'Loss cut')
+        range = max_ceiling - min_floor
+        offset = range * 0.035
+        x = current_time
+        y = self.algorithm.reference_price
+        for order in self.algorithm.inverse.sales.values():
+            y += offset
+            ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
 
-    # def on_select_broker(self, broker):
-    #     if broker == 'Kiwoom':
-    #         self.broker = self.kiwoom
-    #         self.info('Kiwoom is selected for broker')
-    #     elif broker == 'Bankis':
-    #         self.broker = self.bankis
-    #         self.info('Bankis is selected for broker')
+            # if order.open_amount:
+            #     y += offset
+            #     ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
+
+        y = self.algorithm.buy_limit - offset
+        for order in self.algorithm.inverse.purchases.values():
+            y -= offset
+            ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
+
+            # if order.open_amount:
+            #     y -= offset
+            #     ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
 
     def on_select_account(self, account):
         self.broker.account_number = int(account)
@@ -419,6 +429,9 @@ class Trader(TraderBase):
         holding_amount = self.process_type(holding_amount_item.text())
         self.sb_amount.setValue(holding_amount)
 
+        self.cbb_order_position.setCurrentText('SELL')
+        self.cbb_order_type.setCurrentText('MARKET')
+
     def on_select_trading_items_table(self, row, column):
         column_count = self.table_monitoring_items.columnCount() - 1
         selection_range = QTableWidgetSelectionRange(row, 0, row, column_count)
@@ -464,7 +477,7 @@ class Trader(TraderBase):
 
         open_amount_column = 4
         open_amount_item = self.table_open_orders.item(row, open_amount_column)
-        open_amount = int(open_amount_item.text())
+        open_amount = self.process_type(open_amount_item.text())
         self.sb_amount.setValue(open_amount)
 
         order_number_column = 5
@@ -476,6 +489,14 @@ class Trader(TraderBase):
         order_price_item = self.table_open_orders.item(row, order_price_column)
         order_price = self.process_type(order_price_item.text())
         self.sb_price.setValue(order_price)
+
+        order_position_column = 9
+        order_position_item = self.table_open_orders.item(row, order_position_column)
+        order_position = order_position_item.text()
+        if order_position == PURCHASE[-2:]:
+            self.cbb_order_position.setCurrentText('CANCEL BUY')
+        elif order_position == SELL[-2:]:
+            self.cbb_order_position.setCurrentText('CANCEL SELL')
 
     def on_select_order_history_table(self, row, column):
         column_count = self.table_order_history.columnCount() - 1
@@ -526,7 +547,7 @@ class Trader(TraderBase):
 
         open_amount_column = 9
         open_amount_item = self.table_algorithm_trading.item(row, open_amount_column)
-        open_amount = int(open_amount_item.text())
+        open_amount = self.process_type(open_amount_item.text())
         self.sb_amount.setValue(open_amount)
 
     def set_algorithm_parameters(self):
@@ -570,9 +591,9 @@ class Trader(TraderBase):
             self.display_chart()
 
     def on_algorithm_signal(self, signal, *args):
-        if signal == 'total_profit':
+        if signal == 'algorithm_update':
             # self.lb_total_profit.setText(self.formalize(self.algorithm.leverage.total_profit))
-            self.display_algorithm_profit()
+            self.display_algorithm_update()
         elif signal == 'algorithm_trading_table':
             self.display_algorithm_trading()
 

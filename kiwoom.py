@@ -108,6 +108,9 @@ class Kiwoom(KiwoomBase):
             send_order = self.new_send_order('order', self.screen_send_order, self.account_number)
             send_order(order_position_code, item_code, amount, price, order_type_code, order_number)
 
+        # For debug
+        self.order_variables = (price, amount, order_position, order_type, order_number)
+
     def on_login(self, err_code):
         if err_code == 0:
             self.log('Kiwoom log in success')
@@ -296,6 +299,7 @@ class Kiwoom(KiwoomBase):
             self.info('Send order ({}) command committed successfully'.format(self.order_position), sTrCode)
         else:
             self.info('\033[95mSend order failed.', 'Please check order variables\033[0m')
+            self.info('\033[95m', self.order_variables, '\033[0m')
 
     def update_market_state(self, sCode):
         operation_state = self.get_comm_real_data(sCode, FID.MARKET_OPERATION_STATE)
@@ -551,8 +555,8 @@ class Kiwoom(KiwoomBase):
         # item.buy_or_sell = self.get_chejan_data(FID.BUY_OR_SELL)
         # item.deposit = self.get_chejan_data(FID.DEPOSIT)
 
-        if self.algorithm.is_running:
-            self.algorithm.update_balance_info(item)
+        # if self.algorithm.is_running:
+        #     self.algorithm.update_balance_info(item)
 
         self.balance[item.item_code] = item
         self.signal('balance_table')

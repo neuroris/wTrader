@@ -3,24 +3,35 @@ from datetime import datetime
 from PyQt5.QtCore import QEventLoop
 from wookutil import WookUtil, WookLog, wmath
 from wookitem import Item, BalanceItem, Order, AlgorithmItem
+from wookalgorithm.algorithmbase import AlgorithmBase
 from wookdata import *
-from wookalgorithm import AlgorithmBase
 
-class AlgorithmInverse1(AlgorithmBase):
+'''
+Original algorithm (2021, 02, 28)
+
+First algorithm using leverage only
+1. Non overlapping interval
+2. Discard every holding stock when touching loss cut
+3. Only one purchase, sale manager
+4. Beyond threashold, cancel purchase or sale and re-order
+'''
+
+class OriginalAlgorithm(AlgorithmBase):
     def __init__(self, log):
         super().__init__(log)
         self.log = log
+
+        self.leverage = None
+
         self.reference_price = 0
         self.buy_limit = 0
         self.loss_limit = 0
         self.sell_off_ordered = False
 
-        self.inverse = None
-
     def start(self, broker, capital, interval, loss_cut):
-        self.inverse = AlgorithmItem('252670')
-        self.inverse.set_broker(broker)
-        self.inverse.set_log(self.log)
+        self.leverage = AlgorithmItem('122630')
+        self.leverage.set_broker(broker)
+        self.leverage.set_log(self.log)
         self.broker = broker
         self.capital = capital
         self.interval = interval
@@ -28,25 +39,29 @@ class AlgorithmInverse1(AlgorithmBase):
         self.is_running = True
 
         # Charting & Monitoring
-        broker.go_chart(self.inverse.item_code)
-        broker.demand_monitoring_items_info(self.inverse)
+        broker.go_chart(self.leverage.item_code)
+        broker.demand_monitoring_items_info(self.leverage)
 
         # Open Orders cancellation
-        for order in broker.open_orders.values():
+        open_orders = list(broker.open_orders.values())
+        for order in open_orders:
             self.broker.cancel(order)
+
+        self.post('STARTED')
 
     def stop(self):
         if not self.is_running:
             return
 
         # Open Orders cancellation
-        for order in self.broker.open_orders.values():
+        open_orders = list(self.broker.open_orders.values())
+        for order in open_orders:
             self.broker.cancel(order)
 
         # Init Fields
         self.orders.clear()
         self.broker = None
-        self.inverse = None
+        self.leverage = None
         self.is_running = False
         self.capital = 0
         self.interval = 0
@@ -73,10 +88,10 @@ class AlgorithmInverse1(AlgorithmBase):
         self.loss_limit = self.buy_limit - self.loss_cut
 
     def shift_reference_up(self):
-        self.set_reference(self.reference_price + self.loss_cut)
+        self.set_reference(self.reference_price + self.interval)
 
     def shift_reference_down(self):
-        self.set_reference(self.reference_price - self.loss_cut)
+        self.set_reference(self.reference_price - self.interval)
 
     def update_transaction_info(self, item):
         # First time work
@@ -84,48 +99,47 @@ class AlgorithmInverse1(AlgorithmBase):
             self.start_time_text = datetime.now().strftime('%H:%M')
             self.start_time = self.to_min_count(self.start_time_text)
             self.start_price = item.current_price
-            # reference_price = wmath.get_bottom(item.current_price, self.interval)
-            reference_price = item.current_price + self.interval
+            reference_price = wmath.get_bottom(item.current_price, self.interval)
             self.set_reference(reference_price)
-            self.inverse.buy(self.buy_limit, self.capital // item.current_price, 'MARKET')
+            self.leverage.buy(self.buy_limit, self.capital // item.current_price, 'MARKET')
             return
 
         # Trade
-        # if self.sell_off_ordered:
-        #     msg = ('sale.ordered:' + str(self.inverse.sale.ordered), 'open_amount:' + str(self.inverse.sale.open_amount))
-        #     self.post('(SELL_OFF)', *msg)
-        #     if self.inverse.sale.ordered or self.inverse.sale.open_amount:
-        #         return
-        #     self.sell_off_ordered = False
+        if self.sell_off_ordered:
+            msg = ('sale.ordered:'+str(self.leverage.sale.ordered), 'open_amount:'+str(self.leverage.sale.open_amount))
+            self.post('(SELL_OFF)', *msg)
+            if self.leverage.sale.ordered or self.leverage.sale.open_amount:
+                return
+            self.sell_off_ordered = False
 
-        if item.current_price > self.reference_price:
+        if item.current_price >= self.reference_price + self.interval:
             self.display_situation('Situation 1')
             self.shift_reference_up()
-            # if self.leverage.holding_amount:
-            #     self.leverage.correct_purchase(self.buy_limit)
-        # elif item.current_price >= self.buy_limit + self.loss_cut:
-        #     self.display_situation('Situation 2')
-        #     self.leverage.sell_out(self.reference_price)
+            if self.leverage.holding_amount:
+                self.leverage.correct_purchase(self.buy_limit)
+        elif item.current_price >= self.buy_limit + self.loss_cut:
+            self.display_situation('Situation 2')
+            self.leverage.sell_out(self.reference_price)
         elif item.current_price <= self.loss_limit:
             self.display_situation('Situation 4')
             self.sell_off_ordered = True
-            self.inverse.sell_off()
+            self.leverage.sell_off()
             self.shift_reference_down()
-        # elif item.current_price <= self.reference_price - self.loss_cut:
-        #     self.display_situation('Situation 3')
-        #     self.leverage.buy_up()
+        elif item.current_price <= self.reference_price - self.loss_cut:
+            self.display_situation('Situation 3')
+            self.leverage.buy_up()
 
     def update_execution_info(self, order):
         # Leverage update execution
-        self.inverse.update_execution_info(order)
+        self.leverage.update_execution_info(order)
 
         # Buy after sale completed
         if order.order_position in (SELL, CORRECT_SELL) and order.order_state == ORDER_EXECUTED:
             self.signal('total_profit')
             # if not order.open_amount and not self.leverage.purchase.open_amount:
             if not order.open_amount:
-                self.inverse.buy_over(self.buy_limit, self.capital // order.current_price)
-                self.inverse.buy(self.buy_limit, self.capital // order.current_price)
+                self.leverage.buy_over(self.buy_limit, self.capital // order.current_price)
+                self.leverage.buy(self.buy_limit, self.capital // order.current_price)
 
         # Order history
         if order.order_position in (PURCHASE, CORRECT_PURCHASE):

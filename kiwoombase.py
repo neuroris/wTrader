@@ -7,7 +7,7 @@ import time, os, re
 import pickle
 from wookitem import Order
 from wookutil import WookCipher, WookLog, WookTimer, WookUtil, ChartDrawer
-from wookalgorithm import Algorithm1
+from wookalgorithm.original import OriginalAlgorithm
 from wookdata import *
 
 class KiwoomBase(QAxWidget, WookLog, WookUtil):
@@ -77,6 +77,9 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         self.pending_order = None
         self.cancel_confirmed = False
         self.cancel_order_number = 0
+
+        # For debug
+        self.order_variables = None
 
         # Request limit
         self.inquiry_count = 0
