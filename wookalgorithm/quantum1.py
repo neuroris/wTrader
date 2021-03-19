@@ -23,22 +23,11 @@ class QuantumAlgorithm1(AlgorithmBase):
         self.buy_limit = 0
         self.loss_limit = 0
         self.situation_processing = False
-        self.cancel_completed = False
         self.inverse = None
-        # self.episode_count = 110000000
-        # self.episode_increase = 20000000
-        # self.sale_count = 10000000
-        # self.episode_count = 000000
-        self.episode_count = 10000000
-        self.episode_increase = 10000000
-        self.purchase_count = 1000000
-        self.sale_count = 2000000
-
         self.purchase = Order()
         self.sale = Order()
 
     def start(self, broker, capital, interval, loss_cut):
-        # self.inverse = AlgorithmItemEx('252670')
         self.inverse = AlgorithmItem('252670')
         self.inverse.set_broker(broker)
         self.inverse.set_log(self.log)
@@ -99,6 +88,10 @@ class QuantumAlgorithm1(AlgorithmBase):
         self.buy_limit = self.reference_price - self.interval
         self.loss_limit = self.buy_limit - self.loss_cut
 
+        self.episode_count += 1
+        self.purchase_episode = self.get_purchase_number()
+        self.sale_episode = self.get_sale_number()
+
     def shift_reference_up(self):
         self.set_reference(self.reference_price + self.loss_cut)
 
@@ -111,39 +104,32 @@ class QuantumAlgorithm1(AlgorithmBase):
             self.start_time_text = datetime.now().strftime('%H:%M')
             self.start_time = self.to_min_count(self.start_time_text)
             self.start_price = item.current_price
-            # reference_price = wmath.get_bottom(item.current_price, self.interval)
             reference_price = item.current_price + self.loss_cut
             self.set_reference(reference_price)
             self.inverse.buy(self.buy_limit, self.capital // item.current_price)
             return
 
-        # Trade
-        # if self.sell_off_ordered:
-        #     msg = ('sale.ordered:' + str(self.inverse.sale.ordered), 'open_amount:' + str(self.inverse.sale.open_amount))
-        #     self.post('(SELL_OFF)', *msg)
-        #     if self.inverse.sale.ordered or self.inverse.sale.open_amount:
-        #         return
-        #     self.sell_off_ordered = False
+        # Block during situation processing
         if self.situation_processing:
             return
 
+        # Trade according to current price
         if item.current_price > self.reference_price:
-            self.post('Situation 1')
+            self.post_repeat('Situation 1')
+            self.situation_processing = True
             self.inverse.cancel_purchases()
-            self.inverse.clear_purchases()
             self.inverse.clear_sales()
+            self.inverse.init_purchase()
+            self.inverse.init_sale()
             self.shift_reference_up()
-            self.episode_count += self.episode_increase
-            order_amount = self.capital // item.current_price - self.inverse.holding_amount
-            self.inverse.buy(self.buy_limit, order_amount)
         elif item.current_price < self.buy_limit:
-            self.post('Situation 4')
+            self.situation_processing = True
+            self.post_repeat('Situation 4')
             self.inverse.cancel_sales()
             self.inverse.clear_purchases()
-            self.inverse.clear_sales()
+            self.inverse.init_purchase()
+            self.inverse.init_sale()
             self.shift_reference_down()
-            self.episode_count += self.episode_increase
-            self.inverse.sell(self.reference_price, self.inverse.holding_amount)
 
     def update_execution_info(self, order):
         # Inverse update execution
@@ -153,59 +139,62 @@ class QuantumAlgorithm1(AlgorithmBase):
         executed_amount = abs(order.executed_amount)
         if order.order_position in (PURCHASE, CORRECT_PURCHASE):
             # Algorithm history update
-            old_purchase = self.purchase
-            self.purchase = copy.deepcopy(order)
-            # self.purchase.order_number = self.episode_count + order.order_number
-            self.purchase.order_number = self.episode_count + self.purchase_count +order.order_number
-
-            if old_purchase.order_price == order.order_price:
-                del self.orders[old_purchase.order_number]
-                self.purchase.executed_amount_sum = old_purchase.executed_amount_sum + executed_amount
-                if order.order_state == RECEIPT:
-                    self.purchase.order_amount = old_purchase.order_amount + order.order_amount
-                    self.purchase.open_amount = old_purchase.open_amount + order.open_amount
-                elif order.order_state == ORDER_EXECUTED:
-                    self.purchase.open_amount -= executed_amount
-
-            self.orders[self.purchase.order_number] = self.purchase
+            if self.purchase.order_price != order.order_price:
+                self.purchase = copy.deepcopy(order)
+                self.purchase.order_amount = 0
+                self.purchase.open_amount = 0
+            self.purchase.executed_time = order.executed_time
+            self.purchase.episode_number = self.purchase_episode
+            self.purchase.order_number = order.order_number
+            self.purchase.order_state = order.order_state
+            self.purchase.executed_price_avg = order.executed_price_avg
+            if order.order_state == RECEIPT:
+                self.purchase.order_amount += order.order_amount
+                self.purchase.open_amount += order.open_amount
+            elif order.order_state == ORDER_EXECUTED:
+                self.purchase.open_amount -= executed_amount
+                self.purchase.executed_amount_sum += executed_amount
+            self.orders[self.purchase_episode] = self.purchase
 
             # Order
             if order.executed_amount:
                 self.inverse.sell(self.reference_price, order.executed_amount)
         elif order.order_position in (SELL, CORRECT_SELL):
             # Algorithm history update
-            old_sale = self.sale
-            self.sale = copy.deepcopy(order)
-            # self.sale.order_number = self.episode_count + self.sale_count + order.order_number
-            self.sale.order_number = self.episode_count + self.sale_count + order.order_number
-
-            if old_sale.order_price == order.order_price:
-                del self.orders[old_sale.order_number]
-                self.sale.executed_amount_sum = old_sale.executed_amount_sum + executed_amount
-                self.sale.profit = old_sale.profit + order.profit
-                if order.order_state == RECEIPT:
-                    self.sale.order_amount = old_sale.order_amount + order.order_amount
-                    self.sale.open_amount = old_sale.open_amount + order.open_amount
-                elif order.order_state == ORDER_EXECUTED:
-                    self.sale.open_amount -= executed_amount
-
-            self.orders[self.sale.order_number] = self.sale
+            if self.sale.order_price != order.order_price:
+                self.sale = copy.deepcopy(order)
+                self.sale.order_amount = 0
+                self.sale.open_amount = 0
+            self.sale.executed_time = order.executed_time
+            self.sale.episode_number = self.sale_episode
+            self.sale.order_number = order.order_number
+            self.sale.order_state = order.order_state
+            self.sale.executed_price_avg = order.executed_price_avg
+            self.sale.profit += order.profit
+            if order.order_state == RECEIPT:
+                self.sale.order_amount += order.order_amount
+                self.sale.open_amount += order.open_amount
+            elif order.order_state == ORDER_EXECUTED:
+                self.sale.open_amount -= executed_amount
+                self.sale.executed_amount_sum += executed_amount
+            self.orders[self.sale_episode] = self.sale
 
             # Order
             if order.executed_amount:
                 self.inverse.buy(self.buy_limit, order.executed_amount)
                 self.total_profit += order.profit
-                self.signal('algorithm_update')
+        elif order.order_position == CANCEL_PURCHASE and order.order_state == CONFIRMED:
+            if not self.inverse.purchases:
+                order_amount = self.capital // order.current_price - self.inverse.holding_amount
+                self.inverse.buy(self.buy_limit, order_amount)
+                self.situation_processing = False
+        elif order.order_position == CANCEL_SELL and order.order_state == CONFIRMED:
+            if not self.inverse.sales:
+                self.inverse.sell(self.reference_price, self.inverse.holding_amount)
+                self.situation_processing = False
 
+        self.signal('algorithm_update')
         self.broker.draw_chart.start()
-
-        # if order.order_position in (CANCEL_PURCHASE, CANCEL_SELL) and order.order_state == CONFIRMED:
-        #     if not order.executed_amount_sum:
-        #         if order.order_number in self.orders:
-        #             del self.orders[order.order_number]
-        # else:
-        #     pass
-        #     self.orders[order.order_number] = order
 
     def display_situation(self, current_situation):
         if current_situation != self.previous_situation:
@@ -216,3 +205,6 @@ class QuantumAlgorithm1(AlgorithmBase):
         if args != self.previous_msg:
             self.debug('\033[93mALGORITHM', *args, '\033[97m')
             self.previous_msg = args
+
+    def post_repeat(self, *args):
+        self.debug('\033[93mALGORITHM', *args, '\033[97m')

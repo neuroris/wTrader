@@ -331,7 +331,7 @@ class AlgorithmItem(AlgorithmItemBase):
         msg = (order.order_position, order.order_state, 'holding:'+str(self.holding_amount))
         msg += ('order:'+str(order.order_amount), 'executed_each:'+str(order.executed_amount))
         msg += ('open:'+str(order.open_amount), 'number:'+str(order.order_number))
-        msg += ('time:'+str(order.order_executed_time),)
+        msg += ('time:'+str(order.executed_time),)
         self.post_green('(EXECUTION)', *msg)
 
     def buy(self, price, amount, order_type='LIMIT'):

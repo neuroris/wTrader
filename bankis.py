@@ -205,7 +205,7 @@ class Bankis(BankisBase):
             order = Order()
             order.item_code = str(get_comm_data(ITEM_CODE))
             order.item_name = get_comm_data(ITEM_NAME)
-            order.order_executed_time = get_comm_data(TIME)
+            order.executed_time = get_comm_data(TIME)
             order.order_amount = get_comm_data(ORDER_AMOUNT)
             order.executed_amount_sum = get_comm_data(EXECUTED_ORDER_AMOUNT)
             order.open_amount = get_comm_data(OPEN_AMOUNT)
@@ -459,7 +459,7 @@ class Bankis(BankisBase):
         order = Order()
         order.item_code = self.get_chejan_data(FID.ITEM_CODE)[1:]
         order.item_name = self.get_item_name(order.item_code)
-        order.order_executed_time = self.get_chejan_data(FID.ORDER_EXECUTED_TIME)
+        order.executed_time = self.get_chejan_data(FID.ORDER_EXECUTED_TIME)
         order.order_amount = self.get_chejan_data(FID.ORDER_AMOUNT, number=True)
         order.executed_amount = self.get_chejan_data(FID.UNIT_EXECUTED_AMOUNT, number=True)
         order.executed_amount_sum = self.get_chejan_data(FID.EXECUTED_AMOUNT, number=True)

@@ -15,6 +15,12 @@ class AlgorithmBase(WookUtil, WookLog):
         self.log = log
 
         self.is_running = False
+        self.episode_count = 0
+        self.purchase_episode = ''
+        self.sale_episode = ''
+
+        # self.purchase_pending_order = None
+        # self.sale_pending_order = None
         self.capital = 0
         self.interval = 0
         self.loss_cut = 0
@@ -39,6 +45,7 @@ class AlgorithmBase(WookUtil, WookLog):
         self.orders.clear()
         self.broker = None
         self.is_running = False
+        self.episode_count = 0
         self.capital = 0
         self.interval = 0
         self.loss_cut = 0
@@ -47,6 +54,25 @@ class AlgorithmBase(WookUtil, WookLog):
         self.start_price = 0
         self.previous_situation = ''
         self.previous_msg = ()
+
+    def normalize_number(self, number):
+        number = str(number)
+        if len(number) == 1:
+            number = '0' + number
+        return number
+
+    def get_purchase_number(self):
+        normalized_count = self.normalize_number(self.episode_count)
+        return normalized_count + 'P'
+
+    def get_sale_number(self):
+        normalized_count = self.normalize_number(self.episode_count)
+        return normalized_count + 'S'
+
+    # def go_next_episode(self):
+    #     self.episode_count += 1
+    #     self.purchase_episode = self.get_purchase_number()
+    #     self.sale_episode = self.get_sale_number()
 
     def display_situation(self, current_situation):
         if current_situation != self.previous_situation:

@@ -9,7 +9,7 @@ from kiwoom import Kiwoom
 from wookalgorithm.quantum1 import QuantumAlgorithm1
 from wookitem import Item, Order
 from wookdata import *
-import math
+import math, copy
 
 class Trader(TraderBase):
     def __init__(self, log, key):
@@ -148,108 +148,132 @@ class Trader(TraderBase):
 
     def display_portfolio(self):
         self.clear_table(self.table_portfolio)
-        for row, item in enumerate(self.broker.portfolio.values()):
-            self.table_portfolio.insertRow(row)
-            self.table_portfolio.setRowHeight(row, 8)
-            self.table_portfolio.setItem(row, 0, self.to_item(item.item_name))
-            self.table_portfolio.setItem(row, 1, self.to_item(item.current_price))
-            self.table_portfolio.setItem(row, 2, self.to_item(item.purchase_price))
-            self.table_portfolio.setItem(row, 3, self.to_item(item.holding_amount))
-            self.table_portfolio.setItem(row, 4, self.to_item(item.purchase_sum))
-            self.table_portfolio.setItem(row, 5, self.to_item(item.evaluation_sum))
-            self.table_portfolio.setItem(row, 6, self.to_item(item.total_fee))
-            self.table_portfolio.setItem(row, 7, self.to_item(item.tax))
-            self.table_portfolio.setItem(row, 8, self.to_item_sign(item.profit))
-            self.table_portfolio.setItem(row, 9, self.to_item_sign(item.profit_rate))
+        # for row, item in enumerate(self.broker.portfolio.values()):
+        for item in self.broker.portfolio.values():
+            self.table_portfolio.insertRow(0)
+            self.table_portfolio.setRowHeight(0, 8)
+            self.table_portfolio.setItem(0, 0, self.to_item(item.item_name))
+            self.table_portfolio.setItem(0, 1, self.to_item(item.current_price))
+            self.table_portfolio.setItem(0, 2, self.to_item(item.purchase_price))
+            self.table_portfolio.setItem(0, 3, self.to_item(item.holding_amount))
+            self.table_portfolio.setItem(0, 4, self.to_item(item.purchase_sum))
+            self.table_portfolio.setItem(0, 5, self.to_item(item.evaluation_sum))
+            self.table_portfolio.setItem(0, 6, self.to_item(item.total_fee))
+            self.table_portfolio.setItem(0, 7, self.to_item(item.tax))
+            self.table_portfolio.setItem(0, 8, self.to_item_sign(item.profit))
+            self.table_portfolio.setItem(0, 9, self.to_item_sign(item.profit_rate))
         self.table_portfolio.sortItems(0, Qt.DescendingOrder)
 
     def display_monitoring_items(self):
         self.clear_table(self.table_monitoring_items)
-        for row, item in enumerate(self.broker.monitoring_items.values()):
-            self.table_monitoring_items.insertRow(row)
-            self.table_monitoring_items.setRowHeight(row, 8)
-            self.table_monitoring_items.setItem(row, 0, self.to_item(item.item_name))
-            self.table_monitoring_items.setItem(row, 1, self.to_item_time(item.transaction_time))
-            self.table_monitoring_items.setItem(row, 2, self.to_item(item.current_price))
-            self.table_monitoring_items.setItem(row, 3, self.to_item(item.ask_price))
-            self.table_monitoring_items.setItem(row, 4, self.to_item(item.bid_price))
-            self.table_monitoring_items.setItem(row, 5, self.to_item(item.volume))
-            self.table_monitoring_items.setItem(row, 6, self.to_item(item.accumulated_volume))
-            self.table_monitoring_items.setItem(row, 7, self.to_item(item.high_price))
-            self.table_monitoring_items.setItem(row, 8, self.to_item(item.low_price))
-            self.table_monitoring_items.setItem(row, 9, self.to_item(item.open_price))
+        # for row, item in enumerate(self.broker.monitoring_items.values()):
+        for item in self.broker.monitoring_items.values():
+            self.table_monitoring_items.insertRow(0)
+            self.table_monitoring_items.setRowHeight(0, 8)
+            self.table_monitoring_items.setItem(0, 0, self.to_item(item.item_name))
+            self.table_monitoring_items.setItem(0, 1, self.to_item_time(item.transaction_time))
+            self.table_monitoring_items.setItem(0, 2, self.to_item(item.current_price))
+            self.table_monitoring_items.setItem(0, 3, self.to_item(item.ask_price))
+            self.table_monitoring_items.setItem(0, 4, self.to_item(item.bid_price))
+            self.table_monitoring_items.setItem(0, 5, self.to_item(item.volume))
+            self.table_monitoring_items.setItem(0, 6, self.to_item(item.accumulated_volume))
+            self.table_monitoring_items.setItem(0, 7, self.to_item(item.high_price))
+            self.table_monitoring_items.setItem(0, 8, self.to_item(item.low_price))
+            self.table_monitoring_items.setItem(0, 9, self.to_item(item.open_price))
         self.table_monitoring_items.sortItems(0, Qt.DescendingOrder)
 
     def display_balance(self):
         self.clear_table(self.table_balance)
-        for row, item in enumerate(self.broker.balance.values()):
-            self.table_balance.insertRow(row)
-            self.table_balance.setRowHeight(row, 8)
-            self.table_balance.setItem(row, 0, self.to_item(item.item_name))
-            self.table_balance.setItem(row, 1, self.to_item(item.current_price))
-            self.table_balance.setItem(row, 2, self.to_item(item.reference_price))
-            self.table_balance.setItem(row, 3, self.to_item(item.purchase_price_avg))
-            self.table_balance.setItem(row, 4, self.to_item(item.holding_amount))
-            self.table_balance.setItem(row, 5, self.to_item(item.purchase_sum))
-            self.table_balance.setItem(row, 6, self.to_item_sign(item.purchase_amount_net_today))
-            self.table_balance.setItem(row, 7, self.to_item_sign(item.balance_profit_net_today))
-            self.table_balance.setItem(row, 8, self.to_item_sign(item.balance_profit_rate))
-            self.table_balance.setItem(row, 9, self.to_item_sign(item.balance_profit_realization))
+        # for row, item in enumerate(self.broker.balance.values()):
+        for item in self.broker.balance.values():
+            self.table_balance.insertRow(0)
+            self.table_balance.setRowHeight(0, 8)
+            self.table_balance.setItem(0, 0, self.to_item(item.item_name))
+            self.table_balance.setItem(0, 1, self.to_item(item.current_price))
+            self.table_balance.setItem(0, 2, self.to_item(item.reference_price))
+            self.table_balance.setItem(0, 3, self.to_item(item.purchase_price_avg))
+            self.table_balance.setItem(0, 4, self.to_item(item.holding_amount))
+            self.table_balance.setItem(0, 5, self.to_item(item.purchase_sum))
+            self.table_balance.setItem(0, 6, self.to_item_sign(item.purchase_amount_net_today))
+            self.table_balance.setItem(0, 7, self.to_item_sign(item.balance_profit_net_today))
+            self.table_balance.setItem(0, 8, self.to_item_sign(item.balance_profit_rate))
+            self.table_balance.setItem(0, 9, self.to_item_sign(item.balance_profit_realization))
         self.table_balance.sortItems(0, Qt.DescendingOrder)
 
     def display_open_orders(self):
         self.clear_table(self.table_open_orders)
-        for row, order in enumerate(self.broker.open_orders.values()):
-            self.table_open_orders.insertRow(row)
-            self.table_open_orders.setRowHeight(row, 8)
-            self.table_open_orders.setItem(row, 0, self.to_item(order.item_name))
-            self.table_open_orders.setItem(row, 1, self.to_item_time(order.order_executed_time))
-            self.table_open_orders.setItem(row, 2, self.to_item(order.order_amount))
-            self.table_open_orders.setItem(row, 3, self.to_item(order.executed_amount_sum))
-            self.table_open_orders.setItem(row, 4, self.to_item(order.open_amount))
-            self.table_open_orders.setItem(row, 5, self.to_item_plain(order.order_number))
-            self.table_open_orders.setItem(row, 6, self.to_item_plain(order.original_order_number))
-            self.table_open_orders.setItem(row, 7, self.to_item(order.order_price))
-            self.table_open_orders.setItem(row, 8, self.to_item(order.executed_price_avg))
-            self.table_open_orders.setItem(row, 9, self.to_item_center(order.order_position))
-            self.table_open_orders.setItem(row, 10, self.to_item_center(order.order_state))
+        # for row, order in enumerate(self.broker.open_orders.values()):
+        for order in self.broker.open_orders.values():
+            self.table_open_orders.insertRow(0)
+            self.table_open_orders.setRowHeight(0, 8)
+            self.table_open_orders.setItem(0, 0, self.to_item(order.item_name))
+            self.table_open_orders.setItem(0, 1, self.to_item_time(order.executed_time))
+            self.table_open_orders.setItem(0, 2, self.to_item(order.order_amount))
+            self.table_open_orders.setItem(0, 3, self.to_item(order.executed_amount_sum))
+            self.table_open_orders.setItem(0, 4, self.to_item(order.open_amount))
+            self.table_open_orders.setItem(0, 5, self.to_item_plain(order.order_number))
+            self.table_open_orders.setItem(0, 6, self.to_item_plain(order.original_order_number))
+            self.table_open_orders.setItem(0, 7, self.to_item(order.order_price))
+            self.table_open_orders.setItem(0, 8, self.to_item(order.executed_price_avg))
+            self.table_open_orders.setItem(0, 9, self.to_item_center(order.order_position))
+            self.table_open_orders.setItem(0, 10, self.to_item_center(order.order_state))
         self.table_open_orders.sortItems(1, Qt.DescendingOrder)
 
     def display_order_history(self):
         self.clear_table(self.table_order_history)
-        for row, order in enumerate(self.broker.order_history.values()):
-            self.table_order_history.insertRow(row)
-            self.table_order_history.setRowHeight(row, 8)
-            self.table_order_history.setItem(row, 0, self.to_item(order.item_name))
-            self.table_order_history.setItem(row, 1, self.to_item_time(order.order_executed_time))
-            self.table_order_history.setItem(row, 2, self.to_item(order.order_amount))
-            self.table_order_history.setItem(row, 3, self.to_item(order.executed_amount_sum))
-            self.table_order_history.setItem(row, 4, self.to_item(order.open_amount))
-            self.table_order_history.setItem(row, 5, self.to_item_plain(order.order_number))
-            self.table_order_history.setItem(row, 6, self.to_item_plain(order.original_order_number))
-            self.table_order_history.setItem(row, 7, self.to_item(order.order_price))
-            self.table_order_history.setItem(row, 8, self.to_item(order.executed_price_avg))
-            self.table_order_history.setItem(row, 9, self.to_item_center(order.order_position))
-            self.table_order_history.setItem(row, 10, self.to_item_center(order.order_state))
+        # for row, order in enumerate(self.broker.order_history.values()):
+        for order in self.broker.order_history.values():
+            self.table_order_history.insertRow(0)
+            self.table_order_history.setRowHeight(0, 8)
+            self.table_order_history.setItem(0, 0, self.to_item(order.item_name))
+            self.table_order_history.setItem(0, 1, self.to_item_time(order.executed_time))
+            self.table_order_history.setItem(0, 2, self.to_item(order.order_amount))
+            self.table_order_history.setItem(0, 3, self.to_item(order.executed_amount_sum))
+            self.table_order_history.setItem(0, 4, self.to_item(order.open_amount))
+            self.table_order_history.setItem(0, 5, self.to_item_plain(order.order_number))
+            self.table_order_history.setItem(0, 6, self.to_item_plain(order.original_order_number))
+            self.table_order_history.setItem(0, 7, self.to_item(order.order_price))
+            self.table_order_history.setItem(0, 8, self.to_item(order.executed_price_avg))
+            self.table_order_history.setItem(0, 9, self.to_item_center(order.order_position))
+            self.table_order_history.setItem(0, 10, self.to_item_center(order.order_state))
         self.table_order_history.sortItems(1, Qt.DescendingOrder)
 
     def display_algorithm_trading(self):
         self.clear_table(self.table_algorithm_trading)
-        for row, order in enumerate(self.algorithm.orders.values()):
-            self.table_algorithm_trading.insertRow(row)
-            self.table_algorithm_trading.setRowHeight(row, 8)
-            self.table_algorithm_trading.setItem(row, 0, self.to_item(order.item_name))
-            self.table_algorithm_trading.setItem(row, 1, self.to_item_time(order.order_executed_time))
-            self.table_algorithm_trading.setItem(row, 2, self.to_item_plain(order.order_number))
-            self.table_algorithm_trading.setItem(row, 3, self.to_item_center(order.order_position))
-            self.table_algorithm_trading.setItem(row, 4, self.to_item_center(order.order_state))
-            self.table_algorithm_trading.setItem(row, 5, self.to_item(order.order_price))
-            self.table_algorithm_trading.setItem(row, 6, self.to_item(order.executed_price_avg))
-            self.table_algorithm_trading.setItem(row, 7, self.to_item(order.order_amount))
-            self.table_algorithm_trading.setItem(row, 8, self.to_item(order.executed_amount_sum))
-            self.table_algorithm_trading.setItem(row, 9, self.to_item_sign(order.open_amount))
-            self.table_algorithm_trading.setItem(row, 10, self.to_item_sign(order.profit))
+        for algorithm_number, order in self.algorithm.orders.items():
+            self.table_algorithm_trading.insertRow(0)
+            self.table_algorithm_trading.setRowHeight(0, 8)
+            self.table_algorithm_trading.setItem(0, 0, self.to_item(order.item_name))
+            self.table_algorithm_trading.setItem(0, 1, self.to_item_time(order.executed_time))
+            self.table_algorithm_trading.setItem(0, 2, self.to_item_plain(order.episode_number))
+            self.table_algorithm_trading.setItem(0, 3, self.to_item_plain(order.order_number))
+            self.table_algorithm_trading.setItem(0, 4, self.to_item_center(order.order_position))
+            self.table_algorithm_trading.setItem(0, 5, self.to_item_center(order.order_state))
+            self.table_algorithm_trading.setItem(0, 6, self.to_item(order.order_price))
+            self.table_algorithm_trading.setItem(0, 7, self.to_item(order.executed_price_avg))
+            self.table_algorithm_trading.setItem(0, 8, self.to_item(order.order_amount))
+            self.table_algorithm_trading.setItem(0, 9, self.to_item(order.executed_amount_sum))
+            self.table_algorithm_trading.setItem(0, 10, self.to_item_sign(order.open_amount))
+            self.table_algorithm_trading.setItem(0, 11, self.to_item_sign(order.profit))
         self.table_algorithm_trading.sortItems(2, Qt.DescendingOrder)
+
+    # def display_algorithm_trading(self):
+    #     self.clear_table(self.table_algorithm_trading)
+    #     for row, order in enumerate(self.algorithm.orders.values()):
+    #         self.table_algorithm_trading.insertRow(row)
+    #         self.table_algorithm_trading.setRowHeight(row, 8)
+    #         self.table_algorithm_trading.setItem(row, 0, self.to_item(order.item_name))
+    #         self.table_algorithm_trading.setItem(row, 1, self.to_item_time(order.executed_time))
+    #         self.table_algorithm_trading.setItem(row, 2, self.to_item_order(order.order_number))
+    #         self.table_algorithm_trading.setItem(row, 3, self.to_item_center(order.order_position))
+    #         self.table_algorithm_trading.setItem(row, 4, self.to_item_center(order.order_state))
+    #         self.table_algorithm_trading.setItem(row, 5, self.to_item(order.order_price))
+    #         self.table_algorithm_trading.setItem(row, 6, self.to_item(order.executed_price_avg))
+    #         self.table_algorithm_trading.setItem(row, 7, self.to_item(order.order_amount))
+    #         self.table_algorithm_trading.setItem(row, 8, self.to_item(order.executed_amount_sum))
+    #         self.table_algorithm_trading.setItem(row, 9, self.to_item_sign(order.open_amount))
+    #         self.table_algorithm_trading.setItem(row, 10, self.to_item_sign(order.profit))
+    #     self.table_algorithm_trading.sortItems(2, Qt.DescendingOrder)
 
     def clear_table(self, table):
         for row in range(table.rowCount()):
@@ -337,22 +361,24 @@ class Trader(TraderBase):
         offset = range * 0.035
         x = current_time
         y = self.algorithm.reference_price
-        for order in self.algorithm.inverse.sales.values():
-            y += offset
-            ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
+        sales = copy.deepcopy(self.algorithm.inverse.sales)
+        for order in sales.values():
+            # y += offset
+            # ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
 
-            # if order.open_amount:
-            #     y += offset
-            #     ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
+            if order.open_amount:
+                y += offset
+                ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
 
         y = self.algorithm.buy_limit - offset
-        for order in self.algorithm.inverse.purchases.values():
-            y -= offset
-            ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
+        purchases = copy.deepcopy(self.algorithm.inverse.purchases)
+        for order in purchases.values():
+            # y -= offset
+            # ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
 
-            # if order.open_amount:
-            #     y -= offset
-            #     ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
+            if order.open_amount:
+                y -= offset
+                ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
 
     def on_select_account(self, account):
         self.broker.account_number = int(account)
@@ -592,7 +618,6 @@ class Trader(TraderBase):
 
     def on_algorithm_signal(self, signal, *args):
         if signal == 'algorithm_update':
-            # self.lb_total_profit.setText(self.formalize(self.algorithm.leverage.total_profit))
             self.display_algorithm_update()
         elif signal == 'algorithm_trading_table':
             self.display_algorithm_trading()

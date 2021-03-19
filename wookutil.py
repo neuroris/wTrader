@@ -321,6 +321,14 @@ class WookUtil:
         table_item.setTextAlignment((Qt.AlignRight | Qt.AlignVCenter))
         return table_item
 
+    # def to_item_order(self, data):
+    #     item_data = str(data)
+    #     if len(item_data) == 8:
+    #         item_data = '0' + item_data
+    #     table_item = QTableWidgetItem(item_data)
+    #     table_item.setTextAlignment((Qt.AlignRight | Qt.AlignVCenter))
+    #     return table_item
+
     def to_item_center(self, data):
         item_data = str(data)
         table_item = QTableWidgetItem(item_data)

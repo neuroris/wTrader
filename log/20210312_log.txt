@@ -117,3 +117,86 @@
 2021-03-12 14:43:31,890 Order execution(¸Å¼öÃë¼Ò) KODEX 200¼±¹°ÀÎ¹ö½º2X(È®ÀÎ), order:19, executed_sum:0, open:0, number:175123, original:174538
 2021-03-12 14:43:31,893 Order execution(+¸Å¼ö) KODEX 200¼±¹°ÀÎ¹ö½º2X(Á¢¼ö), order:19, executed_sum:0, open:0, number:174538, original:0
 2021-03-12 14:43:37,273 Stop Charting KODEX 200¼±¹°ÀÎ¹ö½º2X
+2021-03-12 14:57:02,386 Kiwoom initializing...
+2021-03-12 14:57:07,799 Kiwoom log in success
+2021-03-12 14:57:07,799 Account information
+2021-03-12 14:57:08,304 Deposit information
+2021-03-12 14:57:08,854 Order history information
+2021-03-12 14:57:09,314 Portfolio information
+2021-03-12 14:57:12,048 [93mALGORITHM STARTED [97m
+2021-03-12 14:57:12,048 Algorithm started
+2021-03-12 14:57:14,477 [96mALGORITHM (BUY) holding:0 price:2100 amount:475 [97m
+2021-03-12 14:57:14,673 Send order (BUY) command committed successfully KOA_NORMAL_BUY_KP_ORD
+2021-03-12 14:57:15,037 Order execution(+¸Å¼ö) KODEX 200¼±¹°ÀÎ¹ö½º2X(Á¢¼ö), order:475, executed_sum:0, open:475, number:179730, original:0
+2021-03-12 14:57:15,048 [92mALGORITHM (EXECUTION) +¸Å¼ö Á¢¼ö holding:0 order:475 executed_each:0 open:475 number:179730 purchase:0 executed:0 [97m
+2021-03-12 14:57:23,698 Order execution(+¸Å¼ö) KODEX 200¼±¹°ÀÎ¹ö½º2X(Ã¼°á), order:475, executed_sum:475, open:0, number:179730, original:0
+2021-03-12 14:57:23,698 [92mALGORITHM (EXECUTION) +¸Å¼ö Ã¼°á holding:475 order:475 executed_each:475 open:0 number:179730 purchase:0 executed:2100 [97m
+2021-03-12 14:57:23,698 [96mALGORITHM (SELL) holding:475 price:2110 amount:475 [97m
+2021-03-12 14:57:23,713 Balance information
+2021-03-12 14:57:23,961 Send order (SELL) command committed successfully KOA_NORMAL_BUY_KP_ORD
+2021-03-12 14:57:23,993 Order execution(-¸Åµµ) KODEX 200¼±¹°ÀÎ¹ö½º2X(Á¢¼ö), order:475, executed_sum:0, open:475, number:179775, original:0
+2021-03-12 14:57:23,993 [92mALGORITHM (EXECUTION) -¸Åµµ Á¢¼ö holding:475 order:475 executed_each:0 open:475 number:179775 purchase:2100 executed:0 [97m
+2021-03-12 14:57:24,006 Balance information
+2021-03-12 14:57:30,257 [93mALGORITHM STOPPED [97m
+2021-03-12 14:57:30,260 Algorithm stopped
+2021-03-12 14:57:30,535 Send order (CANCEL SELL) command committed successfully KOA_NORMAL_BUY_KP_ORD
+2021-03-12 14:57:30,597 Order execution(¸ÅµµÃë¼Ò) KODEX 200¼±¹°ÀÎ¹ö½º2X(Á¢¼ö), order:475, executed_sum:0, open:475, number:179797, original:179775
+2021-03-12 14:57:30,601 Order execution(¸ÅµµÃë¼Ò) KODEX 200¼±¹°ÀÎ¹ö½º2X(È®ÀÎ), order:475, executed_sum:0, open:0, number:179797, original:179775
+2021-03-12 14:57:30,604 Order execution(-¸Åµµ) KODEX 200¼±¹°ÀÎ¹ö½º2X(Á¢¼ö), order:475, executed_sum:0, open:0, number:179775, original:0
+2021-03-12 14:57:30,607 Balance information
+2021-03-12 15:19:59,148 market operation state 2 152000 001000
+2021-03-12 15:20:59,153 market operation state 2 152100 000900
+2021-03-12 15:21:59,151 market operation state 2 152200 000800
+2021-03-12 15:22:59,145 market operation state 2 152300 000700
+2021-03-12 15:23:59,152 market operation state 2 152400 000600
+2021-03-12 15:24:59,149 market operation state 2 152500 000500
+2021-03-12 15:25:59,146 market operation state 2 152600 000400
+2021-03-12 15:26:59,136 market operation state 2 152700 000300
+2021-03-12 15:27:59,138 market operation state 2 152800 000200
+2021-03-12 15:28:59,140 market operation state 2 152900 000100
+2021-03-12 15:29:09,133 market operation state 2 152910 000050
+2021-03-12 15:29:19,133 market operation state 2 152920 000040
+2021-03-12 15:29:29,127 market operation state 2 152930 000030
+2021-03-12 15:29:39,127 market operation state 2 152940 000020
+2021-03-12 15:29:49,138 market operation state 2 152950 000010
+2021-03-12 15:29:59,137 market operation state 4 153000 000000
+2021-03-12 15:32:39,140 market operation state 8 888888 000000
+2021-03-12 15:34:59,637 market operation state s 153500 000000
+2021-03-12 15:34:59,638 market operation state s 153500 000000
+2021-03-12 15:34:59,728 market operation state s 153500 000000
+2021-03-12 15:34:59,729 market operation state s 153500 000000
+2021-03-12 15:34:59,729 market operation state s 153500 000000
+2021-03-12 15:34:59,729 market operation state s 153500 000000
+2021-03-12 15:34:59,730 market operation state s 153500 000000
+2021-03-12 15:34:59,730 market operation state s 153500 000000
+2021-03-12 15:34:59,730 market operation state s 153500 000000
+2021-03-12 15:34:59,731 market operation state s 153500 000000
+2021-03-12 15:34:59,731 market operation state s 153500 000000
+2021-03-12 15:34:59,731 market operation state s 153500 000000
+2021-03-12 15:34:59,837 market operation state s 153500 000000
+2021-03-12 15:34:59,837 market operation state s 153500 000000
+2021-03-12 15:34:59,838 market operation state s 153500 000000
+2021-03-12 15:34:59,838 market operation state s 153500 000000
+2021-03-12 15:34:59,838 market operation state s 153500 000000
+2021-03-12 15:40:00,020 market operation state a 154000 000000
+2021-03-12 15:44:59,806 market operation state e 154500 000000
+2021-03-12 15:44:59,913 market operation state e 154500 000000
+2021-03-12 15:45:00,006 market operation state e 154500 000000
+2021-03-12 15:45:00,007 market operation state e 154500 000000
+2021-03-12 15:45:00,116 market operation state e 154500 000000
+2021-03-12 15:45:00,117 market operation state e 154500 000000
+2021-03-12 15:45:00,210 market operation state e 154500 000000
+2021-03-12 15:45:00,302 market operation state e 154500 000000
+2021-03-12 15:45:00,303 market operation state e 154500 000000
+2021-03-12 15:45:00,409 market operation state e 154500 000000
+2021-03-12 15:45:00,530 market operation state e 154500 000000
+2021-03-12 15:45:00,531 market operation state e 154500 000000
+2021-03-12 15:45:00,811 market operation state e 154500 000000
+2021-03-12 15:45:01,010 market operation state e 154500 000000
+2021-03-12 15:45:01,104 market operation state e 154500 000000
+2021-03-12 15:45:01,401 market operation state e 154500 000000
+2021-03-12 15:45:01,402 market operation state e 154500 000000
+2021-03-12 15:59:59,984 market operation state b 160000 000000
+2021-03-12 15:59:59,985 market operation state c 160000 000000
+2021-03-12 17:59:59,781 market operation state d 180000 000000
+2021-03-12 18:02:58,779 market operation state 9 999999 000000

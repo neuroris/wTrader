@@ -257,7 +257,7 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         lb_fee_set = QLabel('Fee(%)')
         self.sb_fee = QSpinBox()
         self.sb_fee.setMinimumHeight(30)
-        self.sb_fee.setRange(0.0, 0.015)
+        self.sb_fee.setRange(0.0, 1.0)
         self.sb_fee.setSingleStep(0.001)
         self.btn_algorithm_set = QPushButton('Set')
         self.btn_algorithm_set.setMaximumWidth(80)
@@ -309,8 +309,8 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         algorithm_grid.addWidget(lb_fee_set, 0, 6)
         algorithm_grid.addWidget(self.sb_fee, 0, 7)
         algorithm_grid.addWidget(self.btn_algorithm_set, 0, 8)
-        algorithm_grid.addWidget(self.btn_go_algorithm, 0, 8, 1, 4)
-        algorithm_grid.addWidget(self.btn_stop_algorithm, 0, 12, 1, 4)
+        algorithm_grid.addWidget(self.btn_go_algorithm, 0, 9, 1, 4)
+        algorithm_grid.addWidget(self.btn_stop_algorithm, 0, 13, 1, 4)
 
         algorithm_grid.addLayout(hbox_holding_amount, 1, 0, 1, 2)
         algorithm_grid.addLayout(hbox_total_profit, 1, 2, 1, 3)
@@ -354,15 +354,19 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         order_history_gbox.setMaximumHeight(300)
 
         ##### Algorithm Trading Table
-        algorithm_trading_header = ['Item', 'Time', 'Order\nNumber', 'Order\nPosition', 'Order\nState']
+        algorithm_trading_header = ['Item', 'Time', 'E.N.', 'Order\nNumber', 'Order\nPosition', 'Order\nState']
         algorithm_trading_header += ['Order\nPrice', 'Executed\nPrice', 'Order\nAmount', 'Executed\nAmount']
         algorithm_trading_header += ['Open\nAmount', 'Profit']
-        self.table_algorithm_trading = QTableWidget(0, 11)
+        self.table_algorithm_trading = QTableWidget(0, 12)
         self.table_algorithm_trading.cellClicked.connect(self.on_select_algorithm_trading_table)
         self.table_algorithm_trading.setHorizontalHeaderLabels(algorithm_trading_header)
         for column in range(1, self.table_algorithm_trading.columnCount()):
-            self.table_algorithm_trading.setColumnWidth(column, 100)
+            self.table_algorithm_trading.setColumnWidth(column, 95)
         self.table_algorithm_trading.setColumnWidth(0, 215)
+        self.table_algorithm_trading.setColumnWidth(1, 90)
+        self.table_algorithm_trading.setColumnWidth(2, 50)
+        self.table_algorithm_trading.setColumnWidth(4, 80)
+        self.table_algorithm_trading.setColumnWidth(5, 80)
 
         algorithm_trading_gbox = QGroupBox('Algorithm Trading')
         algorithm_trading_grid = QGridLayout()
