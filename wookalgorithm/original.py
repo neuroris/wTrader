@@ -106,9 +106,9 @@ class OriginalAlgorithm(AlgorithmBase):
 
         # Trade
         if self.sell_off_ordered:
-            msg = ('sale.ordered:'+str(self.leverage.sale.ordered), 'open_amount:'+str(self.leverage.sale.open_amount))
+            msg = ('sale.ordered:' + str(self.leverage.episode_sale.ordered), 'open_amount:' + str(self.leverage.episode_sale.open_amount))
             self.post('(SELL_OFF)', *msg)
-            if self.leverage.sale.ordered or self.leverage.sale.open_amount:
+            if self.leverage.episode_sale.ordered or self.leverage.episode_sale.open_amount:
                 return
             self.sell_off_ordered = False
 

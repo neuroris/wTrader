@@ -109,9 +109,9 @@ class Algorithm1(WookUtil, WookLog):
 
         # Trade
         if self.sell_off_ordered:
-            msg = ('sale.ordered:'+str(self.leverage.sale.ordered), 'open_amount:'+str(self.leverage.sale.open_amount))
+            msg = ('sale.ordered:' + str(self.leverage.episode_sale.ordered), 'open_amount:' + str(self.leverage.episode_sale.open_amount))
             self.post('(SELL_OFF)', *msg)
-            if self.leverage.sale.ordered or self.leverage.sale.open_amount:
+            if self.leverage.episode_sale.ordered or self.leverage.episode_sale.open_amount:
                 return
             self.sell_off_ordered = False
 
@@ -138,7 +138,7 @@ class Algorithm1(WookUtil, WookLog):
         # Buy after sale completed
         if order.order_position in (SELL, CORRECT_SELL) and order.order_state == ORDER_EXECUTED:
             self.signal('total_profit')
-            if not order.open_amount and not self.leverage.purchase.open_amount:
+            if not order.open_amount and not self.leverage.episode_purchase.open_amount:
                 self.leverage.buy_over(self.buy_limit, self.capital // order.current_price)
 
         # Order history

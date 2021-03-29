@@ -11,11 +11,11 @@ Quantum algorithm (2021, 03, 06)
 
 Discrete price algorithm using inverse only
 1. Overlapping interval
-2. Adjust order price when stock price get out of interval range
+2. Cancel and re-order when stock price get out of interval range
 3. purchase, sale dictionaries
 '''
 
-class QuantumAlgorithm1(AlgorithmBase):
+class QuantumJumpAlgorithm1(AlgorithmBase):
     def __init__(self, log):
         super().__init__(log)
         self.log = log
@@ -27,14 +27,16 @@ class QuantumAlgorithm1(AlgorithmBase):
         self.purchase = Order()
         self.sale = Order()
 
-    def start(self, broker, capital, interval, loss_cut):
+    def start(self, broker, capital, interval, loss_cut, fee):
         self.inverse = AlgorithmItem('252670')
         self.inverse.set_broker(broker)
         self.inverse.set_log(self.log)
+        self.inverse.fee_ratio = fee
         self.broker = broker
         self.capital = capital
         self.interval = interval
         self.loss_cut = loss_cut
+        self.fee = fee
         self.is_running = True
 
         # Charting & Monitoring
@@ -67,6 +69,9 @@ class QuantumAlgorithm1(AlgorithmBase):
         self.capital = 0
         self.interval = 0
         self.loss_cut = 0
+        self.fee = 0
+        self.total_profit = 0
+        self.net_profit = 0
         self.start_time_text = ''
         self.start_time = 0
         self.start_price = 0
@@ -89,8 +94,8 @@ class QuantumAlgorithm1(AlgorithmBase):
         self.loss_limit = self.buy_limit - self.loss_cut
 
         self.episode_count += 1
-        self.purchase_episode = self.get_purchase_number()
-        self.sale_episode = self.get_sale_number()
+        self.purchase_episode = self.get_episode_purchase_number()
+        self.sale_episode = self.get_episode_sale_number()
 
     def shift_reference_up(self):
         self.set_reference(self.reference_price + self.loss_cut)
@@ -123,8 +128,8 @@ class QuantumAlgorithm1(AlgorithmBase):
             self.inverse.init_sale()
             self.shift_reference_up()
         elif item.current_price < self.buy_limit:
-            self.situation_processing = True
             self.post_repeat('Situation 4')
+            self.situation_processing = True
             self.inverse.cancel_sales()
             self.inverse.clear_purchases()
             self.inverse.init_purchase()
@@ -183,6 +188,8 @@ class QuantumAlgorithm1(AlgorithmBase):
             if order.executed_amount:
                 self.inverse.buy(self.buy_limit, order.executed_amount)
                 self.total_profit += order.profit
+                self.total_fee += order.transaction_fee
+                self.net_profit += order.net_profit
         elif order.order_position == CANCEL_PURCHASE and order.order_state == CONFIRMED:
             if not self.inverse.purchases:
                 order_amount = self.capital // order.current_price - self.inverse.holding_amount

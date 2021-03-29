@@ -16,18 +16,21 @@ class AlgorithmBase(WookUtil, WookLog):
 
         self.is_running = False
         self.episode_count = 0
-        self.purchase_episode = ''
-        self.sale_episode = ''
+        self.episode_purchase_number = ''
+        self.episode_sale_number = ''
+        self.episode_amount = 0
 
-        # self.purchase_pending_order = None
-        # self.sale_pending_order = None
         self.capital = 0
         self.interval = 0
         self.loss_cut = 0
+        self.minimum_transaction_amount = 0
         self.start_time_text = ''
         self.start_time = 0
         self.start_price = 0
         self.total_profit = 0
+        self.total_fee = 0
+        self.net_profit = 0
+        self.fee = 0
 
         self.previous_situation = ''
         self.previous_msg = ()
@@ -61,18 +64,13 @@ class AlgorithmBase(WookUtil, WookLog):
             number = '0' + number
         return number
 
-    def get_purchase_number(self):
+    def get_episode_purchase_number(self):
         normalized_count = self.normalize_number(self.episode_count)
         return normalized_count + 'P'
 
-    def get_sale_number(self):
+    def get_episode_sale_number(self):
         normalized_count = self.normalize_number(self.episode_count)
         return normalized_count + 'S'
-
-    # def go_next_episode(self):
-    #     self.episode_count += 1
-    #     self.purchase_episode = self.get_purchase_number()
-    #     self.sale_episode = self.get_sale_number()
 
     def display_situation(self, current_situation):
         if current_situation != self.previous_situation:

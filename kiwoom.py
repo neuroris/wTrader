@@ -416,7 +416,7 @@ class Kiwoom(KiwoomBase):
 
         item = self.portfolio[order.item_code]
 
-        if order.order_position == SELL:
+        if order.order_position in (SELL, CORRECT_SELL):
             order.executed_amount = -abs(order.executed_amount)
 
         item.current_price = order.current_price
@@ -521,12 +521,15 @@ class Kiwoom(KiwoomBase):
 
         # Portfolio, Deposit Update
         if order.order_state == ORDER_EXECUTED:
-            # if order.order_position in (PURCHASE, CORRECT_PURCHASE, SELL, CORRECT_SELL):
-            #     self.update_portfolio(order)
-            #     self.update_deposit_info(order)
+            if order.order_position in (PURCHASE, CORRECT_PURCHASE, SELL, CORRECT_SELL):
+                self.update_portfolio(order)
+                self.update_deposit_info(order)
 
-            self.update_portfolio(order)
-            self.update_deposit_info(order)
+            # self.update_portfolio(order)
+            # self.update_deposit_info(order)
+
+            # if self.portfolio.get('252670'):
+            #     self.debug('PORTFOLIO', 'HOLDING', self.portfolio['252670'].holding_amount)
 
         # Open Orders Update
         self.open_orders[order.order_number] = order

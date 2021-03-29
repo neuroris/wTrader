@@ -1,3 +1,4 @@
+import copy
 from wookutil import WookLog
 from wookdata import *
 
@@ -28,6 +29,7 @@ class Item:
         self.profit_rate = 0.0
         self.profit_realization = 0
         self.profit_realization_rate = 0.0
+        self.net_profit = 0
         self.purchase_fee = 0
         self.evaluation_fee = 0
         self.transaction_fee = 0
@@ -56,11 +58,14 @@ class Order(Item):
         self.executed_price_avg = 0
         self.executed_amount = 0
         self.executed_amount_sum = 0
+        self.previous_order_amount = 0
         self.open_amount = 0
+        self.virtual_open_amount = 0
         self.order_number = 0
-        self.original_order_number = ''
+        self.original_order_number = 0
         self.executed_order_number = 0
         self.episode_number = 0
+        self.fee_ratio = 0.0
         self.ordered = False
 
 class AlgorithmItem(Order, WookLog):
@@ -73,8 +78,6 @@ class AlgorithmItem(Order, WookLog):
         self.sale = Order()
         self.purchases = dict()
         self.sales = dict()
-        # self.purchase_ordered = False
-        # self.sale_ordered = False
         self.previous_msg = ()
 
     def set_broker(self, broker):
@@ -125,8 +128,16 @@ class AlgorithmItem(Order, WookLog):
 
                 order.profit = int((order.executed_price - order.purchase_price) * order.executed_amount)
 
+                purchase_fee = order.purchase_price * executed_amount * (self.fee_ratio / 100)
+                sale_fee = order.executed_price_avg * executed_amount * (self.fee_ratio / 100)
+                order.transaction_fee = round(purchase_fee + sale_fee)
+                order.net_profit = order.profit - order.transaction_fee
+
                 # self.profit += profit
                 self.profit += order.profit
+                self.total_fee += order.transaction_fee
+                self.net_profit += order.net_profit
+
             self.sale = order
             self.sales[order.order_number] = order
             self.sale.ordered = False
@@ -244,6 +255,20 @@ class AlgorithmItem(Order, WookLog):
         if self.sale.ordered:
             self.correct(self.sale, price)
 
+    def correct_purchases(self, price):
+        purchases = copy.deepcopy(self.purchases)
+        self.purchases.clear()
+
+        for order_number, order in purchases.items():
+            self.broker.correct(order, price)
+
+    def correct_sales(self, price):
+        sales = copy.deepcopy(self.sales)
+        self.sales.clear()
+
+        for order in sales.values():
+            self.broker.correct(order, price)
+
     def cancel(self, order):
         self.broker.cancel(order)
 
@@ -257,6 +282,18 @@ class AlgorithmItem(Order, WookLog):
             if order.open_amount:
                 self.cancel(order)
 
+    def cancel_and_purchase(self, order, price, amount):
+        self.broker.cancel_and_buy(order, price, amount)
+
+    def cancel_and_sell(self, order, price, amount):
+        self.broker.cancel_and_sell(order, price, amount)
+
+    def pad_purchase(self, order, add_amount):
+        pass
+
+    def pad_sale(self, order, add_amount):
+        pass
+
     def clear_purchases(self):
         self.purchases.clear()
 
@@ -268,6 +305,18 @@ class AlgorithmItem(Order, WookLog):
 
     def init_sale(self):
         self.sale = Order()
+
+    def get_open_purchases(self):
+        open_amount = 0
+        for order in self.purchases.values():
+            open_amount += order.open_amount
+        return open_amount
+
+    def get_open_sales(self):
+        open_amount = 0
+        for order in self.sales.values():
+            open_amount += order.open_amount
+        return open_amount
 
     def add_purchase(self, order):
         self.purchases[order.order_number] = order

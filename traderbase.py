@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QMainWindow, QLabel, QPushButton, QLineEdit, \
     QTextEdit, QVBoxLayout, QHBoxLayout, QWidget, QRadioButton, QGridLayout, \
     QCheckBox, QComboBox, QGroupBox, QDateTimeEdit, QAction, QFileDialog, QTableWidget, \
-    QTableWidgetItem, QSpinBox, QGraphicsView, QGraphicsScene
+    QTableWidgetItem, QSpinBox, QDoubleSpinBox, QGraphicsView, QGraphicsScene
 from PyQt5.QtCore import Qt, QDateTime, QRect
 from PyQt5.QtGui import QIcon, QBrush
 import matplotlib.pyplot as plt
@@ -255,10 +255,17 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         self.sb_loss_cut.setRange(0, 200)
         self.sb_loss_cut.setSingleStep(5)
         lb_fee_set = QLabel('Fee(%)')
-        self.sb_fee = QSpinBox()
+        self.sb_fee = QDoubleSpinBox()
         self.sb_fee.setMinimumHeight(30)
+        self.sb_fee.setMinimumWidth(55)
+        self.sb_fee.setDecimals(3)
         self.sb_fee.setRange(0.0, 1.0)
         self.sb_fee.setSingleStep(0.001)
+        lb_min_transaction = QLabel('Binning')
+        self.sb_min_transaction = QSpinBox()
+        self.sb_min_transaction.setMinimumHeight(30)
+        self.sb_min_transaction.setMinimumWidth(60)
+        self.sb_min_transaction.setRange(0, 100000)
         self.btn_algorithm_set = QPushButton('Set')
         self.btn_algorithm_set.setMaximumWidth(80)
         self.btn_algorithm_set.clicked.connect(self.set_algorithm_parameters)
@@ -269,35 +276,37 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         self.btn_stop_algorithm.clicked.connect(self.stop)
         self.btn_stop_algorithm.setStyleSheet('font-weight:bold; background-color:IndianRed')
 
-        lb_holding_amount = QLabel('Holding')
-        self.lb_holding_amount = QLabel()
-        self.lb_holding_amount.setStyleSheet('font-weight:bold; color:indigo')
-        hbox_holding_amount = QHBoxLayout()
-        hbox_holding_amount.addWidget(lb_holding_amount)
-        hbox_holding_amount.addWidget(self.lb_holding_amount)
+        # lb_holding_amount = QLabel('Holding')
+        # self.lb_holding_amount = QLabel()
+        # self.lb_holding_amount.setStyleSheet('font-weight:bold; color:indigo')
+        # hbox_holding_amount = QHBoxLayout()
+        # hbox_holding_amount.addWidget(lb_holding_amount)
+        # hbox_holding_amount.addWidget(self.lb_holding_amount)
         lb_total_profit = QLabel('Total Profit')
-        self.lb_total_profit = QLabel('')
+        self.lb_total_profit = QLabel()
         self.lb_total_profit.setStyleSheet('font-weight:bold; color:indigo')
         hbox_total_profit = QHBoxLayout()
         hbox_total_profit.addWidget(lb_total_profit)
         hbox_total_profit.addWidget(self.lb_total_profit)
-        lb_fee = QLabel('Fee')
-        self.lb_fee = QLabel()
-        self.lb_fee.setStyleSheet('font-weight:bold, color:indigo')
-        hbox_fee = QHBoxLayout()
-        hbox_fee.addWidget(lb_fee)
-        hbox_fee.addWidget(self.lb_fee)
+        lb_total_fee = QLabel('Total Fee')
+        self.lb_total_fee = QLabel()
+        self.lb_total_fee.setStyleSheet('font-weight:bold; color:indigo')
+        hbox_total_fee = QHBoxLayout()
+        hbox_total_fee.addWidget(lb_total_fee)
+        hbox_total_fee.addWidget(self.lb_total_fee)
         lb_net_profit = QLabel('Net Profit')
         self.lb_net_profit = QLabel()
-        self.lb_net_profit.setStyleSheet('font-weight:bold, color:indigo')
+        self.lb_net_profit.setStyleSheet('font-weight:bold; color:indigo')
         hbox_net_profit = QHBoxLayout()
         hbox_net_profit.addWidget(lb_net_profit)
         hbox_net_profit.addWidget(self.lb_net_profit)
 
         # Algorithm initial setting
+        self.sb_capital.setValue(1000000)
         self.sb_interval.setValue(10)
         self.sb_loss_cut.setValue(5)
-        self.sb_capital.setValue(1000000)
+        self.sb_fee.setValue(0.015)
+        self.sb_min_transaction.setValue(10)
 
         algorithm_grid = QGridLayout()
         algorithm_grid.addWidget(lb_capital, 0, 0)
@@ -308,14 +317,16 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         algorithm_grid.addWidget(self.sb_loss_cut, 0, 5)
         algorithm_grid.addWidget(lb_fee_set, 0, 6)
         algorithm_grid.addWidget(self.sb_fee, 0, 7)
-        algorithm_grid.addWidget(self.btn_algorithm_set, 0, 8)
-        algorithm_grid.addWidget(self.btn_go_algorithm, 0, 9, 1, 4)
-        algorithm_grid.addWidget(self.btn_stop_algorithm, 0, 13, 1, 4)
+        algorithm_grid.addWidget(lb_min_transaction, 0, 8)
+        algorithm_grid.addWidget(self.sb_min_transaction, 0, 9)
+        algorithm_grid.addWidget(self.btn_algorithm_set, 0, 10)
+        algorithm_grid.addWidget(self.btn_go_algorithm, 0, 11, 1, 4)
+        algorithm_grid.addWidget(self.btn_stop_algorithm, 0, 15, 1, 4)
 
-        algorithm_grid.addLayout(hbox_holding_amount, 1, 0, 1, 2)
-        algorithm_grid.addLayout(hbox_total_profit, 1, 2, 1, 3)
-        algorithm_grid.addLayout(hbox_fee, 1, 5, 1, 2)
-        algorithm_grid.addLayout(hbox_net_profit, 1, 7, 1, 2)
+        # algorithm_grid.addLayout(hbox_holding_amount, 1, 0, 1, 2)
+        algorithm_grid.addLayout(hbox_total_profit, 1, 0, 1, 3)
+        algorithm_grid.addLayout(hbox_total_fee, 1, 4, 1, 2)
+        algorithm_grid.addLayout(hbox_net_profit, 1, 6, 1, 3)
         algorithm_gbox = QGroupBox('Algorithm')
         algorithm_gbox.setLayout(algorithm_grid)
 
@@ -381,11 +392,6 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         canvas_gbox = QGroupBox('Chart')
         canvas_gbox.setLayout(canvas_grid)
 
-        # self.image_view = QGraphicsView()
-        # self.image_scene = WookImageScene()
-        # self.image_view.adjustSize()
-        # self.image_view.setScene(self.image_scene)
-
         ##### Left Layout #####
         left_top_grid = QGridLayout()
         left_top_grid.addWidget(account_gbox, 0, 0, 1, 3)
@@ -406,7 +412,6 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         right_vbox.addWidget(order_history_gbox)
         right_vbox.addWidget(algorithm_trading_gbox)
         right_vbox.addWidget(canvas_gbox)
-        # right_vbox.addWidget(self.image_view)
 
         ##### Central Layout #####
         central_grid = QGridLayout()

@@ -6,7 +6,9 @@ from mplfinance.original_flavor import candlestick2_ohlc
 from datetime import datetime
 from traderbase import TraderBase
 from kiwoom import Kiwoom
-from wookalgorithm.quantum1 import QuantumAlgorithm1
+from wookalgorithm.quantumjump1 import QuantumJumpAlgorithm1
+from wookalgorithm.quantumjump2 import QuantumJumpAlgorithm2
+from wookalgorithm.quantumjump3 import QuantumJumpAlgorithm3
 from wookitem import Item, Order
 from wookdata import *
 import math, copy
@@ -16,7 +18,8 @@ class Trader(TraderBase):
         self.broker = Kiwoom(log, key)
         # self.broker = Bankis(log, key)
         # self.algorithm = Algorithm1(log)
-        self.algorithm = QuantumAlgorithm1(log)
+        # self.algorithm = QuantumJumpAlgorithm1(log)
+        self.algorithm = QuantumJumpAlgorithm3(log)
         super().__init__(log)
 
         # Initial work
@@ -46,17 +49,7 @@ class Trader(TraderBase):
         self.algorithm.update_transaction_info(item)
 
     def test2(self):
-        self.debug('test2 button clicked')
-
-        order = Order()
-        order.item_code = '122630'
-        order.order_price = 30000
-        order.order_position = SELL
-        order.order_amount = 10
-        order.open_amount = 10
-        order.order_number = int(self.le_order_number.text())
-        order.current_price = int(self.le_test.text())
-        self.algorithm.update_execution_info(order)
+        self.broker.update_portfolio()
 
     def connect_broker(self):
         # if self.cb_auto_login.isChecked():
@@ -66,7 +59,6 @@ class Trader(TraderBase):
         #     self.broker.set_account_password()
 
         self.broker.auto_login()
-
 
     def init_broker(self):
         self.broker.log = self.log
@@ -139,12 +131,14 @@ class Trader(TraderBase):
         interval = self.sb_interval.value()
         loss_cut = self.sb_loss_cut.value()
         capital = self.sb_capital.value()
-        self.algorithm.start(self.broker, capital, interval, loss_cut)
-        self.log('Algorithm started')
+        fee = self.sb_fee.value()
+        minimum_transaction_amount = self.sb_min_transaction.value()
+        self.algorithm.start(self.broker, capital, interval, loss_cut, fee, minimum_transaction_amount)
+        self.log_info('Algorithm started')
 
     def stop(self):
         self.algorithm.stop()
-        self.log('Algorithm stopped')
+        self.log_info('Algorithm stopped')
 
     def display_portfolio(self):
         self.clear_table(self.table_portfolio)
@@ -257,39 +251,30 @@ class Trader(TraderBase):
             self.table_algorithm_trading.setItem(0, 11, self.to_item_sign(order.profit))
         self.table_algorithm_trading.sortItems(2, Qt.DescendingOrder)
 
-    # def display_algorithm_trading(self):
-    #     self.clear_table(self.table_algorithm_trading)
-    #     for row, order in enumerate(self.algorithm.orders.values()):
-    #         self.table_algorithm_trading.insertRow(row)
-    #         self.table_algorithm_trading.setRowHeight(row, 8)
-    #         self.table_algorithm_trading.setItem(row, 0, self.to_item(order.item_name))
-    #         self.table_algorithm_trading.setItem(row, 1, self.to_item_time(order.executed_time))
-    #         self.table_algorithm_trading.setItem(row, 2, self.to_item_order(order.order_number))
-    #         self.table_algorithm_trading.setItem(row, 3, self.to_item_center(order.order_position))
-    #         self.table_algorithm_trading.setItem(row, 4, self.to_item_center(order.order_state))
-    #         self.table_algorithm_trading.setItem(row, 5, self.to_item(order.order_price))
-    #         self.table_algorithm_trading.setItem(row, 6, self.to_item(order.executed_price_avg))
-    #         self.table_algorithm_trading.setItem(row, 7, self.to_item(order.order_amount))
-    #         self.table_algorithm_trading.setItem(row, 8, self.to_item(order.executed_amount_sum))
-    #         self.table_algorithm_trading.setItem(row, 9, self.to_item_sign(order.open_amount))
-    #         self.table_algorithm_trading.setItem(row, 10, self.to_item_sign(order.profit))
-    #     self.table_algorithm_trading.sortItems(2, Qt.DescendingOrder)
-
     def clear_table(self, table):
         for row in range(table.rowCount()):
             table.removeRow(0)
 
     def display_algorithm_update(self):
-        holding_amount = self.algorithm.inverse.holding_amount
-        formalized_holding_amount = self.formalize(holding_amount)
-        self.lb_holding_amount.setText(formalized_holding_amount)
+        # holding_amount = self.algorithm.inverse.holding_amount
+        # formalized_holding_amount = self.formalize(holding_amount)
+        # self.lb_holding_amount.setText(formalized_holding_amount)
 
-        # total_profit = self.algorithm.leverage.profit
         total_profit = self.algorithm.total_profit
         formalized_profit = self.formalize(total_profit)
         profit_rate = round(total_profit / self.sb_capital.value() * 100, 2)
         profit_display = '{} ({}%)'.format(formalized_profit, profit_rate)
         self.lb_total_profit.setText(profit_display)
+
+        total_fee = self.algorithm.total_fee
+        formalized_fee = self.formalize(total_fee)
+        self.lb_total_fee.setText(formalized_fee)
+
+        net_profit = self.algorithm.net_profit
+        formalized_net_profit = self.formalize(net_profit)
+        net_profit_rate = round(net_profit / self.sb_capital.value() * 100, 2)
+        net_profit_display = '{} ({}%)'.format(formalized_net_profit, net_profit_rate)
+        self.lb_net_profit.setText(net_profit_display)
 
     def display_chart(self):
         if not self.broker.chart_prices:
@@ -582,6 +567,8 @@ class Trader(TraderBase):
         self.algorithm.capital = self.sb_capital.value()
         self.algorithm.interval = self.interval
         self.algorithm.loss_cut = self.loss_cut
+        self.algorithm.fee = self.sb_fee.value()
+        self.algorithm.minimum_transaction_amount = self.sb_min_transaction.value()
 
     def on_edit_save_file(self):
         file = self.le_save_file.text()
@@ -619,8 +606,8 @@ class Trader(TraderBase):
     def on_algorithm_signal(self, signal, *args):
         if signal == 'algorithm_update':
             self.display_algorithm_update()
-        elif signal == 'algorithm_trading_table':
-            self.display_algorithm_trading()
+        # elif signal == 'algorithm_trading_table':
+        #     self.display_algorithm_trading()
 
     def log(self, *args):
         message = str(args[0])
@@ -629,6 +616,13 @@ class Trader(TraderBase):
         current_time = datetime.now().strftime('%H:%M:%S') + ' '
         self.te_info.append(current_time + message)
         self.info(message)
+
+    def log_info(self, *args):
+        message = str(args[0])
+        for arg in args[1:]:
+            message += ' ' + str(arg)
+        current_time = datetime.now().strftime('%H:%M:%S') + ' '
+        self.te_info.append(current_time + message)
 
     def status(self, *args):
         message = str(args[0])
