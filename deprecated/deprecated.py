@@ -125,7 +125,7 @@ class Algorithm1(WookUtil, WookLog):
         elif item.current_price <= self.loss_limit:
             self.display_situation('Situation 4')
             self.sell_off_ordered = True
-            self.leverage.sell_off()
+            self.leverage.sell_off_deprecated()
             self.shift_reference_down()
         elif item.current_price <= self.reference_price - self.loss_cut:
             self.display_situation('Situation 3')

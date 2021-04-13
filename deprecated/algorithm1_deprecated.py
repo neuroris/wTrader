@@ -1,13 +1,11 @@
-import copy
 from datetime import datetime
-from PyQt5.QtCore import QEventLoop
-from wookutil import WookUtil, WookLog, wmath
-from wookitem import Item, BalanceItem, Order, AlgorithmItem
+from wookutil import wmath
+from wookitem import AlgorithmItem
 from wookalgorithm.algorithmbase import AlgorithmBase
 from wookdata import *
 
 '''
-Original algorithm (2021, 02, 28)
+Original algorithm(2021, 02, 28), revision(2021, 04, 06) 
 
 First algorithm using leverage only
 1. Non overlapping interval
@@ -16,82 +14,25 @@ First algorithm using leverage only
 4. Beyond threashold, cancel purchase or sale and re-order
 '''
 
-class OriginalAlgorithm(AlgorithmBase):
+class Algorithm1(AlgorithmBase):
     def __init__(self, log):
         super().__init__(log)
-        self.log = log
-
         self.leverage = None
 
-        self.reference_price = 0
-        self.buy_limit = 0
-        self.loss_limit = 0
-        self.sell_off_ordered = False
-
-    def start(self, broker, capital, interval, loss_cut):
+    def start(self, broker, capital, interval, loss_cut, fee, minimum_transaction_amount):
         self.leverage = AlgorithmItem('122630')
-        self.leverage.set_broker(broker)
-        self.leverage.set_log(self.log)
-        self.broker = broker
-        self.capital = capital
-        self.interval = interval
-        self.loss_cut = loss_cut
-        self.is_running = True
+        self.add_item(self.leverage)
+        self.set_parameters(broker, capital, interval, loss_cut, fee, minimum_transaction_amount)
+
+        # Open Orders cancellation
+        self.clear_open_orders()
 
         # Charting & Monitoring
-        broker.go_chart(self.leverage.item_code)
-        broker.demand_monitoring_items_info(self.leverage)
+        broker.go_chart(self.inverse.item_code)
+        broker.demand_monitoring_items_info(self.inverse)
 
-        # Open Orders cancellation
-        open_orders = list(broker.open_orders.values())
-        for order in open_orders:
-            self.broker.cancel(order)
-
-        self.post('STARTED')
-
-    def stop(self):
-        if not self.is_running:
-            return
-
-        # Open Orders cancellation
-        open_orders = list(self.broker.open_orders.values())
-        for order in open_orders:
-            self.broker.cancel(order)
-
-        # Init Fields
-        self.orders.clear()
-        self.broker = None
-        self.leverage = None
-        self.is_running = False
-        self.capital = 0
-        self.interval = 0
-        self.loss_cut = 0
-        self.start_time_text = ''
-        self.start_time = 0
-        self.start_price = 0
-        self.reference_price = 0
-        self.buy_limit = 0
-        self.loss_limit = 0
-        self.sell_off_ordered = False
-        self.previous_situation = ''
-        self.previous_msg = ()
-
-    def resume(self):
         self.is_running = True
-
-    def halt(self):
-        self.is_running = False
-
-    def set_reference(self, price):
-        self.reference_price = price
-        self.buy_limit = self.reference_price - self.interval
-        self.loss_limit = self.buy_limit - self.loss_cut
-
-    def shift_reference_up(self):
-        self.set_reference(self.reference_price + self.interval)
-
-    def shift_reference_down(self):
-        self.set_reference(self.reference_price - self.interval)
+        self.post('STARTED')
 
     def update_transaction_info(self, item):
         # First time work
@@ -123,7 +64,7 @@ class OriginalAlgorithm(AlgorithmBase):
         elif item.current_price <= self.loss_limit:
             self.display_situation('Situation 4')
             self.sell_off_ordered = True
-            self.leverage.sell_off()
+            self.leverage.sell_off_deprecated()
             self.shift_reference_down()
         elif item.current_price <= self.reference_price - self.loss_cut:
             self.display_situation('Situation 3')
@@ -153,13 +94,3 @@ class OriginalAlgorithm(AlgorithmBase):
             original_order = self.orders[order.original_order_number]
             if not original_order.executed_amount_sum:
                 del self.orders[order.original_order_number]
-
-    def display_situation(self, current_situation):
-        if current_situation != self.previous_situation:
-            self.post(current_situation)
-            self.previous_situation = current_situation
-
-    def post(self, *args):
-        if args != self.previous_msg:
-            self.debug('\033[93mALGORITHM', *args, '\033[97m')
-            self.previous_msg = args

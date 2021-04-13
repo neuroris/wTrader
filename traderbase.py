@@ -302,9 +302,9 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         hbox_net_profit.addWidget(self.lb_net_profit)
 
         # Algorithm initial setting
-        self.sb_capital.setValue(1000000)
-        self.sb_interval.setValue(10)
-        self.sb_loss_cut.setValue(5)
+        self.sb_capital.setValue(10000000)
+        self.sb_interval.setValue(20)
+        self.sb_loss_cut.setValue(10)
         self.sb_fee.setValue(0.015)
         self.sb_min_transaction.setValue(10)
 
@@ -442,5 +442,5 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         self.setWindowTitle('wook\'s algorithm trader')
         self.resize(2550, 1700)
         self.move(-350, 100)
-        self.setWindowIcon(QIcon('nyang1.ico'))
+        self.setWindowIcon(QIcon('data/nyang1.ico'))
         self.show()

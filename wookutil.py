@@ -152,6 +152,12 @@ class wmath:
         return bottom
 
     @classmethod
+    def get_top(cls, price, interval):
+        bottom = (price // interval) * interval
+        top = bottom + interval
+        return top
+
+    @classmethod
     def get_loss_cut(cls, price, interval, loss_cut):
         cut_value = interval - loss_cut
         quotient, remainder = divmod(price - 1, interval)
@@ -170,66 +176,6 @@ class wmath:
             return result
 
         return new_get_floor
-
-    # @classmethod
-    # def get_ceiling(cls, price, interval, loss_cut):
-    #     cut_value = interval - loss_cut
-    #     quotient, remainder = divmod(price, interval)
-    #     fraction = remainder / cut_value
-    #     factor = int(fraction)
-    #     if factor:
-    #         factor = loss_cut
-    #     processed_price = quotient * interval + cut_value + factor
-    #
-    #     return processed_price
-    #
-    # @classmethod
-    # def custom_get_ceiling(cls, interval, loss_cut):
-    #     def new_get_ceiling(price):
-    #         result = cls.get_ceiling(price, interval, loss_cut)
-    #         return result
-    #
-    #     return new_get_ceiling
-
-    # @classmethod
-    # def get_floor(cls, price, interval, loss_cut):
-    #     cut_value = interval - loss_cut
-    #     quotient, remainder = divmod(price - 1, interval)
-    #     fraction = remainder / cut_value
-    #     factor = int(fraction)
-    #     if factor:
-    #         factor = cut_value
-    #     processed_price = quotient * interval + factor
-    #
-    #     return processed_price
-    #
-    # @classmethod
-    # def custom_get_floor(cls, interval, loss_cut):
-    #     def new_get_floor(price):
-    #         result = cls.get_floor(price, interval, loss_cut)
-    #         return result
-    #
-    #     return new_get_floor
-    #
-    # @classmethod
-    # def get_ceiling(cls, price, interval, loss_cut):
-    #     cut_value = interval - loss_cut
-    #     quotient, remainder = divmod(price, interval)
-    #     fraction = remainder / cut_value
-    #     factor = int(fraction)
-    #     if factor:
-    #         factor = loss_cut
-    #     processed_price = quotient * interval + cut_value + factor
-    #
-    #     return processed_price
-    #
-    # @classmethod
-    # def custom_get_ceiling(cls, interval, loss_cut):
-    #     def new_get_ceiling(price):
-    #         result = cls.get_ceiling(price, interval, loss_cut)
-    #         return result
-    #
-    #     return new_get_ceiling
 
     @classmethod
     def at_cut_price(cls, interval, price):
@@ -283,6 +229,10 @@ class WookUtil:
 
         return data
 
+    def to_time(self, data):
+        time_format = data[:2] + ':' + data[2:4] + ':' + data[4:]
+        return time_format
+
     def formalize_int(self, str_data):
         int_data = int(str_data)
         formalized_data = format(int_data, ',')
@@ -320,14 +270,6 @@ class WookUtil:
         table_item = QTableWidgetItem(item_data)
         table_item.setTextAlignment((Qt.AlignRight | Qt.AlignVCenter))
         return table_item
-
-    # def to_item_order(self, data):
-    #     item_data = str(data)
-    #     if len(item_data) == 8:
-    #         item_data = '0' + item_data
-    #     table_item = QTableWidgetItem(item_data)
-    #     table_item.setTextAlignment((Qt.AlignRight | Qt.AlignVCenter))
-    #     return table_item
 
     def to_item_center(self, data):
         item_data = str(data)

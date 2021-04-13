@@ -123,21 +123,14 @@ class AlgorithmItem(Order, WookLog):
             if order.order_state == ORDER_EXECUTED:
                 self.holding_amount -= executed_amount
                 self.purchase_sum = self.purchase_price_avg * self.holding_amount
-                # profit = int((order.executed_price_avg - self.purchase_price_avg) * order.executed_amount)
-                # order.profit = self.sale.profit + profit
-
                 order.profit = int((order.executed_price - order.purchase_price) * order.executed_amount)
-
                 purchase_fee = order.purchase_price * executed_amount * (self.fee_ratio / 100)
                 sale_fee = order.executed_price_avg * executed_amount * (self.fee_ratio / 100)
-                order.transaction_fee = round(purchase_fee + sale_fee)
+                order.transaction_fee = int(purchase_fee + sale_fee)
                 order.net_profit = order.profit - order.transaction_fee
-
-                # self.profit += profit
                 self.profit += order.profit
                 self.total_fee += order.transaction_fee
                 self.net_profit += order.net_profit
-
             self.sale = order
             self.sales[order.order_number] = order
             self.sale.ordered = False
@@ -154,8 +147,10 @@ class AlgorithmItem(Order, WookLog):
         msg += ('open:' + str(order.open_amount), 'number:' + str(order.order_number))
         msg += ('purchase:' + str(order.purchase_price), 'executed:' + str(order.executed_price))
         msg += ('holding:' + str(self.holding_amount),)
+        executed_time = str(order.executed_time)
+        time_format = executed_time[:2] + ':' + executed_time[2:4] + ':' + executed_time[4:]
         self.post_green('(EXECUTION)', *msg)
-        self.post_blue('(DEBUG)', 'Purchases', len(self.purchases), 'Sales', len(self.sales))
+        self.post_blue('(DEBUG)', time_format, 'Purchases', len(self.purchases), 'Sales', len(self.sales))
 
     def buy(self, price, amount, order_type='LIMIT'):
         msg = ('holding:' + str(self.holding_amount), 'price:' + str(price), 'amount:' + str(amount))
@@ -226,7 +221,7 @@ class AlgorithmItem(Order, WookLog):
             else:
                 self.broker.sell(self.item_code, price, self.holding_amount)
 
-    def sell_off(self):
+    def sell_off_deprecated(self):
         if not self.holding_amount or self.sale.ordered:
             return
 
@@ -241,6 +236,17 @@ class AlgorithmItem(Order, WookLog):
             self.broker.cancel_and_sell(self.sale, 0, self.holding_amount, 'MARKET')
         else:
             self.broker.sell(self.item_code, 0, self.holding_amount, 'MARKET')
+
+    def sell_off(self):
+        if not self.holding_amount or self.sale.ordered:
+            return
+
+        msg = ('holding:' + str(self.holding_amount), 'purchase.open:' + str(self.purchase.open_amount))
+        msg += ('sale.open:' + str(self.sale.open_amount),)
+        self.post_cyan('(SELL_OFF)', *msg)
+
+        self.sale.ordered = True
+        self.broker.sell(self.item_code, 0, self.holding_amount, 'MARKET')
 
     def correct(self, order, price, amount=None):
         self.broker.correct(order, price, amount)
@@ -259,7 +265,7 @@ class AlgorithmItem(Order, WookLog):
         purchases = copy.deepcopy(self.purchases)
         self.purchases.clear()
 
-        for order_number, order in purchases.items():
+        for order in purchases.values():
             self.broker.correct(order, price)
 
     def correct_sales(self, price):
@@ -287,12 +293,6 @@ class AlgorithmItem(Order, WookLog):
 
     def cancel_and_sell(self, order, price, amount):
         self.broker.cancel_and_sell(order, price, amount)
-
-    def pad_purchase(self, order, add_amount):
-        pass
-
-    def pad_sale(self, order, add_amount):
-        pass
 
     def clear_purchases(self):
         self.purchases.clear()

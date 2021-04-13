@@ -1,13 +1,9 @@
 from PyQt5.QAxContainer import QAxWidget
-from PyQt5.QtCore import QEventLoop, QThread, Qt, QMutex, QTimer
-from PyQt5.QtWidgets import QTableWidgetItem
-import pandas
+from PyQt5.QtCore import QEventLoop, QThread, QTimer
 from queue import Queue
-import time, os, re
-import pickle
+import time
 from wookitem import Order
 from wookutil import WookCipher, WookLog, WookTimer, WookUtil, ChartDrawer
-from wookalgorithm.original import OriginalAlgorithm
 from wookdata import *
 
 class KiwoomBase(QAxWidget, WookLog, WookUtil):
@@ -95,7 +91,8 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         self.request_count_waiting = 30
 
         # Fee and Tax
-        self.fee_ratio = 0.0035
+        # self.fee_ratio = 0.0035
+        self.fee_ratio = 0.00015
         self.tax_ratio = 0.0023
 
         # Screen numbers

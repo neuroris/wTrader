@@ -57,6 +57,7 @@ HIGH = 2
 LOW = 3
 CLOSE = 4
 VOLUME_ = 5
+MA5 = 6
 
 # Korean parameters with subfields
 TRADE_POSITION = '매매구분'
@@ -89,8 +90,8 @@ ORDER_TYPE = {
     'LIMIT': '00',
     'MARKET': '03',
     'CONDITIONAL': '05',
-    'COVER': '06',
-    'MARGINAL': '07',
+    'MARKET PEG': '06',
+    'PRIMARY PEG': '07',
     'BEFORE': '61',
     'CLOSING': '62',
     'AFTER': '81'
@@ -278,14 +279,11 @@ MARKET_KOSDAQ = '10'
 MARKET_KOSPI = '0'
 MARKET_ETF = '8'
 
-# Algorithms
-ALGORITHM_PURCHASE = 88000000
-ALGORITHM_SALE = 99000000
-
 # Item code list
 CODES = {
     '122630': 'KODEX 레버리지',
     '252670': 'KODEX 200선물인버스2X',
     '048260': '오스템임플란트',
-    '101R3000': 'F 202103'
+    '101R3000': 'F 202103',
+    '101R6000': 'F 202106'
 }

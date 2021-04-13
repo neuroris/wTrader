@@ -445,6 +445,27 @@ class Kiwoom(KiwoomBase):
 
         self.signal('portfolio_table')
 
+    # def update_chart_prices(self, price, volume):
+    #     current_time = datetime.now().strftime('%Y%m%d%H%M')
+    #     if not self.chart_prices:
+    #         price_data = [current_time, price, price, price, price, volume]
+    #         self.chart_prices.append(price_data)
+    #     elif current_time != self.chart_prices[-1][TIME_]:
+    #         price_data = [current_time, price, price, price, price, volume]
+    #         self.chart_prices.append(price_data)
+    #     else:
+    #         if price > self.chart_prices[-1][HIGH]:
+    #             self.chart_prices[-1][HIGH] = price
+    #         elif price < self.chart_prices[-1][LOW]:
+    #             self.chart_prices[-1][LOW] = price
+    #         last_price = self.chart_prices[-1][CLOSE]
+    #         self.chart_prices[-1][CLOSE] = price
+    #         self.chart_prices[-1][VOLUME_] += volume
+    #         if last_price == price:
+    #             return
+    #
+    #     self.draw_chart.start()
+
     def update_chart_prices(self, price, volume):
         current_time = datetime.now().strftime('%Y%m%d%H%M')
         if not self.chart_prices:
@@ -499,7 +520,7 @@ class Kiwoom(KiwoomBase):
         # Log message
         message = 'Order execution({}) {}({}), '.format(order.order_position, order.item_name, order.order_state)
         message += 'order:{}, executed_sum:{}, '.format(order.order_amount, order.executed_amount_sum)
-        message += 'open:{}, '.format(order.open_amount)
+        message += 'open:{}, price:{}, '.format(order.open_amount, order.order_price)
         message += 'number:{}, original:{}'.format(order.order_number, order.original_order_number)
         self.log(message)
 

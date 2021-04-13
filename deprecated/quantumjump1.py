@@ -1,8 +1,6 @@
 import copy
 from datetime import datetime
-from PyQt5.QtCore import QEventLoop
-from wookutil import WookUtil, WookLog, wmath
-from wookitem import Item, BalanceItem, Order, AlgorithmItem
+from wookitem import Order, AlgorithmItem
 from wookdata import *
 from wookalgorithm.algorithmbase import AlgorithmBase
 
@@ -120,7 +118,7 @@ class QuantumJumpAlgorithm1(AlgorithmBase):
 
         # Trade according to current price
         if item.current_price > self.reference_price:
-            self.post_repeat('Situation 1')
+            self.post('Situation 1')
             self.situation_processing = True
             self.inverse.cancel_purchases()
             self.inverse.clear_sales()
@@ -128,7 +126,7 @@ class QuantumJumpAlgorithm1(AlgorithmBase):
             self.inverse.init_sale()
             self.shift_reference_up()
         elif item.current_price < self.buy_limit:
-            self.post_repeat('Situation 4')
+            self.post('Situation 4')
             self.situation_processing = True
             self.inverse.cancel_sales()
             self.inverse.clear_purchases()
@@ -213,5 +211,5 @@ class QuantumJumpAlgorithm1(AlgorithmBase):
             self.debug('\033[93mALGORITHM', *args, '\033[97m')
             self.previous_msg = args
 
-    def post_repeat(self, *args):
+    def post(self, *args):
         self.debug('\033[93mALGORITHM', *args, '\033[97m')

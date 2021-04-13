@@ -6,9 +6,15 @@ from mplfinance.original_flavor import candlestick2_ohlc
 from datetime import datetime
 from traderbase import TraderBase
 from kiwoom import Kiwoom
-from wookalgorithm.quantumjump1 import QuantumJumpAlgorithm1
-from wookalgorithm.quantumjump2 import QuantumJumpAlgorithm2
-from wookalgorithm.quantumjump3 import QuantumJumpAlgorithm3
+from wookalgorithm.quantumjump.algorithm1 import QAlgorithm1
+from wookalgorithm.quantumjump.algorithm2 import QAlgorithm2
+from wookalgorithm.quantumjump.algorithm4 import QAlgorithm4
+from wookalgorithm.quantumjump.algorithm5 import QAlgorithm5
+from wookalgorithm.volitility.algorithm3 import VAlgorithm3
+from wookalgorithm.volitility.algorithm4 import VAlgorithm4
+from wookalgorithm.volitility.algorithm5 import VAlgorithm5
+from wookalgorithm.volitility.algorithm6 import VAlgorithm6
+from wookalgorithm.movingaverage.algorithm1 import MAlgorithm1
 from wookitem import Item, Order
 from wookdata import *
 import math, copy
@@ -17,9 +23,8 @@ class Trader(TraderBase):
     def __init__(self, log, key):
         self.broker = Kiwoom(log, key)
         # self.broker = Bankis(log, key)
-        # self.algorithm = Algorithm1(log)
-        # self.algorithm = QuantumJumpAlgorithm1(log)
-        self.algorithm = QuantumJumpAlgorithm3(log)
+        self.algorithm = VAlgorithm6(log)
+        # self.algorithm = MAlgorithm1(log)
         super().__init__(log)
 
         # Initial work
@@ -48,8 +53,15 @@ class Trader(TraderBase):
         item.current_price = int(self.le_test.text())
         self.algorithm.update_transaction_info(item)
 
+        # self.algorithm.settle_up()
+
     def test2(self):
-        self.broker.update_portfolio()
+        # self.broker.update_portfolio()
+        self.algorithm.settle_up()
+        # price = self.sb_price.value()
+        # amount = self.sb_amount.value()
+
+        # self.broker.order('252670', price, amount, 'SELL', 'PRIMARY PEGGED')
 
     def connect_broker(self):
         # if self.cb_auto_login.isChecked():
@@ -59,6 +71,8 @@ class Trader(TraderBase):
         #     self.broker.set_account_password()
 
         self.broker.auto_login()
+
+        # self.broker.connect
 
     def init_broker(self):
         self.broker.log = self.log
@@ -248,7 +262,7 @@ class Trader(TraderBase):
             self.table_algorithm_trading.setItem(0, 8, self.to_item(order.order_amount))
             self.table_algorithm_trading.setItem(0, 9, self.to_item(order.executed_amount_sum))
             self.table_algorithm_trading.setItem(0, 10, self.to_item_sign(order.open_amount))
-            self.table_algorithm_trading.setItem(0, 11, self.to_item_sign(order.profit))
+            self.table_algorithm_trading.setItem(0, 11, self.to_item_sign(order.net_profit))
         self.table_algorithm_trading.sortItems(2, Qt.DescendingOrder)
 
     def clear_table(self, table):
@@ -336,17 +350,17 @@ class Trader(TraderBase):
         ax.text(start_time, min_floor, start_comment, color='RebeccaPurple')
         ax.axhline(self.algorithm.reference_price, alpha=1, linewidth=0.2, color='Maroon')
         ax.text(0, self.algorithm.reference_price, 'Reference')
-        ax.axhline(self.algorithm.buy_limit, alpha=1, linewidth=0.2, color='LimeGreen')
+        ax.axhline(self.algorithm.buy_limit, alpha=1, linewidth=0.2, color='Maroon')
         ax.text(0, self.algorithm.buy_limit, 'Buy limit')
 
-        ax.axhline(self.algorithm.loss_limit, alpha=1, linewidth=0.2, color='Red')
+        ax.axhline(self.algorithm.loss_limit, alpha=1, linewidth=0.2, color='DeepPink')
         ax.text(0, self.algorithm.loss_limit, 'Loss cut')
 
-        range = max_ceiling - min_floor
-        offset = range * 0.035
+        total_range = max_ceiling - min_floor
+        offset = total_range * 0.035
         x = current_time
         y = self.algorithm.reference_price
-        sales = copy.deepcopy(self.algorithm.inverse.sales)
+        sales = copy.deepcopy(self.algorithm.leverage.sales)
         for order in sales.values():
             # y += offset
             # ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
@@ -356,7 +370,7 @@ class Trader(TraderBase):
                 ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
 
         y = self.algorithm.buy_limit - offset
-        purchases = copy.deepcopy(self.algorithm.inverse.purchases)
+        purchases = copy.deepcopy(self.algorithm.leverage.purchases)
         for order in purchases.values():
             # y -= offset
             # ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
@@ -546,17 +560,17 @@ class Trader(TraderBase):
         index = self.cbb_item_name.findText(item_name)
         self.cbb_item_name.setCurrentIndex(index)
 
-        order_number_column = 2
+        order_number_column = 3
         order_number_item = self.table_algorithm_trading.item(row, order_number_column)
         order_number = order_number_item.text()
         self.le_order_number.setText(order_number)
 
-        order_price_column = 5
+        order_price_column = 6
         order_price_item = self.table_algorithm_trading.item(row, order_price_column)
         order_price = self.process_type(order_price_item.text())
         self.sb_price.setValue(order_price)
 
-        open_amount_column = 9
+        open_amount_column = 10
         open_amount_item = self.table_algorithm_trading.item(row, open_amount_column)
         open_amount = self.process_type(open_amount_item.text())
         self.sb_amount.setValue(open_amount)
