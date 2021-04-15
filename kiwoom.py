@@ -249,6 +249,7 @@ class Kiwoom(KiwoomBase):
                 self.chart_prices.reverse()
                 self.draw_chart.start()
                 self.init_screen(sScrNo)
+                self.signal('chart_obtained')
                 return
 
             open_price = int(abs(get_comm_data(OPEN_PRICE)))
@@ -316,7 +317,7 @@ class Kiwoom(KiwoomBase):
         item.price_increase_amount = get_comm_real_data(FID.PRICE_INCREASE_AMOUNT)
         item.ask_price = get_comm_real_data(FID.ASK_PRICE)
         item.bid_price = get_comm_real_data(FID.BID_PRICE)
-        item.volume = get_comm_real_data(FID.VOLUME)
+        item.volume = abs(get_comm_real_data(FID.VOLUME))
         item.accumulated_volume = get_comm_real_data(FID.ACCUMULATED_VOLUME)
         item.high_price = get_comm_real_data(FID.HIGH_PRICE)
         item.low_price = get_comm_real_data(FID.LOW_PRICE)
@@ -467,7 +468,7 @@ class Kiwoom(KiwoomBase):
     #     self.draw_chart.start()
 
     def update_chart_prices(self, price, volume):
-        current_time = datetime.now().strftime('%Y%m%d%H%M')
+        current_time = datetime.now().strftime('%Y%m%d%H%M00')
         if not self.chart_prices:
             price_data = [current_time, price, price, price, price, volume]
             self.chart_prices.append(price_data)

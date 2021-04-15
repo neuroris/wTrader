@@ -23,8 +23,8 @@ class Trader(TraderBase):
     def __init__(self, log, key):
         self.broker = Kiwoom(log, key)
         # self.broker = Bankis(log, key)
-        self.algorithm = VAlgorithm6(log)
-        # self.algorithm = MAlgorithm1(log)
+        # self.algorithm = VAlgorithm6(log)
+        self.algorithm = MAlgorithm1(log)
         super().__init__(log)
 
         # Initial work
@@ -49,11 +49,12 @@ class Trader(TraderBase):
     def test1(self):
         self.debug('test1 button clicked')
 
-        item = Item()
-        item.current_price = int(self.le_test.text())
-        self.algorithm.update_transaction_info(item)
+        # item = Item()
+        # item.current_price = int(self.le_test.text())
+        # self.algorithm.update_transaction_info(item)
 
-        # self.algorithm.settle_up()
+        for prices in self.algorithm.chart_prices:
+            self.debug(prices)
 
     def test2(self):
         # self.broker.update_portfolio()
@@ -337,7 +338,12 @@ class Trader(TraderBase):
             self.annotate_chart(ax, min_floor, max_ceiling, current_time)
 
         # Draw Chart
-        candlestick2_ohlc(ax, df['Open'], df['High'], df['Low'], df['Close'], width=0.4, colorup='r', colordown='b')
+        if self.algorithm.is_running:
+            df = pandas.DataFrame(self.algorithm.chart_prices, columns=['Time', 'Open', 'High', 'Low', 'Close', 'Volume'])
+            candlestick2_ohlc(ax, df.Open, df.High, df.Low, df.Close, width=0.4, colorup='r', colordown='b')
+            # candlestick2_ohlc(ax, self.algorithm.chart.Open, self.algorithm.chart.High, self.algorithm.chart.Low, self.algorithm.chart.Close, width=0.4, colorup='r', colordown='b')
+        else:
+            candlestick2_ohlc(ax, df['Open'], df['High'], df['Low'], df['Close'], width=0.4, colorup='r', colordown='b')
         self.fig.tight_layout()
         self.canvas.draw()
 
@@ -352,7 +358,6 @@ class Trader(TraderBase):
         ax.text(0, self.algorithm.reference_price, 'Reference')
         ax.axhline(self.algorithm.buy_limit, alpha=1, linewidth=0.2, color='Maroon')
         ax.text(0, self.algorithm.buy_limit, 'Buy limit')
-
         ax.axhline(self.algorithm.loss_limit, alpha=1, linewidth=0.2, color='DeepPink')
         ax.text(0, self.algorithm.loss_limit, 'Loss cut')
 
@@ -378,6 +383,10 @@ class Trader(TraderBase):
             if order.open_amount:
                 y -= offset
                 ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
+
+    def deliver_chart_prices(self):
+        if self.algorithm.is_running:
+            self.algorithm.copy_chart_prices()
 
     def on_select_account(self, account):
         self.broker.account_number = int(account)
@@ -616,6 +625,8 @@ class Trader(TraderBase):
             self.display_algorithm_trading()
         elif signal == 'chart':
             self.display_chart()
+        elif signal == 'chart_obtained':
+            self.deliver_chart_prices()
 
     def on_algorithm_signal(self, signal, *args):
         if signal == 'algorithm_update':

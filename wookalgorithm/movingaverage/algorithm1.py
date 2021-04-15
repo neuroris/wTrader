@@ -27,6 +27,7 @@ class MAlgorithm1(AlgorithmBase):
         # Charting & Monitoring
         broker.go_chart(self.leverage.item_code)
         broker.demand_monitoring_items_info(self.leverage)
+        self.init_chart()
 
         self.is_running = True
         self.post('STARTED')
@@ -48,6 +49,10 @@ class MAlgorithm1(AlgorithmBase):
         # Update ask price
         self.items[item.item_code].ask_price = abs(item.ask_price)
 
+        # Update chart
+        self.update_chart_prices(item.current_price, item.volume)
+        self.debug('CHART', self.chart_prices)
+
         # Block during situation processing
         if self.open_correct_orders:
             self.post('(BLOCK)', 'open correct orders', self.open_correct_orders)
@@ -65,7 +70,7 @@ class MAlgorithm1(AlgorithmBase):
             self.post_without_repetition('(BLOCK)', 'finish in progress')
             return
 
-        self.debug('MOVING AVERAGE:', self.chart.get_moving_avergage())
+        # self.debug('MOVING AVERAGE:', self.chart_prices.get_moving_avergage())
 
     def update_execution_info(self, order):
         # Inverse update execution

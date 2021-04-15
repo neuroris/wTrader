@@ -7,6 +7,7 @@ class WookChart(WookLog):
         self.prices = broker.chart_prices
 
     def update(self):
+        pass
 
 
     def get_moving_average(self):

@@ -1,4 +1,5 @@
 import copy
+import pandas
 from datetime import datetime
 from PyQt5.QtCore import QEventLoop
 from wookutil import WookUtil, WookLog, wmath
@@ -13,7 +14,9 @@ class AlgorithmBase(WookUtil, WookLog):
 
         self.signal = None
         self.broker = None
+        self.chart_prices = list()
         self.chart = None
+        self.legitimate_chart = False
         self.is_running = False
         self.purchase_episode_shifted = False
         self.sale_episode_shifted = False
@@ -53,6 +56,10 @@ class AlgorithmBase(WookUtil, WookLog):
         self.net_profit = 0
         self.fee = 0
 
+    def init_chart(self):
+        columns = ['Time', 'Open', 'High', 'Low', 'Close', 'Volume']
+        self.chart = pandas.DataFrame(self.chart_prices, columns=columns)
+
     def set_parameters(self, broker, capital, interval, loss_cut, fee, minimum_transaction_amount):
         for item in self.items.values():
             item.set_broker(broker)
@@ -60,7 +67,6 @@ class AlgorithmBase(WookUtil, WookLog):
             item.fee_ratio = fee
 
         self.broker = broker
-        self.chart = WookChart(self.log, broker)
         self.capital = capital
         self.interval = interval
         self.loss_cut = loss_cut
@@ -78,7 +84,9 @@ class AlgorithmBase(WookUtil, WookLog):
 
         # Init Fields
         self.broker = None
+        self.chart_prices = list()
         self.chart = None
+        self.legitimate_chart = False
         self.is_running = False
         self.purchase_episode_shifted = False
         self.sale_episode_shifted = False
@@ -215,21 +223,46 @@ class AlgorithmBase(WookUtil, WookLog):
     def post(self, *args):
         self.debug('\033[93mALGORITHM', *args, '\033[97m')
 
-    # def update_chart_prices(self, price, volume):
-    #     current_time = datetime.now().strftime('%Y%m%d%H%M')
-    #     if not self.chart_prices:
-    #         price_data = [current_time, price, price, price, price, volume]
-    #         self.chart_prices.append(price_data)
-    #     elif current_time != self.chart_prices[-1][TIME_]:
-    #         price_data = [current_time, price, price, price, price, volume]
-    #         self.chart_prices.append(price_data)
-    #     else:
-    #         if price > self.chart_prices[-1][HIGH]:
-    #             self.chart_prices[-1][HIGH] = price
-    #         elif price < self.chart_prices[-1][LOW]:
-    #             self.chart_prices[-1][LOW] = price
-    #         last_price = self.chart_prices[-1][CLOSE]
-    #         self.chart_prices[-1][CLOSE] = price
-    #         self.chart_prices[-1][VOLUME_] += volume
-    #         if last_price == price:
-    #             return
+    def copy_chart_prices(self):
+        previous_chart_prices = copy.deepcopy(self.broker.chart_prices)
+        self.chart_prices = previous_chart_prices + self.chart_prices
+
+    def update_chart_prices(self, price, volume):
+        current_time = datetime.now()
+        current_time_str = current_time.strftime('%Y%m%d%H%M00')
+        if not self.legitimate_chart:
+            if self.chart_prices:
+                previous_time = datetime.strptime(self.chart_prices[-1][TIME_], '%Y%m%d%H%M00')
+                if previous_time <= current_time:
+                    self.legitimate_chart = True
+                else:
+                    return
+
+        if not self.chart_prices:
+            price_data = [current_time_str, price, price, price, price, volume]
+            self.chart_prices.append(price_data)
+        elif current_time_str != self.chart_prices[-1][TIME_]:
+            price_data = [current_time_str, price, price, price, price, volume]
+            self.chart_prices.append(price_data)
+        else:
+            if price > self.chart_prices[-1][HIGH]:
+                self.chart_prices[-1][HIGH] = price
+            elif price < self.chart_prices[-1][LOW]:
+                self.chart_prices[-1][LOW] = price
+            self.chart_prices[-1][CLOSE] = price
+            self.chart_prices[-1][VOLUME_] += volume
+
+        self.chart = pandas.DataFrame(self.chart_prices, columns=['Time', 'Open', 'High', 'Low', 'Close', 'Volume'])
+
+    def get_moving_average_5(self):
+        price_sum = 0
+        data_length = len(self.chart_prices)
+        if data_length < 5:
+            chart_prices = self.chart_prices
+        else:
+            chart_prices = self.chart_prices[-5:]
+            data_length = 5
+        for prices in chart_prices:
+            price_sum += prices[CLOSE]
+        moving_average = round(price_sum / data_length)
+        return moving_average
