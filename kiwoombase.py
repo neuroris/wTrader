@@ -1,5 +1,6 @@
 from PyQt5.QAxContainer import QAxWidget
 from PyQt5.QtCore import QEventLoop, QThread, QTimer
+import pandas
 from queue import Queue
 import time
 from wookitem import Order
@@ -7,10 +8,13 @@ from wookutil import WookCipher, WookLog, WookTimer, WookUtil, ChartDrawer
 from wookdata import *
 
 class KiwoomBase(QAxWidget, WookLog, WookUtil):
-    def __init__(self, log, key):
+    def __init__(self, trader, log, key):
         super().__init__('KHOPENAPI.KHOpenAPICtrl.1')
         WookLog.custom_init(self, log)
         WookUtil.__init__(self)
+
+        # For Signal
+        self.trader = trader
 
         # Password
         wc = WookCipher(key)
@@ -27,31 +31,8 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         self.wook_timer = WookTimer(self.timer_event_loop)
 
         # Chart
-        self.draw_chart = ChartDrawer()
         self.chart_prices = list()
-        self.min_timer = QTimer()
-        self.min_timer.setInterval(60000)
-        self.min_timer.timeout.connect(self.on_every_min)
-
-        # Requesters
-        self.deposit_requester = QThread()
-        self.moveToThread(self.deposit_requester)
-        self.deposit_requester.started.connect(self.request_deposit_info)
-        self.portfolio_requester = QThread()
-        self.moveToThread(self.portfolio_requester)
-        self.portfolio_requester.started.connect(self.request_portfolio_info)
-        self.order_history_requester = QThread()
-        self.moveToThread(self.order_history_requester)
-        self.order_history_requester.started.connect(self.request_order_history)
-
-        self.request_time = 0
-        self.request_interval_limit = 0.5
-        self.order_position = ''
-
-        # Signals
-        self.log = None
-        self.signal = None
-        self.status = None
+        self.is_running_chart = False
 
         # Deposit
         self.account_list = None
@@ -67,7 +48,6 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         self.open_orders = dict()
         self.order_history = dict()
         self.previous_order = Order()
-        self.algorithm = None
 
         # Pending order
         self.pending_order = None
@@ -75,6 +55,7 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         self.cancel_order_number = 0
 
         # For debug
+        self.order_position = ''
         self.order_variables = None
 
         # Request limit
@@ -83,6 +64,8 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         self.reference_time = Queue()
         self.reference_time_interval_limit = 20
         self.consecutive_interval_limit = 0.25
+        self.request_time = 0
+        self.request_interval_limit = 0.5
         self.request_block_time_limit = 5
         self.request_block_size = 10
         self.request_count = 0

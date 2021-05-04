@@ -22,7 +22,7 @@ class QAlgorithm1(AlgorithmBase):
     def start(self, broker, capital, interval, loss_cut, fee, minimum_transaction_amount):
         self.inverse = AlgorithmItem('252670')
         self.add_item(self.inverse)
-        self.set_parameters(broker, capital, interval, loss_cut, fee, minimum_transaction_amount)
+        self.initialize(broker, capital, interval, loss_cut, fee, minimum_transaction_amount)
         self.shift_interval = loss_cut
 
         # Open Orders cancellation

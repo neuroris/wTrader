@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QFileDialog, QTableWidgetSelectionRange
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 import pandas
-import matplotlib.ticker as ticker
+from matplotlib import ticker, pyplot
 from mplfinance.original_flavor import candlestick2_ohlc
 from datetime import datetime
 from traderbase import TraderBase
@@ -15,36 +15,37 @@ from wookalgorithm.volitility.algorithm4 import VAlgorithm4
 from wookalgorithm.volitility.algorithm5 import VAlgorithm5
 from wookalgorithm.volitility.algorithm6 import VAlgorithm6
 from wookalgorithm.movingaverage.algorithm1 import MAlgorithm1
+from wookutil import ChartDrawer
 from wookitem import Item, Order
 from wookdata import *
 import math, copy
 
 class Trader(TraderBase):
     def __init__(self, log, key):
-        self.broker = Kiwoom(log, key)
-        # self.broker = Bankis(log, key)
-        # self.algorithm = VAlgorithm6(log)
-        self.algorithm = MAlgorithm1(log)
+        self.broker = Kiwoom(self, log, key)
+        # self.broker = Bankis(self, log, key)
+        # self.algorithm = VAlgorithm6(self, log)
+        self.algorithm = MAlgorithm1(self, log)
         super().__init__(log)
 
         # Initial work
-        self.init_broker()
         self.connect_broker()
         self.get_account_list()
         self.broker.request_deposit_info()
         self.broker.request_portfolio_info()
         self.broker.request_order_history()
-        self.init_algorithm()
+
+        # Initial Values
+        self.sb_capital.setValue(1000000)
+        self.sb_interval.setValue(20)
+        self.sb_loss_cut.setValue(10)
+        self.sb_fee.setValue(0.015)
+        self.sb_min_transaction.setValue(10)
+        self.sb_amount.setValue(10)
 
         # Init Fields
         self.interval = self.sb_interval.value()
         self.loss_cut = self.sb_loss_cut.value()
-
-        ### For debugging convenience
-        # self.cbb_item_code.setCurrentIndex(2)
-        # self.sb_price.setValue(30000)
-        self.sb_amount.setValue(10)
-        # self.cbb_order_position.setCurrentIndex(1)
 
     def test1(self):
         self.debug('test1 button clicked')
@@ -53,16 +54,9 @@ class Trader(TraderBase):
         # item.current_price = int(self.le_test.text())
         # self.algorithm.update_transaction_info(item)
 
-        for prices in self.algorithm.chart_prices:
-            self.debug(prices)
-
     def test2(self):
-        # self.broker.update_portfolio()
+        self.debug('test2 button clicked')
         self.algorithm.settle_up()
-        # price = self.sb_price.value()
-        # amount = self.sb_amount.value()
-
-        # self.broker.order('252670', price, amount, 'SELL', 'PRIMARY PEGGED')
 
     def connect_broker(self):
         # if self.cb_auto_login.isChecked():
@@ -72,18 +66,6 @@ class Trader(TraderBase):
         #     self.broker.set_account_password()
 
         self.broker.auto_login()
-
-        # self.broker.connect
-
-    def init_broker(self):
-        self.broker.log = self.log
-        self.broker.signal = self.on_kiwoom_signal
-        self.broker.status = self.status
-        self.broker.draw_chart.set(self.display_chart)
-        self.broker.algorithm = self.algorithm
-
-    def init_algorithm(self):
-        self.algorithm.signal = self.on_algorithm_signal
 
     def get_account_list(self):
         account_list = self.broker.get_account_list()
@@ -97,18 +79,37 @@ class Trader(TraderBase):
         self.broker.request_portfolio_info()
 
     def get_order_history(self):
-        item_code = self.cbb_item_code.currentText()
-        self.broker.order_history.clear()
-        self.broker.request_order_history(item_code)
+        self.broker.request_order_history()
 
     def go_chart(self):
-        item_code = self.cbb_item_code.currentText()
+        if self.algorithm.is_running:
+            return
+
+        self.chart_item_code = self.cbb_item_code.currentText()
         item_name = self.cbb_item_name.currentText()
-        self.broker.go_chart(item_code)
+        self.chart = self.chart[0:0]
+        self.chart_locator = list()
+        self.chart_formatter = list()
+        self.interval_prices = list()
+        self.loss_cut_prices = list()
+        self.top_price = 0
+        self.bottom_price = 0
+
+        self.broker.chart_prices.clear()
+        if self.chart_item_code[:3] == FUTURES_CODE:
+            self.broker.request_futures_stock_price_min(self.chart_item_code)
+        else:
+            self.broker.request_stock_price_min(self.chart_item_code)
+
+        self.broker.is_running_chart = True
+        self.timer.start()
+        self.on_add_item()
         self.info('Go Charting', item_name)
 
     def stop_chart(self):
-        self.broker.stop_chart()
+        self.broker.is_running_chart = False
+        self.timer.stop()
+        self.info('Stop Charting')
 
     def send_order(self):
         item_code = self.cbb_item_code.currentText()
@@ -143,9 +144,13 @@ class Trader(TraderBase):
         self.sb_price.setValue(item.current_price)
 
     def go(self):
+        if self.algorithm.is_running:
+            self.debug('Algorithm is already running')
+            return
+
+        capital = self.sb_capital.value()
         interval = self.sb_interval.value()
         loss_cut = self.sb_loss_cut.value()
-        capital = self.sb_capital.value()
         fee = self.sb_fee.value()
         minimum_transaction_amount = self.sb_min_transaction.value()
         self.algorithm.start(self.broker, capital, interval, loss_cut, fee, minimum_transaction_amount)
@@ -157,7 +162,6 @@ class Trader(TraderBase):
 
     def display_portfolio(self):
         self.clear_table(self.table_portfolio)
-        # for row, item in enumerate(self.broker.portfolio.values()):
         for item in self.broker.portfolio.values():
             self.table_portfolio.insertRow(0)
             self.table_portfolio.setRowHeight(0, 8)
@@ -175,7 +179,6 @@ class Trader(TraderBase):
 
     def display_monitoring_items(self):
         self.clear_table(self.table_monitoring_items)
-        # for row, item in enumerate(self.broker.monitoring_items.values()):
         for item in self.broker.monitoring_items.values():
             self.table_monitoring_items.insertRow(0)
             self.table_monitoring_items.setRowHeight(0, 8)
@@ -193,7 +196,6 @@ class Trader(TraderBase):
 
     def display_balance(self):
         self.clear_table(self.table_balance)
-        # for row, item in enumerate(self.broker.balance.values()):
         for item in self.broker.balance.values():
             self.table_balance.insertRow(0)
             self.table_balance.setRowHeight(0, 8)
@@ -211,7 +213,6 @@ class Trader(TraderBase):
 
     def display_open_orders(self):
         self.clear_table(self.table_open_orders)
-        # for row, order in enumerate(self.broker.open_orders.values()):
         for order in self.broker.open_orders.values():
             self.table_open_orders.insertRow(0)
             self.table_open_orders.setRowHeight(0, 8)
@@ -230,7 +231,6 @@ class Trader(TraderBase):
 
     def display_order_history(self):
         self.clear_table(self.table_order_history)
-        # for row, order in enumerate(self.broker.order_history.values()):
         for order in self.broker.order_history.values():
             self.table_order_history.insertRow(0)
             self.table_order_history.setRowHeight(0, 8)
@@ -270,11 +270,7 @@ class Trader(TraderBase):
         for row in range(table.rowCount()):
             table.removeRow(0)
 
-    def display_algorithm_update(self):
-        # holding_amount = self.algorithm.inverse.holding_amount
-        # formalized_holding_amount = self.formalize(holding_amount)
-        # self.lb_holding_amount.setText(formalized_holding_amount)
-
+    def display_algorithm_results(self):
         total_profit = self.algorithm.total_profit
         formalized_profit = self.formalize(total_profit)
         profit_rate = round(total_profit / self.sb_capital.value() * 100, 2)
@@ -291,102 +287,121 @@ class Trader(TraderBase):
         net_profit_display = '{} ({}%)'.format(formalized_net_profit, net_profit_rate)
         self.lb_net_profit.setText(net_profit_display)
 
-    def display_chart(self):
-        if not self.broker.chart_prices:
+    def process_past_chart_prices(self, item_code, chart_prices):
+        if self.algorithm.is_running:
+            self.algorithm.process_past_chart_prices(item_code, chart_prices)
+            return
+        elif item_code != self.chart_item_code:
             return
 
-        self.fig.clear()
-        ax = self.fig.add_subplot(1, 1, 1)
+        columns = ['Time', 'Open', 'High', 'Low', 'Close', 'Volume']
+        past_chart = pandas.DataFrame(chart_prices, columns=columns)
+        past_chart.Time = pandas.to_datetime(past_chart.Time)
+        past_chart.set_index('Time', inplace=True)
+        self.chart = past_chart.append(self.chart)
+        self.draw_chart.start()
 
-        df = pandas.DataFrame(self.broker.chart_prices, columns=['Time', 'Open', 'High', 'Low', 'Close', 'Volume'])
-        df.Time = pandas.to_datetime(df.Time)
+    def update_chart_prices(self, price, volume):
+        current_time = datetime.now().replace(second=0, microsecond=0)
+        if not len(self.chart):
+            price_data = [price, price, price, price, volume]
+            self.chart.loc[current_time] = price_data
+        elif current_time > self.chart.index[-1]:
+            price_data = [price, price, price, price, volume]
+            self.chart.loc[current_time] = price_data
+        else:
+            if price > self.chart.High[-1]:
+                self.chart.High[-1] = price
+            elif price < self.chart.Low[-1]:
+                self.chart.Low[-1] = price
+            last_price = self.chart.Close[-1]
+            self.chart.Close[-1] = price
+            self.chart.Volume[-1] += volume
+            if last_price == price:
+                return
+        self.draw_chart.start()
+
+    def on_every_minute(self):
+        current_time = datetime.now().replace(second=0, microsecond=0)
+        if not len(self.chart):
+            return
+        if current_time > self.chart.index[-1]:
+            price = self.chart.Close[-1]
+            price_data = [price, price, price, price, 0]
+            self.chart.loc[current_time] = price_data
+            self.draw_chart.start()
+
+    def display_chart(self):
+        if not len(self.chart):
+            return
+
+        self.ax.clear()
 
         # Axis ticker formatting
-        locator = list()
-        formatter = list()
-        for index in range(0, len(df.Time), 30):
-            time_format = df.Time.iloc[index].strftime('%H:%M')
-            locator.append(index)
-            formatter.append(time_format)
-        ax.xaxis.set_major_locator(ticker.FixedLocator(locator))
-        ax.xaxis.set_major_formatter(ticker.FixedFormatter(formatter))
-        # ax.set_xticklabels(time_int, rotation=75)
+        if len(self.chart) // 30 > len(self.chart_locator) - 1:
+            for index in range(len(self.chart_locator) * 30, len(self.chart), 30):
+                time_format = self.chart.index[index].strftime('%H:%M')
+                self.chart_locator.append(index)
+                self.chart_formatter.append(time_format)
+        self.ax.xaxis.set_major_locator(ticker.FixedLocator(self.chart_locator))
+        self.ax.xaxis.set_major_formatter(ticker.FixedFormatter(self.chart_formatter))
 
-        max_price = df.High.max()
-        min_price = df.Low.min()
-        max_ceiling = math.ceil(max_price / self.interval) * self.interval
-        min_floor = math.floor(min_price / self.interval) * self.interval
-        ortho_prices = list(range(min_floor, max_ceiling + self.interval, self.interval))
-        loss_cut_prices = list(range(min_floor + self.interval - self.loss_cut, max_ceiling, self.interval))
-        ax.grid(axis='x', alpha=0.5)
-        # ax.grid(axis='both', alpha=0.5)
-        ## arrow = dict(arrowstyle='->')
-        ## ax.annotate('buy', xy=(30, 28300), xytext=(50, 28200), color='green', arrowprops=arrow)
-        ax.set_yticks(ortho_prices)
-        for price in ortho_prices:
-            ax.axhline(price, alpha=0.5, linewidth=0.2)
-        for price in loss_cut_prices:
-            ax.axhline(price, alpha=0.4, linewidth=0.2, color='Gray')
+        # Axis yticks & lines
+        max_price = self.chart.High.max()
+        min_price = self.chart.Low.min()
+        if max_price > self.top_price or min_price < self.bottom_price:
+            self.top_price = math.ceil(max_price / self.interval) * self.interval
+            self.bottom_price = math.floor(min_price / self.interval) * self.interval
+            self.interval_prices = list(range(self.bottom_price, self.top_price + self.interval, self.interval))
+            self.loss_cut_prices = list(range(self.bottom_price + self.interval - self.loss_cut, self.top_price, self.interval))
+        self.ax.grid(axis='x', alpha=0.5)
+        self.ax.set_yticks(self.interval_prices)
+        for price in self.interval_prices:
+            self.ax.axhline(price, alpha=0.5, linewidth=0.2)
+        for price in self.loss_cut_prices:
+            self.ax.axhline(price, alpha=0.4, linewidth=0.2, color='Gray')
 
         # Current Price Annotation
-        current_time = self.to_min_count(self.broker.chart_prices[-1][TIME_][8:12])
-        current_price = self.broker.chart_prices[-1][CLOSE]
-        ax.text(current_time + 2, current_price, format(current_price, ','))
-
-        # Algorithm Annotations
-        if self.algorithm.is_running and self.algorithm.start_price:
-            self.annotate_chart(ax, min_floor, max_ceiling, current_time)
+        current_time = len(self.chart)
+        current_price = self.chart.Close.iloc[-1]
+        self.ax.text(current_time + 2, current_price, format(current_price, ','))
 
         # Draw Chart
-        if self.algorithm.is_running:
-            df = pandas.DataFrame(self.algorithm.chart_prices, columns=['Time', 'Open', 'High', 'Low', 'Close', 'Volume'])
-            candlestick2_ohlc(ax, df.Open, df.High, df.Low, df.Close, width=0.4, colorup='r', colordown='b')
-            # candlestick2_ohlc(ax, self.algorithm.chart.Open, self.algorithm.chart.High, self.algorithm.chart.Low, self.algorithm.chart.Close, width=0.4, colorup='r', colordown='b')
-        else:
-            candlestick2_ohlc(ax, df['Open'], df['High'], df['Low'], df['Close'], width=0.4, colorup='r', colordown='b')
+        candlestick2_ohlc(self.ax, self.chart.Open, self.chart.High, self.chart.Low, self.chart.Close,
+                          width=0.4, colorup='red', colordown='blue')
         self.fig.tight_layout()
         self.canvas.draw()
 
-    def annotate_chart(self, ax, min_floor, max_ceiling, current_time):
-        start_time = self.algorithm.start_time
-        start_price = self.algorithm.start_price
-        start_comment = 'start\n' + self.algorithm.start_time_text + '\n' + format(start_price, ',')
-        ax.plot(start_time, start_price, marker='o', markersize=3, color='Lime')
-        ax.vlines(start_time, min_floor, start_price, alpha=0.8, linewidth=0.2, color='Green')
-        ax.text(start_time, min_floor, start_comment, color='RebeccaPurple')
-        ax.axhline(self.algorithm.reference_price, alpha=1, linewidth=0.2, color='Maroon')
-        ax.text(0, self.algorithm.reference_price, 'Reference')
-        ax.axhline(self.algorithm.buy_limit, alpha=1, linewidth=0.2, color='Maroon')
-        ax.text(0, self.algorithm.buy_limit, 'Buy limit')
-        ax.axhline(self.algorithm.loss_limit, alpha=1, linewidth=0.2, color='DeepPink')
-        ax.text(0, self.algorithm.loss_limit, 'Loss cut')
-
-        total_range = max_ceiling - min_floor
-        offset = total_range * 0.035
-        x = current_time
-        y = self.algorithm.reference_price
-        sales = copy.deepcopy(self.algorithm.leverage.sales)
-        for order in sales.values():
-            # y += offset
-            # ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
-
-            if order.open_amount:
-                y += offset
-                ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
-
-        y = self.algorithm.buy_limit - offset
-        purchases = copy.deepcopy(self.algorithm.leverage.purchases)
-        for order in purchases.values():
-            # y -= offset
-            # ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
-
-            if order.open_amount:
-                y -= offset
-                ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
-
-    def deliver_chart_prices(self):
-        if self.algorithm.is_running:
-            self.algorithm.copy_chart_prices()
+    # def annotate_chart(self, current_time):
+    #     start_time = self.algorithm.start_time
+    #     start_price = self.algorithm.start_price
+    #     start_comment = 'start\n' + self.algorithm.start_time_text + '\n' + format(start_price, ',')
+    #     self.ax.plot(start_time, start_price, marker='o', markersize=3, color='Lime')
+    #     self.ax.vlines(start_time, self.bottom_price, start_price, alpha=0.8, linewidth=0.2, color='Green')
+    #     self.ax.text(start_time, self.bottom_price, start_comment, color='RebeccaPurple')
+    #     self.ax.axhline(self.algorithm.reference_price, alpha=1, linewidth=0.2, color='Maroon')
+    #     self.ax.text(0, self.algorithm.reference_price, 'Reference')
+    #     self.ax.axhline(self.algorithm.buy_limit, alpha=1, linewidth=0.2, color='Maroon')
+    #     self.ax.text(0, self.algorithm.buy_limit, 'Buy limit')
+    #     self.ax.axhline(self.algorithm.loss_limit, alpha=1, linewidth=0.2, color='DeepPink')
+    #     self.ax.text(0, self.algorithm.loss_limit, 'Loss cut')
+    #
+    #     total_range = self.top_price - self.bottom_price
+    #     offset = total_range * 0.035
+    #     x = current_time
+    #     y = self.algorithm.reference_price
+    #     sales = copy.deepcopy(self.algorithm.leverage.sales)
+    #     for order in sales.values():
+    #         if order.open_amount:
+    #             y += offset
+    #             self.ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
+    #
+    #     y = self.algorithm.buy_limit - offset
+    #     purchases = copy.deepcopy(self.algorithm.leverage.purchases)
+    #     for order in purchases.values():
+    #         if order.open_amount:
+    #             y -= offset
+    #             self.ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
 
     def on_select_account(self, account):
         self.broker.account_number = int(account)
@@ -433,8 +448,6 @@ class Trader(TraderBase):
         item_name = self.cbb_item_name.currentText()
         if item_code not in self.broker.monitoring_items:
             return
-
-        # self.table_trading_items.removeRow(0)
 
         self.broker.init_screen(item_code)
         del self.broker.monitoring_items[item_code]
@@ -605,34 +618,6 @@ class Trader(TraderBase):
 
     def edit_setting(self):
         self.debug('setting')
-
-    def on_kiwoom_signal(self, signal, *args):
-        if signal == 'deposit':
-            self.update_deposit_info()
-        elif signal == 'portfolio':
-            self.update_order_variables()
-        elif signal == 'portfolio_table':
-            self.display_portfolio()
-        elif signal == 'monitoring_items_table':
-            self.display_monitoring_items()
-        elif signal == 'balance_table':
-            self.display_balance()
-        elif signal == 'open_orders_table':
-            self.display_open_orders()
-        elif signal == 'order_history_table':
-            self.display_order_history()
-        elif signal == 'algorithm_trading_table':
-            self.display_algorithm_trading()
-        elif signal == 'chart':
-            self.display_chart()
-        elif signal == 'chart_obtained':
-            self.deliver_chart_prices()
-
-    def on_algorithm_signal(self, signal, *args):
-        if signal == 'algorithm_update':
-            self.display_algorithm_update()
-        # elif signal == 'algorithm_trading_table':
-        #     self.display_algorithm_trading()
 
     def log(self, *args):
         message = str(args[0])

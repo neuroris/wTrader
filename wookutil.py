@@ -131,10 +131,10 @@ class WookThreadCollector(QThread, WookLog):
                 self.kiwoom.portfolio_requester.quit()
 
 class ChartDrawer(QThread):
-    def __init__(self):
+    def __init__(self, display_chart=None):
         super().__init__()
         self.item_code = ''
-        self.display_chart = None
+        self.display_chart = display_chart
 
     def set(self, display_chart):
         self.display_chart = display_chart

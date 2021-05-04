@@ -2,14 +2,16 @@ from PyQt5.QtWidgets import QMainWindow, QLabel, QPushButton, QLineEdit, \
     QTextEdit, QVBoxLayout, QHBoxLayout, QWidget, QRadioButton, QGridLayout, \
     QCheckBox, QComboBox, QGroupBox, QDateTimeEdit, QAction, QFileDialog, QTableWidget, \
     QTableWidgetItem, QSpinBox, QDoubleSpinBox, QGraphicsView, QGraphicsScene
-from PyQt5.QtCore import Qt, QDateTime, QRect
+from PyQt5.QtCore import Qt, QDateTime, QPoint, QRect, QTimer
 from PyQt5.QtGui import QIcon, QBrush
+from matplotlib import ticker
+import pandas
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import json
-from wookutil import WookLog, WookUtil
+from wookutil import WookLog, WookUtil, ChartDrawer
 from wookdata import *
-import datetime, os
+import datetime, os, math
 
 class TraderBase(QMainWindow, WookLog, WookUtil):
     def __init__(self, log):
@@ -18,6 +20,22 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         WookUtil.__init__(self)
         with open('setting.json') as r_file:
             self.setting = json.load(r_file)
+
+        # Initialize fields
+        self.chart = pandas.DataFrame(list(), columns=['Open', 'High', 'Low', 'Close', 'Volume'])
+        self.draw_chart = ChartDrawer(self.display_chart)
+        self.timer = QTimer()
+        self.timer.setInterval(60000)
+        self.timer.timeout.connect(self.on_every_minute)
+        self.chart_item_code = ''
+        self.chart_locator = list()
+        self.chart_formatter = list()
+        self.interval_prices = list()
+        self.loss_cut_prices = list()
+        self.top_price = 0
+        self.bottom_price = 0
+        self.chart_rect = QRect(QPoint(1330, 1180), QPoint(2500, 1640))
+
         self.initUI()
 
     def initUI(self):
@@ -276,12 +294,6 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         self.btn_stop_algorithm.clicked.connect(self.stop)
         self.btn_stop_algorithm.setStyleSheet('font-weight:bold; background-color:IndianRed')
 
-        # lb_holding_amount = QLabel('Holding')
-        # self.lb_holding_amount = QLabel()
-        # self.lb_holding_amount.setStyleSheet('font-weight:bold; color:indigo')
-        # hbox_holding_amount = QHBoxLayout()
-        # hbox_holding_amount.addWidget(lb_holding_amount)
-        # hbox_holding_amount.addWidget(self.lb_holding_amount)
         lb_total_profit = QLabel('Total Profit')
         self.lb_total_profit = QLabel()
         self.lb_total_profit.setStyleSheet('font-weight:bold; color:indigo')
@@ -300,13 +312,6 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         hbox_net_profit = QHBoxLayout()
         hbox_net_profit.addWidget(lb_net_profit)
         hbox_net_profit.addWidget(self.lb_net_profit)
-
-        # Algorithm initial setting
-        self.sb_capital.setValue(10000000)
-        self.sb_interval.setValue(20)
-        self.sb_loss_cut.setValue(10)
-        self.sb_fee.setValue(0.015)
-        self.sb_min_transaction.setValue(10)
 
         algorithm_grid = QGridLayout()
         algorithm_grid.addWidget(lb_capital, 0, 0)
@@ -387,6 +392,9 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         ##### Chart Display
         self.fig = plt.Figure()
         self.canvas = FigureCanvas(self.fig)
+        self.ax = self.fig.add_subplot()
+        self.fig.tight_layout()
+
         canvas_grid = QGridLayout()
         canvas_grid.addWidget(self.canvas, 0, 0)
         canvas_gbox = QGroupBox('Chart')
@@ -403,7 +411,6 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         left_vbox.addWidget(monitoring_items_gbox)
         left_vbox.addWidget(balance_gbox)
         left_vbox.addWidget(info_gbox)
-        # left_vbox.addWidget(self.btn_test)
 
         ##### Right Layout #####
         right_vbox = QVBoxLayout()
@@ -444,3 +451,60 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         self.move(-350, 100)
         self.setWindowIcon(QIcon('data/nyang1.ico'))
         self.show()
+
+    def wheelEvent(self, event):
+        mouse_position = event.position().toPoint()
+        wheel_position = event.angleDelta().y()
+        if self.chart_rect.contains(mouse_position):
+            self.magnify_chart(mouse_position, wheel_position)
+        else:
+            self.debug('OUT')
+
+    def magnify_chart(self, mouse_position, wheel_position):
+        if not self.algorithm.is_running:
+            return
+
+        sign = 1
+        if wheel_position > 0:
+            sign = -1
+            self.debug('Up', mouse_position)
+        else:
+            self.debug('Down', mouse_position)
+
+        rect_width = self.chart_rect.width()
+        rect_position = self.chart_rect.topLeft()
+        relative_mouse_position = mouse_position - rect_position
+
+        magnification_ratio = 10
+
+        current_x1, current_x2 = self.ax.get_xlim()
+        ax_length = current_x2 - current_x1
+        cut_amount = ax_length * magnification_ratio / 100
+        cut_ratio = relative_mouse_position.x() / rect_width
+        x1_cut = cut_amount * cut_ratio * sign
+        x2_cut = (cut_amount - x1_cut) * sign
+
+        x1 = round(current_x1 + x1_cut)
+        x2 = round(current_x2 - x2_cut)
+
+
+        if x1 < 0:
+            x1 = 0
+        if x2 < 0:
+            x2 = 0
+
+
+
+        max_price = self.chart.High[x1:x2].max()
+        min_price = self.chart.Low[x1:x2].min()
+
+
+
+        y1 = math.floor(min_price / self.interval) * self.interval
+        y2 = math.ceil(max_price / self.interval) * self.interval
+        self.ax.set_xlim(x1, x2)
+        self.ax.set_ylim(y1, y2)
+
+        print(self.ax.get_xlim())
+
+        self.canvas.draw()

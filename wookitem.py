@@ -1,4 +1,5 @@
 import copy
+import pandas
 from wookutil import WookLog
 from wookdata import *
 
@@ -79,6 +80,7 @@ class AlgorithmItem(Order, WookLog):
         self.purchases = dict()
         self.sales = dict()
         self.previous_msg = ()
+        self.chart = pandas.DataFrame(list(), columns=['Open', 'High', 'Low', 'Close', 'Volume'])
 
     def set_broker(self, broker):
         self.broker = broker
@@ -137,9 +139,11 @@ class AlgorithmItem(Order, WookLog):
             if not order.open_amount:
                 del self.sales[order.order_number]
         elif order.order_position == CANCEL_PURCHASE and order.order_state == CONFIRMED:
-            del self.purchases[order.original_order_number]
+            if order.original_order_number in self.purchases:
+                del self.purchases[order.original_order_number]
         elif order.order_position == CANCEL_SELL and order.order_state == CONFIRMED:
-            del self.sales[order.original_order_number]
+            if order.original_order_number in self.sales:
+                del self.sales[order.original_order_number]
 
         # Update message
         msg = (order.item_name, order.order_position, order.order_state)

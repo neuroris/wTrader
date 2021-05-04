@@ -21,7 +21,7 @@ class VAlgorithm5(AlgorithmBase):
     def start(self, broker, capital, interval, loss_cut, fee, minimum_transaction_amount):
         self.leverage = AlgorithmItem('122630')
         self.add_item(self.leverage)
-        self.set_parameters(broker, capital, interval, loss_cut, fee, minimum_transaction_amount)
+        self.initialize(broker, capital, interval, loss_cut, fee, minimum_transaction_amount)
 
         # Open Orders cancellation
         self.clear_open_orders()

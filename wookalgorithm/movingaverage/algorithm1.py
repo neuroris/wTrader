@@ -1,9 +1,13 @@
+from mplfinance.original_flavor import candlestick2_ohlc
+from matplotlib import ticker
 from datetime import datetime
 from wookitem import Order, AlgorithmItem
 from wookutil import wmath
 from wookchart import WookChart
 from wookdata import *
 from wookalgorithm.algorithmbase import AlgorithmBase
+import pandas
+import math, copy
 
 '''
 Original Algorithm (2021, 04, 13)
@@ -12,22 +16,23 @@ Original Algorithm (2021, 04, 13)
 '''
 
 class MAlgorithm1(AlgorithmBase):
-    def __init__(self, log):
-        super().__init__(log)
+    def __init__(self, trader, log):
+        super().__init__(trader, log)
         self.leverage = None
 
     def start(self, broker, capital, interval, loss_cut, fee, minimum_transaction_amount):
         self.leverage = AlgorithmItem('122630')
         self.add_item(self.leverage)
-        self.set_parameters(broker, capital, interval, loss_cut, fee, minimum_transaction_amount)
+        self.initialize(broker, capital, interval, loss_cut, fee, minimum_transaction_amount)
 
         # Open Orders cancellation
         self.clear_open_orders()
 
         # Charting & Monitoring
-        broker.go_chart(self.leverage.item_code)
+        broker.chart_prices.clear()
+        broker.request_stock_price_min(self.leverage.item_code)
         broker.demand_monitoring_items_info(self.leverage)
-        self.init_chart()
+        self.timer.start()
 
         self.is_running = True
         self.post('STARTED')
@@ -38,9 +43,11 @@ class MAlgorithm1(AlgorithmBase):
             self.start_time_text = datetime.now().strftime('%H:%M')
             self.start_time = self.to_min_count(self.start_time_text)
             self.start_price = item.current_price
+            self.start_comment = 'start\n' + self.start_time_text + '\n' + format(self.start_price, ',')
             reference_price = wmath.get_top(item.current_price, self.interval)
             self.set_reference(reference_price)
             self.episode_purchase.virtual_open_amount = self.episode_amount
+            self.episode_count += 1
             self.purchase_episode_shifted = True
             self.sale_episode_shifted = True
             self.leverage.buy(self.buy_limit, self.episode_amount)
@@ -50,8 +57,7 @@ class MAlgorithm1(AlgorithmBase):
         self.items[item.item_code].ask_price = abs(item.ask_price)
 
         # Update chart
-        self.update_chart_prices(item.current_price, item.volume)
-        self.debug('CHART', self.chart_prices)
+        self.update_chart_prices(item.item_code, item.current_price, item.volume)
 
         # Block during situation processing
         if self.open_correct_orders:
@@ -70,18 +76,33 @@ class MAlgorithm1(AlgorithmBase):
             self.post_without_repetition('(BLOCK)', 'finish in progress')
             return
 
-        # self.debug('MOVING AVERAGE:', self.chart_prices.get_moving_avergage())
+        # Trade according to current price
+        if item.current_price >= (self.reference_price + self.loss_cut):
+            self.post('Situation 1')
+            self.open_correct_orders = len(self.leverage.purchases)
+            self.shift_reference_up()
+            self.leverage.correct_purchases(self.buy_limit)
+            if self.leverage.holding_amount:
+                self.loss_limit -= self.loss_cut
+        elif item.current_price <= self.loss_limit:
+            self.post('Situation 4')
+            self.open_cancel_orders = len(self.leverage.sales)
+            self.shift_reference_down()
+            self.sell_off_ordered = True
+            self.leverage.sell_off()
 
     def update_execution_info(self, order):
-        # Inverse update execution
+        # Algorithm item update
         self.leverage.update_execution_info(order)
 
         # Order processing
         self.process_subsequent_order(order)
         self.process_synchronization(order)
 
-        self.signal('algorithm_update')
-        self.broker.draw_chart.start()
+        # Display
+        self.trader.display_algorithm_trading()
+        self.trader.display_algorithm_results()
+        self.draw_chart.start()
 
     def process_subsequent_order(self, order):
         if order.order_position in (PURCHASE, CORRECT_PURCHASE):
@@ -94,14 +115,20 @@ class MAlgorithm1(AlgorithmBase):
         elif order.order_position in (SELL, CORRECT_SELL):
             self.update_episode_sale(order)
             if order.executed_amount:
-                order_amount = self.episode_amount - self.episode_purchase.virtual_open_amount
-                order_amount -= self.leverage.holding_amount
-                if order_amount >= self.minimum_transaction_amount and not self.settle_up_in_progress:
-                    self.episode_purchase.virtual_open_amount += order_amount
-                    self.leverage.buy(self.buy_limit, order_amount)
+                # order_amount = self.episode_amount - self.episode_purchase.virtual_open_amount
+                # order_amount -= self.leverage.holding_amount
+                # if order_amount >= self.minimum_transaction_amount and not self.settle_up_in_progress:
+                #     self.episode_purchase.virtual_open_amount += order_amount
+                #     self.leverage.buy(self.buy_limit, order_amount)
                 self.total_profit += order.profit
                 self.total_fee += order.transaction_fee
                 self.net_profit += order.net_profit
+            if not self.leverage.holding_amount:
+                self.episode_purchase.virtual_open_amount += self.episode_amount
+                self.episode_count += 1
+                self.purchase_episode_shifted = True
+                self.sale_episode_shifted = True
+                self.leverage.buy(self.buy_limit, self.episode_amount)
 
     def process_synchronization(self, order):
         if order.order_position in (CORRECT_PURCHASE, CORRECT_SELL) and order.order_state == CONFIRMED:
@@ -109,12 +136,8 @@ class MAlgorithm1(AlgorithmBase):
         elif order.order_position in (CANCEL_PURCHASE, CANCEL_SELL) and order.order_state == CONFIRMED:
             if self.open_cancel_orders:
                 self.open_cancel_orders -= 1
-                # if not self.open_cancel_orders:
-                #     self.sell_off_ordered = True
-                #     self.leverage.sell_off()
             if self.settle_up_in_progress:
                 self.open_orders -= 1
-                self.debug('%%%%%%%% (SETTLE UP) OPEN ORDER', self.open_orders)
                 if not self.open_orders:
                     self.settle_up_proper()
             elif self.finish_in_progress:
@@ -124,7 +147,7 @@ class MAlgorithm1(AlgorithmBase):
 
     def update_episode_purchase(self, order):
         executed_amount = abs(order.executed_amount)
-        if self.purchase_episode_shifted and order.order_price != self.episode_purchase.order_price:
+        if self.purchase_episode_shifted:
             old_purchase = self.episode_purchase
             self.purchase_episode_shifted = False
             self.episode_purchase = Order()
@@ -133,14 +156,15 @@ class MAlgorithm1(AlgorithmBase):
             self.episode_purchase.item_name = order.item_name
             self.episode_purchase.order_price = order.order_price
             self.episode_purchase.virtual_open_amount = old_purchase.virtual_open_amount
+            self.episode_purchase.order_amount += order.order_amount
+            self.episode_purchase.open_amount += order.open_amount
         self.episode_purchase.executed_time = order.executed_time
         self.episode_purchase.order_number = order.order_number
         self.episode_purchase.order_position = order.order_position
         self.episode_purchase.order_state = order.order_state
         self.episode_purchase.executed_price_avg = order.executed_price_avg
         if order.order_state == RECEIPT:
-            self.episode_purchase.order_amount += order.order_amount
-            self.episode_purchase.open_amount += order.open_amount
+            pass
         elif order.order_state == ORDER_EXECUTED:
             self.episode_purchase.open_amount -= executed_amount
             self.episode_purchase.virtual_open_amount -= executed_amount
@@ -149,7 +173,6 @@ class MAlgorithm1(AlgorithmBase):
 
     def update_episode_sale(self, order):
         executed_amount = abs(order.executed_amount)
-        # if self.sale_episode_shifted and order.order_price != self.episode_sale.order_price:
         if self.sale_episode_shifted:
             self.sale_episode_shifted = False
             old_sale = self.episode_sale
@@ -176,5 +199,110 @@ class MAlgorithm1(AlgorithmBase):
         self.orders[self.episode_sale_number] = self.episode_sale
 
         if self.sell_off_ordered and not order.open_amount:
-            self.sale_episode_shifted = True
             self.sell_off_ordered = False
+
+    def process_custom_chart(self, item):
+        item.chart['MA5'] = item.chart.Close.rolling(5, 1).mean().apply(round)
+        item.chart['MA10'] = item.chart.Close.rolling(10, 1).mean().apply(round)
+        item.chart['MA20'] = item.chart.Close.rolling(20, 1).mean().apply(round)
+
+    def update_custom_chart(self, item):
+        chart = item.chart
+        chart_len = len(chart)
+        ma5 = -5
+        ma10 = -10
+        ma20 = -20
+        if chart_len < 5:
+            ma5 = chart_len * -1
+            ma10 = chart_len * -1
+            ma20 = chart_len * -1
+        elif chart_len < 10:
+            ma10 = chart_len * -1
+            ma20 = chart_len * -1
+        elif chart_len < 20:
+            ma20 = chart_len * -1
+
+        chart.MA5[-1] = round(chart.Close[ma5:].mean())
+        chart.MA10[-1] = round(chart.Close[ma10:].mean())
+        chart.MA20[-1] = round(chart.Close[ma20:].mean())
+
+    def display_chart(self):
+        chart = self.leverage.chart
+        if not len(chart):
+            return
+
+        self.trader.ax.clear()
+
+        # Axis ticker formatting
+        if len(chart) // 30 > len(self.chart_locator) - 1:
+            for index in range(len(self.chart_locator) * 30, len(chart), 30):
+                time_format = chart.index[index].strftime('%H:%M')
+                self.chart_locator.append(index)
+                self.chart_formatter.append(time_format)
+        self.trader.ax.xaxis.set_major_locator(ticker.FixedLocator(self.chart_locator))
+        self.trader.ax.xaxis.set_major_formatter(ticker.FixedFormatter(self.chart_formatter))
+
+        # Axis yticks & lines
+        max_price = chart.High.max()
+        min_price = chart.Low.min()
+        if max_price > self.top_price or min_price < self.bottom_price:
+            self.top_price = math.ceil(max_price / self.interval) * self.interval
+            self.bottom_price = math.floor(min_price / self.interval) * self.interval
+            self.interval_prices = list(range(self.bottom_price, self.top_price + self.interval, self.interval))
+            self.loss_cut_prices = list(
+                range(self.bottom_price + self.interval - self.loss_cut, self.top_price, self.interval))
+        self.trader.ax.grid(axis='x', alpha=0.5)
+        self.trader.ax.set_yticks(self.interval_prices)
+        for price in self.interval_prices:
+            self.trader.ax.axhline(price, alpha=0.5, linewidth=0.2)
+        for price in self.loss_cut_prices:
+            self.trader.ax.axhline(price, alpha=0.4, linewidth=0.2, color='Gray')
+
+        # Current Price Annotation
+        current_time = len(chart)
+        current_price = chart.Close.iloc[-1]
+        self.trader.ax.text(current_time + 2, current_price, format(current_price, ','))
+
+        if self.reference_price:
+            self.annotate_chart(current_time)
+
+        # Moving average
+        self.trader.ax.plot(chart.index.astype('str'), chart.MA5, label='MA5')
+        self.trader.ax.plot(chart.index.astype('str'), chart.MA10, label='MA10')
+        self.trader.ax.plot(chart.index.astype('str'), chart.MA20, label='MA20')
+        self.trader.ax.legend(loc='best')
+
+        # Draw Chart
+        candlestick2_ohlc(self.trader.ax, chart.Open, chart.High, chart.Low, chart.Close,
+                          width=0.4, colorup='red', colordown='blue')
+        self.trader.fig.tight_layout()
+        self.trader.canvas.draw()
+
+    def annotate_chart(self, current_time):
+        self.trader.ax.plot(self.start_time, self.start_price, marker='o', markersize=3, color='Lime')
+        self.trader.ax.vlines(self.start_time, self.bottom_price, self.start_price, alpha=0.8, linewidth=0.2,
+                              color='Green')
+        self.trader.ax.text(self.start_time, self.bottom_price, self.start_comment, color='RebeccaPurple')
+        self.trader.ax.axhline(self.reference_price, alpha=1, linewidth=0.2, color='Maroon')
+        self.trader.ax.text(0, self.reference_price, 'Reference')
+        self.trader.ax.axhline(self.buy_limit, alpha=1, linewidth=0.2, color='Maroon')
+        self.trader.ax.text(0, self.buy_limit, 'Buy limit')
+        self.trader.ax.axhline(self.loss_limit, alpha=1, linewidth=0.2, color='DeepPink')
+        self.trader.ax.text(0, self.loss_limit, 'Loss cut')
+
+        total_range = self.top_price - self.bottom_price
+        offset = total_range * 0.035
+        x = current_time
+        y = self.reference_price
+        sales = copy.deepcopy(self.leverage.sales)
+        for order in sales.values():
+            if order.open_amount:
+                y += offset
+                self.trader.ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
+
+        y = self.buy_limit - offset
+        purchases = copy.deepcopy(self.leverage.purchases)
+        for order in purchases.values():
+            if order.open_amount:
+                y -= offset
+                self.trader.ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))

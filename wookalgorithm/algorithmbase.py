@@ -1,28 +1,27 @@
 import copy
 import pandas
+from PyQt5.QtCore import QTimer
+from matplotlib import ticker
+from mplfinance.original_flavor import candlestick2_ohlc
 from datetime import datetime
 from PyQt5.QtCore import QEventLoop
-from wookutil import WookUtil, WookLog, wmath
+from wookutil import WookUtil, WookLog, ChartDrawer, wmath
 from wookitem import Item, BalanceItem, Order, AlgorithmItem
 from wookchart import WookChart
 from wookdata import *
+import math
 
 class AlgorithmBase(WookUtil, WookLog):
-    def __init__(self, log):
+    def __init__(self, trader, log):
         WookLog.custom_init(self, log)
+        self.trader = trader
         self.log = log
-
-        self.signal = None
         self.broker = None
-        self.chart_prices = list()
-        self.chart = None
-        self.legitimate_chart = False
+
         self.is_running = False
         self.purchase_episode_shifted = False
         self.sale_episode_shifted = False
         self.sell_off_ordered = False
-        # self.purchase_ordered = False
-        # self.sale_ordered = False
         self.settle_up_in_progress = False
         self.finish_in_progress = False
         self.open_orders = 0
@@ -30,6 +29,17 @@ class AlgorithmBase(WookUtil, WookLog):
         self.open_cancel_orders = 0
         self.previous_situation = ''
         self.previous_msg = ()
+
+        self.draw_chart = ChartDrawer(self.display_chart)
+        self.timer = QTimer()
+        self.timer.setInterval(60000)
+        self.timer.timeout.connect(self.on_every_minute)
+        self.chart_locator = list()
+        self.chart_formatter = list()
+        self.interval_prices = list()
+        self.loss_cut_prices = list()
+        self.top_price = 0
+        self.bottom_price = 0
 
         self.items = dict()
         self.orders = dict()
@@ -49,6 +59,7 @@ class AlgorithmBase(WookUtil, WookLog):
         self.loss_limit = 0
         self.minimum_transaction_amount = 0
         self.start_time_text = ''
+        self.start_comment = ''
         self.start_time = 0
         self.start_price = 0
         self.total_profit = 0
@@ -56,11 +67,7 @@ class AlgorithmBase(WookUtil, WookLog):
         self.net_profit = 0
         self.fee = 0
 
-    def init_chart(self):
-        columns = ['Time', 'Open', 'High', 'Low', 'Close', 'Volume']
-        self.chart = pandas.DataFrame(self.chart_prices, columns=columns)
-
-    def set_parameters(self, broker, capital, interval, loss_cut, fee, minimum_transaction_amount):
+    def initialize(self, broker, capital, interval, loss_cut, fee, minimum_transaction_amount):
         for item in self.items.values():
             item.set_broker(broker)
             item.set_log(self.log)
@@ -84,15 +91,10 @@ class AlgorithmBase(WookUtil, WookLog):
 
         # Init Fields
         self.broker = None
-        self.chart_prices = list()
-        self.chart = None
-        self.legitimate_chart = False
         self.is_running = False
         self.purchase_episode_shifted = False
         self.sale_episode_shifted = False
         self.sell_off_ordered = False
-        # self.purchase_ordered = False
-        # self.sale_ordered = False
         self.settle_up_in_progress = False
         self.finish_in_progress = False
         self.open_orders = 0
@@ -100,6 +102,14 @@ class AlgorithmBase(WookUtil, WookLog):
         self.open_cancel_orders = 0
         self.previous_situation = ''
         self.previous_msg = ()
+
+        self.timer.stop()
+        self.chart_locator = list()
+        self.chart_formatter = list()
+        self.interval_prices = list()
+        self.loss_cut_prices = list()
+        self.top_price = 0
+        self.bottom_price = 0
 
         self.orders.clear()
         self.episode_purchase = Order()
@@ -125,6 +135,9 @@ class AlgorithmBase(WookUtil, WookLog):
         self.net_profit = 0
         self.fee = 0
 
+        # Continue Charting
+        self.trader.go_chart()
+
     def resume(self):
         self.is_running = True
 
@@ -136,12 +149,11 @@ class AlgorithmBase(WookUtil, WookLog):
         self.buy_limit = self.reference_price - self.interval
         self.loss_limit = self.buy_limit - self.loss_cut
         self.episode_amount = self.capital // self.buy_limit
-        self.episode_count += 1
 
     def shift_reference_up(self):
         self.set_reference(self.reference_price + self.shift_interval)
 
-    def shift_reference_down(self):
+    def shift_reference_down(self, next_episode=False):
         self.set_reference(self.reference_price - self.shift_interval)
 
     def clear_open_orders(self):
@@ -223,46 +235,60 @@ class AlgorithmBase(WookUtil, WookLog):
     def post(self, *args):
         self.debug('\033[93mALGORITHM', *args, '\033[97m')
 
-    def copy_chart_prices(self):
-        previous_chart_prices = copy.deepcopy(self.broker.chart_prices)
-        self.chart_prices = previous_chart_prices + self.chart_prices
+    def process_past_chart_prices(self, item_code, chart_prices):
+        columns = ['Time', 'Open', 'High', 'Low', 'Close', 'Volume']
+        past_chart = pandas.DataFrame(chart_prices, columns=columns)
+        past_chart.Time = pandas.to_datetime(past_chart.Time)
+        past_chart.set_index('Time', inplace=True)
 
-    def update_chart_prices(self, price, volume):
-        current_time = datetime.now()
-        current_time_str = current_time.strftime('%Y%m%d%H%M00')
-        if not self.legitimate_chart:
-            if self.chart_prices:
-                previous_time = datetime.strptime(self.chart_prices[-1][TIME_], '%Y%m%d%H%M00')
-                if previous_time <= current_time:
-                    self.legitimate_chart = True
-                else:
-                    return
+        item = self.items[item_code]
+        # item.chart = past_chart.append(item.chart)
+        item.chart = past_chart
 
-        if not self.chart_prices:
-            price_data = [current_time_str, price, price, price, price, volume]
-            self.chart_prices.append(price_data)
-        elif current_time_str != self.chart_prices[-1][TIME_]:
-            price_data = [current_time_str, price, price, price, price, volume]
-            self.chart_prices.append(price_data)
+        self.process_custom_chart(item)
+        self.draw_chart.start()
+
+    def update_chart_prices(self, item_code, price, volume):
+        current_time = datetime.now().replace(second=0, microsecond=0)
+        item = self.items[item_code]
+        chart = item.chart
+        if not len(chart):
+            chart.loc[current_time] = price
+            chart.Volume[-1] = volume
+        elif current_time > chart.index[-1]:
+            chart.loc[current_time] = price
+            chart.Volume[-1] = volume
         else:
-            if price > self.chart_prices[-1][HIGH]:
-                self.chart_prices[-1][HIGH] = price
-            elif price < self.chart_prices[-1][LOW]:
-                self.chart_prices[-1][LOW] = price
-            self.chart_prices[-1][CLOSE] = price
-            self.chart_prices[-1][VOLUME_] += volume
+            if price > chart.High[-1]:
+                chart.High[-1] = price
+            elif price < chart.Low[-1]:
+                chart.Low[-1] = price
+            last_price = chart.Close[-1]
+            chart.Close[-1] = price
+            chart.Volume[-1] += volume
+            if last_price == price:
+                return
 
-        self.chart = pandas.DataFrame(self.chart_prices, columns=['Time', 'Open', 'High', 'Low', 'Close', 'Volume'])
+        self.update_custom_chart(item)
+        self.draw_chart.start()
 
-    def get_moving_average_5(self):
-        price_sum = 0
-        data_length = len(self.chart_prices)
-        if data_length < 5:
-            chart_prices = self.chart_prices
-        else:
-            chart_prices = self.chart_prices[-5:]
-            data_length = 5
-        for prices in chart_prices:
-            price_sum += prices[CLOSE]
-        moving_average = round(price_sum / data_length)
-        return moving_average
+    def on_every_minute(self):
+        current_time = datetime.now().replace(second=0, microsecond=0)
+        for item in self.items.values():
+            if not len(item.chart):
+                continue
+            if current_time > item.chart.index[-1]:
+                price = item.chart.Close[-1]
+                item.chart.loc[current_time] = price
+                item.chart.Volume[-1] = 0
+                self.update_custom_chart(item)
+        self.draw_chart.start()
+
+    def process_custom_chart(self, item):
+        pass
+
+    def update_custom_chart(self, item):
+        pass
+
+    def display_chart(self):
+        pass
