@@ -487,18 +487,17 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         x1 = round(current_x1 + x1_cut)
         x2 = round(current_x2 - x2_cut)
 
-
         if x1 < 0:
             x1 = 0
         if x2 < 0:
             x2 = 0
 
-
-
-        max_price = self.chart.High[x1:x2].max()
-        min_price = self.chart.Low[x1:x2].min()
-
-
+        if self.algorithm.is_running:
+            max_price = self.algorithm.get_max_price(x1, x2)
+            min_price = self.algorithm.get_min_price(x1, x2)
+        else:
+            max_price = self.chart.High[x1:x2].max()
+            min_price = self.chart.Low[x1:x2].min()
 
         y1 = math.floor(min_price / self.interval) * self.interval
         y2 = math.ceil(max_price / self.interval) * self.interval

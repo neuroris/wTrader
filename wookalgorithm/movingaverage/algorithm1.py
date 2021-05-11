@@ -1,3 +1,4 @@
+import numpy
 from mplfinance.original_flavor import candlestick2_ohlc
 from matplotlib import ticker
 from datetime import datetime
@@ -19,6 +20,9 @@ class MAlgorithm1(AlgorithmBase):
     def __init__(self, trader, log):
         super().__init__(trader, log)
         self.leverage = None
+
+        self.engage_number = 2
+        self.slope = [0, 0]
 
     def start(self, broker, capital, interval, loss_cut, fee, minimum_transaction_amount):
         self.leverage = AlgorithmItem('122630')
@@ -46,18 +50,7 @@ class MAlgorithm1(AlgorithmBase):
             self.start_comment = 'start\n' + self.start_time_text + '\n' + format(self.start_price, ',')
             reference_price = wmath.get_top(item.current_price, self.interval)
             self.set_reference(reference_price)
-            self.episode_purchase.virtual_open_amount = self.episode_amount
-            self.episode_count += 1
-            self.purchase_episode_shifted = True
-            self.sale_episode_shifted = True
-            self.leverage.buy(self.buy_limit, self.episode_amount)
             return
-
-        # Update ask price
-        self.items[item.item_code].ask_price = abs(item.ask_price)
-
-        # Update chart
-        self.update_chart_prices(item.item_code, item.current_price, item.volume)
 
         # Block during situation processing
         if self.open_correct_orders:
@@ -76,6 +69,16 @@ class MAlgorithm1(AlgorithmBase):
             self.post_without_repetition('(BLOCK)', 'finish in progress')
             return
 
+        # Update ask price
+        self.items[item.item_code].ask_price = abs(item.ask_price)
+
+        # Update chart
+        self.update_chart_prices(item.item_code, item.current_price, item.volume)
+
+        # Purchase decision
+        if not self.leverage.purchases and self.bull_market():
+            self.buy()
+
         # Trade according to current price
         if item.current_price >= (self.reference_price + self.loss_cut):
             self.post('Situation 1')
@@ -86,10 +89,25 @@ class MAlgorithm1(AlgorithmBase):
                 self.loss_limit -= self.loss_cut
         elif item.current_price <= self.loss_limit:
             self.post('Situation 4')
-            self.open_cancel_orders = len(self.leverage.sales)
-            self.shift_reference_down()
-            self.sell_off_ordered = True
-            self.leverage.sell_off()
+            # self.open_cancel_orders = len(self.leverage.sales)
+            # self.shift_reference_down()
+            # self.sell_off_ordered = True
+            # self.leverage.sell_off()
+
+    def bull_market(self):
+        chart = self.leverage.chart
+        self.debug('DECISION?', 'Diff5:', chart.Diff5[-1], 'DiffDiff10:', chart.DiffDiff10[-1])
+        if chart.Diff5[-1] > 0 and chart.DiffDiff10[-1] > 0:
+            return True
+        else:
+            return False
+
+    def buy(self):
+        self.episode_purchase.virtual_open_amount += self.episode_amount
+        self.episode_count += 1
+        self.purchase_episode_shifted = True
+        self.sale_episode_shifted = True
+        self.leverage.buy(self.buy_limit, self.episode_amount)
 
     def update_execution_info(self, order):
         # Algorithm item update
@@ -124,11 +142,12 @@ class MAlgorithm1(AlgorithmBase):
                 self.total_fee += order.transaction_fee
                 self.net_profit += order.net_profit
             if not self.leverage.holding_amount:
-                self.episode_purchase.virtual_open_amount += self.episode_amount
-                self.episode_count += 1
-                self.purchase_episode_shifted = True
-                self.sale_episode_shifted = True
-                self.leverage.buy(self.buy_limit, self.episode_amount)
+                # self.episode_purchase.virtual_open_amount += self.episode_amount
+                # self.episode_count += 1
+                # self.purchase_episode_shifted = True
+                # self.sale_episode_shifted = True
+                # self.leverage.buy(self.buy_limit, self.episode_amount)
+                self.buy()
 
     def process_synchronization(self, order):
         if order.order_position in (CORRECT_PURCHASE, CORRECT_SELL) and order.order_state == CONFIRMED:
@@ -201,10 +220,17 @@ class MAlgorithm1(AlgorithmBase):
         if self.sell_off_ordered and not order.open_amount:
             self.sell_off_ordered = False
 
-    def process_custom_chart(self, item):
-        item.chart['MA5'] = item.chart.Close.rolling(5, 1).mean().apply(round)
-        item.chart['MA10'] = item.chart.Close.rolling(10, 1).mean().apply(round)
-        item.chart['MA20'] = item.chart.Close.rolling(20, 1).mean().apply(round)
+    def customize_past_chart(self, item):
+        chart = item.chart
+        chart['MA5'] = chart.Close.rolling(5, 1).mean().apply(round)
+        chart['MA10'] = chart.Close.rolling(10, 1).mean().apply(round)
+        chart['MA20'] = chart.Close.rolling(20, 1).mean().apply(round)
+        chart['Diff5'] = chart.MA5.diff().fillna(0).apply(round)
+        chart['Diff10'] = chart.MA10.diff().fillna(0).apply(round)
+        chart['Diff20'] = chart.MA20.diff().fillna(0).apply(round)
+        chart['DiffDiff5'] = chart.Diff5.diff().fillna(0).apply(round)
+        chart['DiffDiff10'] = chart.Diff10.diff().fillna(0).apply(round)
+        chart['DiffDiff20'] = chart.Diff20.diff().fillna(0).apply(round)
 
     def update_custom_chart(self, item):
         chart = item.chart
@@ -225,6 +251,24 @@ class MAlgorithm1(AlgorithmBase):
         chart.MA5[-1] = round(chart.Close[ma5:].mean())
         chart.MA10[-1] = round(chart.Close[ma10:].mean())
         chart.MA20[-1] = round(chart.Close[ma20:].mean())
+        chart.Diff5[-1] = chart.MA5[-1] - chart.MA5[-2]
+        chart.Diff10[-1] = chart.MA10[-1] - chart.MA10[-2]
+        chart.Diff20[-1] = chart.MA20[-1] - chart.MA20[-2]
+        chart.DiffDiff5[-1] = chart.Diff5[-1] - chart.Diff5[-2]
+        chart.DiffDiff10[-1] = chart.Diff10[-1] - chart.Diff10[-2]
+        chart.DiffDiff20[-1] = chart.Diff20[-1] - chart.Diff20[-2]
+
+    def update_regression_deprecated(self, item):
+        chart = item.chart
+        end = len(chart) + 1
+        start = end - self.engage_number
+        if start < 0:
+            start = 0
+        x = range(start, end)
+
+        slope = numpy.polyfit(x, chart.MA5[-self.engage_number:], 1)
+        print(slope)
+        self.slope = slope
 
     def display_chart(self):
         chart = self.leverage.chart
@@ -267,10 +311,18 @@ class MAlgorithm1(AlgorithmBase):
             self.annotate_chart(current_time)
 
         # Moving average
-        self.trader.ax.plot(chart.index.astype('str'), chart.MA5, label='MA5')
-        self.trader.ax.plot(chart.index.astype('str'), chart.MA10, label='MA10')
-        self.trader.ax.plot(chart.index.astype('str'), chart.MA20, label='MA20')
+        x = range(0, len(chart))
+        self.trader.ax.plot(x, chart.MA5, label='MA5')
+        self.trader.ax.plot(x, chart.MA10, label='MA10')
+        self.trader.ax.plot(x, chart.MA20, label='MA20')
         self.trader.ax.legend(loc='best')
+
+        # Slope
+        slope_x = range(len(chart) - 1, len(chart) + 1)
+        slope = numpy.polyfit(slope_x, chart.MA5[-2:], 1)
+        x = range(len(chart) - 20, len(chart))
+        y = numpy.poly1d(slope)
+        self.trader.ax.plot(x, y(x))
 
         # Draw Chart
         candlestick2_ohlc(self.trader.ax, chart.Open, chart.High, chart.Low, chart.Close,
@@ -306,3 +358,11 @@ class MAlgorithm1(AlgorithmBase):
             if order.open_amount:
                 y -= offset
                 self.trader.ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
+
+    def get_max_price(self, x1, x2):
+        max_price = self.leverage.chart.High[x1:x2].max()
+        return max_price
+
+    def get_min_price(self, x1, x2):
+        min_price = self.leverage.chart.Low[x1:x2].min()
+        return min_price

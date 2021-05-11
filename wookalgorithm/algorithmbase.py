@@ -245,7 +245,7 @@ class AlgorithmBase(WookUtil, WookLog):
         # item.chart = past_chart.append(item.chart)
         item.chart = past_chart
 
-        self.process_custom_chart(item)
+        self.customize_past_chart(item)
         self.draw_chart.start()
 
     def update_chart_prices(self, item_code, price, volume):
