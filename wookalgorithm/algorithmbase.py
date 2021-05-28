@@ -27,6 +27,12 @@ class AlgorithmBase(WookUtil, WookLog):
         self.open_orders = 0
         self.open_correct_orders = 0
         self.open_cancel_orders = 0
+
+        self.open_purchase_correct_orders = 0
+        self.open_purchase_cancel_orders = 0
+        self.open_sale_correct_orders = 0
+        self.open_sale_cancel_orders = 0
+
         self.previous_situation = ''
         self.previous_msg = ()
 
@@ -40,6 +46,7 @@ class AlgorithmBase(WookUtil, WookLog):
         self.loss_cut_prices = list()
         self.top_price = 0
         self.bottom_price = 0
+        self.chart_scope = 60
 
         self.items = dict()
         self.orders = dict()
@@ -100,6 +107,12 @@ class AlgorithmBase(WookUtil, WookLog):
         self.open_orders = 0
         self.open_correct_orders = 0
         self.open_cancel_orders = 0
+
+        self.open_purchase_correct_orders = 0
+        self.open_purchase_cancel_orders = 0
+        self.open_sale_correct_orders = 0
+        self.open_sale_cancel_orders = 0
+
         self.previous_situation = ''
         self.previous_msg = ()
 
@@ -110,6 +123,7 @@ class AlgorithmBase(WookUtil, WookLog):
         self.loss_cut_prices = list()
         self.top_price = 0
         self.bottom_price = 0
+        self.chart_scope = 60
 
         self.orders.clear()
         self.episode_purchase = Order()
@@ -153,7 +167,7 @@ class AlgorithmBase(WookUtil, WookLog):
     def shift_reference_up(self):
         self.set_reference(self.reference_price + self.shift_interval)
 
-    def shift_reference_down(self, next_episode=False):
+    def shift_reference_down(self):
         self.set_reference(self.reference_price - self.shift_interval)
 
     def clear_open_orders(self):
@@ -284,7 +298,7 @@ class AlgorithmBase(WookUtil, WookLog):
                 self.update_custom_chart(item)
         self.draw_chart.start()
 
-    def process_custom_chart(self, item):
+    def customize_past_chart(self, item):
         pass
 
     def update_custom_chart(self, item):

@@ -76,7 +76,7 @@ class MAlgorithm1(AlgorithmBase):
         self.update_chart_prices(item.item_code, item.current_price, item.volume)
 
         # Purchase decision
-        if not self.leverage.purchases and self.bull_market():
+        if not self.leverage.purchases and not self.leverage.holding_amount and self.bull_market():
             self.buy()
 
         # Trade according to current price

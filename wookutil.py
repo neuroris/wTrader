@@ -217,7 +217,8 @@ class WookUtil:
             return time_format
 
         if data[0] == '0' and len(data) == 6:
-            return data
+            if data[1] != '.':
+                return data
 
         int_criteria = re.compile('([+]{0,1}|[-]{0,1})\d+$')
         if int_criteria.match(data):
@@ -265,6 +266,40 @@ class WookUtil:
                     table_item.setText(data[1:])
         return table_item
 
+    def to_item_float2(self, data):
+        processed_data = self.process_type(data)
+        if not processed_data:
+            return QTableWidgetItem(processed_data)
+        elif type(processed_data) == float:
+            item_data = format(processed_data, ',.2f')
+        else:
+            item_data = format(processed_data, ',')
+        table_item = QTableWidgetItem(item_data)
+        table_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        if item_data[0] == '-':
+            table_item.setText(item_data[1:])
+            table_item.setForeground(Qt.blue)
+        else:
+            table_item.setForeground(Qt.red)
+        return table_item
+
+    def to_item_float3(self, data):
+        processed_data = self.process_type(data)
+        if not processed_data:
+            return QTableWidgetItem(processed_data)
+        elif type(processed_data) == float:
+            item_data = format(processed_data, ',.3f')
+        else:
+            item_data = format(processed_data, ',')
+        table_item = QTableWidgetItem(item_data)
+        table_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        if item_data[0] == '-':
+            table_item.setText(item_data[1:])
+            table_item.setForeground(Qt.blue)
+        else:
+            table_item.setForeground(Qt.red)
+        return table_item
+
     def to_item_plain(self, data):
         item_data = str(data)
         table_item = QTableWidgetItem(item_data)
@@ -294,7 +329,9 @@ class WookUtil:
             item_data = self.formalize(data)
         table_item = QTableWidgetItem(item_data)
         table_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        if item_data[0] == '-':
+        if not item_data:
+            return table_item
+        elif item_data[0] == '-':
             table_item.setForeground(Qt.blue)
         else:
             table_item.setForeground(Qt.red)

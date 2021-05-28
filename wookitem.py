@@ -36,6 +36,7 @@ class Item:
         self.transaction_fee = 0
         self.total_fee = 0
         self.tax = 0
+        self.trade_position = ''
 
 class BalanceItem(Item):
     balance_profit_net_today = 0
@@ -53,7 +54,6 @@ class Order(Item):
         self.order_state = ''
         self.order_type = ''
         self.order_position = ''
-        self.trade_position = ''
         self.order_price = 0
         self.executed_price = 0
         self.executed_price_avg = 0
@@ -106,8 +106,6 @@ class AlgorithmItem(Order, WookLog):
     def update_execution_info(self, order):
         executed_amount = abs(order.executed_amount)
         if order.order_position in (PURCHASE, CORRECT_PURCHASE):
-            self.purchase = order
-            self.purchase.ordered = False
             self.purchases[order.order_number] = order
             if not order.open_amount:
                 del self.purchases[order.order_number]
@@ -159,7 +157,6 @@ class AlgorithmItem(Order, WookLog):
     def buy(self, price, amount, order_type='LIMIT'):
         msg = ('holding:' + str(self.holding_amount), 'price:' + str(price), 'amount:' + str(amount))
         self.post_cyan('(BUY)', *msg)
-
         self.purchase.ordered = True
         self.target_amount = amount
         self.broker.buy(self.item_code, price, amount, order_type)
@@ -225,6 +222,18 @@ class AlgorithmItem(Order, WookLog):
             else:
                 self.broker.sell(self.item_code, price, self.holding_amount)
 
+    def sell_off(self):
+        if not self.holding_amount or self.sale.ordered:
+            return
+
+        msg = ('holding:' + str(self.holding_amount), 'purchase.open:' + str(self.purchase.open_amount))
+        msg += ('sale.open:' + str(self.sale.open_amount),)
+        self.post_cyan('(SELL_OFF)', *msg)
+
+        self.purchase.ordered = False
+        self.sale.ordered = True
+        self.broker.sell(self.item_code, 0, self.holding_amount, 'MARKET')
+
     def sell_off_deprecated(self):
         if not self.holding_amount or self.sale.ordered:
             return
@@ -240,17 +249,6 @@ class AlgorithmItem(Order, WookLog):
             self.broker.cancel_and_sell(self.sale, 0, self.holding_amount, 'MARKET')
         else:
             self.broker.sell(self.item_code, 0, self.holding_amount, 'MARKET')
-
-    def sell_off(self):
-        if not self.holding_amount or self.sale.ordered:
-            return
-
-        msg = ('holding:' + str(self.holding_amount), 'purchase.open:' + str(self.purchase.open_amount))
-        msg += ('sale.open:' + str(self.sale.open_amount),)
-        self.post_cyan('(SELL_OFF)', *msg)
-
-        self.sale.ordered = True
-        self.broker.sell(self.item_code, 0, self.holding_amount, 'MARKET')
 
     def correct(self, order, price, amount=None):
         self.broker.correct(order, price, amount)

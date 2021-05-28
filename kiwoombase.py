@@ -32,6 +32,7 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
 
         # Chart
         self.chart_prices = list()
+        self.chart_item_code = ''
         self.is_running_chart = False
 
         # Deposit
@@ -76,7 +77,9 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         # Fee and Tax
         # self.fee_ratio = 0.0035
         self.fee_ratio = 0.00015
+        self.futures_fee_ratio = 0.00003
         self.tax_ratio = 0.0023
+        self.futures_tax_ratio = 0.0
 
         # Screen numbers
         self.screen_account = '0010'
@@ -225,6 +228,8 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
 
     def get_tax(self, item):
         tax = 0
-        if item.item_name[:5] != 'KODEX':
+        if item.item_code[:3] == FUTURES_CODE:
+            tax = int(item.evaluation_sum * self.futures_tax_ratio)
+        elif item.item_name[:5] != 'KODEX':
             tax = int(item.evaluation_sum * self.tax_ratio)
         return tax

@@ -55,7 +55,8 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         self.btn_login.clicked.connect(self.connect_broker)
         lb_account = QLabel('Account')
         self.cbb_account = QComboBox()
-        self.cbb_account.currentTextChanged.connect(self.on_select_account)
+        # self.cbb_account.currentTextChanged.connect(self.on_select_account)
+        self.cbb_account.currentIndexChanged.connect(self.on_select_account)
         self.cbb_account.setMinimumHeight(30)
         lb_deposit = QLabel('Deposit')
         self.lb_deposit = QLabel('No info')
@@ -204,10 +205,13 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         self.table_portfolio.cellClicked.connect(self.on_select_portfolio_table)
         self.table_portfolio.setHorizontalHeaderLabels(portfolio_header)
         for column in range(1, self.table_portfolio.columnCount()):
-            self.table_portfolio.setColumnWidth(column, 100)
+            self.table_portfolio.setColumnWidth(column, 93)
         self.table_portfolio.setColumnWidth(0, 215)
-        self.table_portfolio.setColumnWidth(4, 110)
-        self.table_portfolio.setColumnWidth(5, 110)
+        self.table_portfolio.setColumnWidth(4, 119)
+        self.table_portfolio.setColumnWidth(5, 119)
+        self.table_portfolio.setColumnWidth(6, 92)
+        self.table_portfolio.setColumnWidth(7, 92)
+        self.table_portfolio.setColumnWidth(9, 93)
 
         portfolio_gbox = QGroupBox('Portfolio')
         portfolio_grid = QGridLayout()
@@ -240,7 +244,7 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         for column in range(1, self.table_balance.columnCount()):
             self.table_balance.setColumnWidth(column, 100)
         self.table_balance.setColumnWidth(0, 215)
-        self.table_balance.setColumnWidth(5, 110)
+        self.table_balance.setColumnWidth(5, 120)
 
         balance_gbox = QGroupBox('Balance')
         balance_grid = QGridLayout()
@@ -263,15 +267,15 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         self.sb_capital.setRange(0, 900000000)
         self.sb_capital.setSingleStep(1000000)
         lb_interval = QLabel('Interval')
-        self.sb_interval = QSpinBox()
+        self.sb_interval = QDoubleSpinBox()
         self.sb_interval.setMinimumHeight(30)
         self.sb_interval.setRange(0, 300)
-        self.sb_interval.setSingleStep(5)
+        self.sb_interval.setSingleStep(0.05)
         lb_loss_cut = QLabel('Loss-cut')
-        self.sb_loss_cut = QSpinBox()
+        self.sb_loss_cut = QDoubleSpinBox()
         self.sb_loss_cut.setMinimumHeight(30)
         self.sb_loss_cut.setRange(0, 200)
-        self.sb_loss_cut.setSingleStep(5)
+        self.sb_loss_cut.setSingleStep(0.05)
         lb_fee_set = QLabel('Fee(%)')
         self.sb_fee = QDoubleSpinBox()
         self.sb_fee.setMinimumHeight(30)
@@ -448,7 +452,8 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         self.status_bar.showMessage('ready')
         self.setWindowTitle('wook\'s algorithm trader')
         self.resize(2550, 1700)
-        self.move(-350, 100)
+        # self.move(-350, 100)
+        self.move(100, 100)
         self.setWindowIcon(QIcon('data/nyang1.ico'))
         self.show()
 
@@ -464,46 +469,55 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         if not self.algorithm.is_running:
             return
 
-        sign = 1
+        if self.algorithm.chart_scope < 0 or self.algorithm.chart_scope > 400:
+            return
+
+        magnification = 5
         if wheel_position > 0:
-            sign = -1
-            self.debug('Up', mouse_position)
+            self.algorithm.chart_scope += magnification
         else:
-            self.debug('Down', mouse_position)
+            self.algorithm.chart_scope -= magnification
 
-        rect_width = self.chart_rect.width()
-        rect_position = self.chart_rect.topLeft()
-        relative_mouse_position = mouse_position - rect_position
+        # sign = 1
+        # if wheel_position > 0:
+        #     sign = -1
+        #     self.debug('Up', mouse_position)
+        # else:
+        #     self.debug('Down', mouse_position)
 
-        magnification_ratio = 10
+        # rect_width = self.chart_rect.width()
+        # rect_position = self.chart_rect.topLeft()
+        # relative_mouse_position = mouse_position - rect_position
+        #
+        # magnification_ratio = 10
+        #
+        # current_x1, current_x2 = self.ax.get_xlim()
+        # ax_length = current_x2 - current_x1
+        # cut_amount = ax_length * magnification_ratio / 100
+        # cut_ratio = relative_mouse_position.x() / rect_width
+        # x1_cut = cut_amount * cut_ratio * sign
+        # x2_cut = (cut_amount - x1_cut) * sign
+        #
+        # x1 = round(current_x1 + x1_cut)
+        # x2 = round(current_x2 - x2_cut)
+        #
+        # if x1 < 0:
+        #     x1 = 0
+        # if x2 < 0:
+        #     x2 = 0
 
-        current_x1, current_x2 = self.ax.get_xlim()
-        ax_length = current_x2 - current_x1
-        cut_amount = ax_length * magnification_ratio / 100
-        cut_ratio = relative_mouse_position.x() / rect_width
-        x1_cut = cut_amount * cut_ratio * sign
-        x2_cut = (cut_amount - x1_cut) * sign
+        # if self.algorithm.is_running:
+        #     max_price = self.algorithm.get_max_price(x1, x2)
+        #     min_price = self.algorithm.get_min_price(x1, x2)
+        # else:
+        #     max_price = self.chart.High[x1:x2].max()
+        #     min_price = self.chart.Low[x1:x2].min()
+        #
+        # y1 = math.floor(min_price / self.interval) * self.interval
+        # y2 = math.ceil(max_price / self.interval) * self.interval
+        # self.ax.set_xlim(x1, x2)
+        # self.ax.set_ylim(y1, y2)
+        #
+        # print(self.ax.get_xlim())
 
-        x1 = round(current_x1 + x1_cut)
-        x2 = round(current_x2 - x2_cut)
-
-        if x1 < 0:
-            x1 = 0
-        if x2 < 0:
-            x2 = 0
-
-        if self.algorithm.is_running:
-            max_price = self.algorithm.get_max_price(x1, x2)
-            min_price = self.algorithm.get_min_price(x1, x2)
-        else:
-            max_price = self.chart.High[x1:x2].max()
-            min_price = self.chart.Low[x1:x2].min()
-
-        y1 = math.floor(min_price / self.interval) * self.interval
-        y2 = math.ceil(max_price / self.interval) * self.interval
-        self.ax.set_xlim(x1, x2)
-        self.ax.set_ylim(y1, y2)
-
-        print(self.ax.get_xlim())
-
-        self.canvas.draw()
+        # self.canvas.draw()

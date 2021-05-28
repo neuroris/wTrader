@@ -48,6 +48,7 @@ WEEK_DATA = '주'
 MONTH_DATA = '월'
 YEAR_DATA = '년'
 TIME_UNIT = '시간단위'
+INQUIRY_DATE = '조회일자'
 FUTURES_CODE = '101'
 
 # Chart index
@@ -130,7 +131,9 @@ FUTURES_ORDER_TYPE = {
 
 # Request codes
 REQUEST_DEPOSIT_INFO = 'opw00001'
+REQUEST_FUTURES_DEPOSIT_INFO = 'opw20010'
 REQUEST_PORTFOLIO_INFO = 'opw00018'
+REQUEST_FUTURES_PORTFOLIO_INFO = 'opw20006'
 REQUEST_OPEN_ORDER = 'opt10075'
 REQUEST_EXECUTED_ORDER = 'opt10076'
 REQUEST_TICK_PRICE = 'opt10079'
@@ -150,6 +153,7 @@ REAL_TYPE_FUTURES_TRADED = '선물시세'
 # Chejan codes
 CHEJAN_EXECUTED_ORDER = '0'
 CHEJAN_BALANCE = '1'
+CHEJAN_FUTURES_BALANCE = '4'
 
 # 계좌평가잔고내역요청 (opw00018)
 ITEM_CODE = '종목코드'
@@ -168,6 +172,23 @@ EVALUATION_FEE = '평가수수료'
 TAX = '세금'
 TOTAL_FEE = '수수료합'
 HOLDING_RATIO = '보유비중(%)'
+
+# 선옵예탁금및증거금조회요청
+FUTURES_DEPOSIT = '예탁총액'
+FUTURES_ORDERABLE = '주문가능총액'
+FUTURES_WITHDRAWABLE = '인출가능총액'
+
+# 선옵잔고상세현황요청
+ITEM_CODE = '종목코드'
+ITEM_NAME = '종목명'
+TRADE_POSITION = '매매구분'
+BALANCE_AMOUNT = '잔고수량'
+PURCHASE_UNIT_PRICE = '매입단가'
+TRANSACTION_SUM = '매매금액'
+CURRENT_PRICE = '현재가'
+EVALUATION_PROFIT = '평가손익'
+EVALUATION_PROFIT_RATE = '손익율'
+EVALUATION_SUM = '평가금액'
 
 # 주식분봉차트조회요청
 CURRENT_PRICE = '현재가'
@@ -284,6 +305,6 @@ CODES = {
     '122630': 'KODEX 레버리지',
     '252670': 'KODEX 200선물인버스2X',
     '048260': '오스템임플란트',
-    '101R3000': 'F 202103',
-    '101R6000': 'F 202106'
+    '101R6000': 'F 202106',
+    '101R9000': 'F 202109'
 }

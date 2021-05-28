@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QFileDialog, QTableWidgetSelectionRange
 from PyQt5.QtCore import Qt, QTimer
+import numpy
 import pandas
 from matplotlib import ticker, pyplot
 from mplfinance.original_flavor import candlestick2_ohlc
@@ -15,44 +16,52 @@ from wookalgorithm.volitility.algorithm4 import VAlgorithm4
 from wookalgorithm.volitility.algorithm5 import VAlgorithm5
 from wookalgorithm.volitility.algorithm6 import VAlgorithm6
 from wookalgorithm.movingaverage.algorithm1 import MAlgorithm1
+from wookalgorithm.movingaverage.algorithm2 import MAlgorithm2
+from wookalgorithm.movingaverage.algorithm3 import MAlgorithm3
 from wookutil import ChartDrawer
 from wookitem import Item, Order
 from wookdata import *
-import math, copy
+import math, copy, time
 
 class Trader(TraderBase):
     def __init__(self, log, key):
         self.broker = Kiwoom(self, log, key)
         # self.broker = Bankis(self, log, key)
-        # self.algorithm = VAlgorithm6(self, log)
-        self.algorithm = MAlgorithm1(self, log)
+        self.algorithm = MAlgorithm3(self, log)
+        self.general_account_index = 0
+        self.futures_account_index = 1
         super().__init__(log)
 
         # Initial work
         self.connect_broker()
         self.get_account_list()
-        self.broker.request_deposit_info()
-        self.broker.request_portfolio_info()
-        self.broker.request_order_history()
+        # self.broker.request_deposit_info()
+        # self.broker.request_portfolio_info()
+        # self.broker.request_order_history()
 
         # Initial Values
         self.sb_capital.setValue(1000000)
-        self.sb_interval.setValue(20)
-        self.sb_loss_cut.setValue(10)
+        self.sb_interval.setValue(1)
+        self.sb_loss_cut.setValue(0.3)
         self.sb_fee.setValue(0.015)
         self.sb_min_transaction.setValue(10)
-        self.sb_amount.setValue(10)
+        self.sb_amount.setValue(1)
 
         # Init Fields
         self.interval = self.sb_interval.value()
         self.loss_cut = self.sb_loss_cut.value()
 
+        # Test setup
+        self.cbb_item_name.setCurrentIndex(3)
+        self.broker.request_futures_deposit_info()
+        self.broker.request_futures_portfolio_info()
+
     def test1(self):
         self.debug('test1 button clicked')
 
-        # item = Item()
-        # item.current_price = int(self.le_test.text())
-        # self.algorithm.update_transaction_info(item)
+        # self.broker.request_portfolio_info()
+        # self.cbb_item_code.setCurrentIndex(3)
+        self.broker.portfolio.clear()
 
     def test2(self):
         self.debug('test2 button clicked')
@@ -73,10 +82,16 @@ class Trader(TraderBase):
             self.cbb_account.addItems(self.broker.account_list)
 
     def get_deposit(self):
-        self.broker.request_deposit_info()
+        if self.running_futures_account():
+            self.broker.request_futures_deposit_info()
+        else:
+            self.broker.request_deposit_info()
 
     def get_portfolio(self):
-        self.broker.request_portfolio_info()
+        if self.running_futures_account():
+            self.broker.request_futures_portfolio_info()
+        else:
+            self.broker.request_portfolio_info()
 
     def get_order_history(self):
         self.broker.request_order_history()
@@ -122,6 +137,10 @@ class Trader(TraderBase):
         self.broker.order(item_code, price, amount, order_position, order_type, order_number)
 
     def update_deposit_info(self):
+        if not self.broker.deposit or not self.broker.orderable_money:
+            self.debug('No deposit information')
+            return
+
         deposit = '\\' + self.formalize(self.broker.deposit)
         orderable_money = '\\' + self.formalize(self.broker.orderable_money)
         self.lb_deposit.setText(deposit)
@@ -137,7 +156,7 @@ class Trader(TraderBase):
             item = self.broker.portfolio[item_code]
 
         buyable_amount = 'no info'
-        if item.current_price != 0:
+        if item.current_price != 0 and type(self.broker.orderable_money) != str:
             buyable_amount = self.formalize(self.broker.orderable_money // item.current_price)
         self.lb_buyable.setText(buyable_amount)
         self.lb_sellable.setText(self.formalize(item.holding_amount))
@@ -166,9 +185,9 @@ class Trader(TraderBase):
             self.table_portfolio.insertRow(0)
             self.table_portfolio.setRowHeight(0, 8)
             self.table_portfolio.setItem(0, 0, self.to_item(item.item_name))
-            self.table_portfolio.setItem(0, 1, self.to_item(item.current_price))
-            self.table_portfolio.setItem(0, 2, self.to_item(item.purchase_price))
-            self.table_portfolio.setItem(0, 3, self.to_item(item.holding_amount))
+            self.table_portfolio.setItem(0, 1, self.to_item_float2(item.current_price))
+            self.table_portfolio.setItem(0, 2, self.to_item_float3(item.purchase_price))
+            self.table_portfolio.setItem(0, 3, self.to_item_sign(item.holding_amount))
             self.table_portfolio.setItem(0, 4, self.to_item(item.purchase_sum))
             self.table_portfolio.setItem(0, 5, self.to_item(item.evaluation_sum))
             self.table_portfolio.setItem(0, 6, self.to_item(item.total_fee))
@@ -184,14 +203,14 @@ class Trader(TraderBase):
             self.table_monitoring_items.setRowHeight(0, 8)
             self.table_monitoring_items.setItem(0, 0, self.to_item(item.item_name))
             self.table_monitoring_items.setItem(0, 1, self.to_item_time(item.transaction_time))
-            self.table_monitoring_items.setItem(0, 2, self.to_item(item.current_price))
-            self.table_monitoring_items.setItem(0, 3, self.to_item(item.ask_price))
-            self.table_monitoring_items.setItem(0, 4, self.to_item(item.bid_price))
+            self.table_monitoring_items.setItem(0, 2, self.to_item_float2(item.current_price))
+            self.table_monitoring_items.setItem(0, 3, self.to_item_float2(item.ask_price))
+            self.table_monitoring_items.setItem(0, 4, self.to_item_float2(item.bid_price))
             self.table_monitoring_items.setItem(0, 5, self.to_item(item.volume))
             self.table_monitoring_items.setItem(0, 6, self.to_item(item.accumulated_volume))
-            self.table_monitoring_items.setItem(0, 7, self.to_item(item.high_price))
-            self.table_monitoring_items.setItem(0, 8, self.to_item(item.low_price))
-            self.table_monitoring_items.setItem(0, 9, self.to_item(item.open_price))
+            self.table_monitoring_items.setItem(0, 7, self.to_item_float2(item.high_price))
+            self.table_monitoring_items.setItem(0, 8, self.to_item_float2(item.low_price))
+            self.table_monitoring_items.setItem(0, 9, self.to_item_float2(item.open_price))
         self.table_monitoring_items.sortItems(0, Qt.DescendingOrder)
 
     def display_balance(self):
@@ -200,8 +219,8 @@ class Trader(TraderBase):
             self.table_balance.insertRow(0)
             self.table_balance.setRowHeight(0, 8)
             self.table_balance.setItem(0, 0, self.to_item(item.item_name))
-            self.table_balance.setItem(0, 1, self.to_item(item.current_price))
-            self.table_balance.setItem(0, 2, self.to_item(item.reference_price))
+            self.table_balance.setItem(0, 1, self.to_item_float2(item.current_price))
+            self.table_balance.setItem(0, 2, self.to_item_float2(item.reference_price))
             self.table_balance.setItem(0, 3, self.to_item(item.purchase_price_avg))
             self.table_balance.setItem(0, 4, self.to_item(item.holding_amount))
             self.table_balance.setItem(0, 5, self.to_item(item.purchase_sum))
@@ -223,7 +242,7 @@ class Trader(TraderBase):
             self.table_open_orders.setItem(0, 4, self.to_item(order.open_amount))
             self.table_open_orders.setItem(0, 5, self.to_item_plain(order.order_number))
             self.table_open_orders.setItem(0, 6, self.to_item_plain(order.original_order_number))
-            self.table_open_orders.setItem(0, 7, self.to_item(order.order_price))
+            self.table_open_orders.setItem(0, 7, self.to_item_float2(order.order_price))
             self.table_open_orders.setItem(0, 8, self.to_item(order.executed_price_avg))
             self.table_open_orders.setItem(0, 9, self.to_item_center(order.order_position))
             self.table_open_orders.setItem(0, 10, self.to_item_center(order.order_state))
@@ -241,8 +260,8 @@ class Trader(TraderBase):
             self.table_order_history.setItem(0, 4, self.to_item(order.open_amount))
             self.table_order_history.setItem(0, 5, self.to_item_plain(order.order_number))
             self.table_order_history.setItem(0, 6, self.to_item_plain(order.original_order_number))
-            self.table_order_history.setItem(0, 7, self.to_item(order.order_price))
-            self.table_order_history.setItem(0, 8, self.to_item(order.executed_price_avg))
+            self.table_order_history.setItem(0, 7, self.to_item_float2(order.order_price))
+            self.table_order_history.setItem(0, 8, self.to_item_float2(order.executed_price_avg))
             self.table_order_history.setItem(0, 9, self.to_item_center(order.order_position))
             self.table_order_history.setItem(0, 10, self.to_item_center(order.order_state))
         self.table_order_history.sortItems(1, Qt.DescendingOrder)
@@ -298,7 +317,8 @@ class Trader(TraderBase):
         past_chart = pandas.DataFrame(chart_prices, columns=columns)
         past_chart.Time = pandas.to_datetime(past_chart.Time)
         past_chart.set_index('Time', inplace=True)
-        self.chart = past_chart.append(self.chart)
+        # self.chart = past_chart.append(self.chart)
+        self.chart = past_chart
         self.draw_chart.start()
 
     def update_chart_prices(self, price, volume):
@@ -352,8 +372,8 @@ class Trader(TraderBase):
         if max_price > self.top_price or min_price < self.bottom_price:
             self.top_price = math.ceil(max_price / self.interval) * self.interval
             self.bottom_price = math.floor(min_price / self.interval) * self.interval
-            self.interval_prices = list(range(self.bottom_price, self.top_price + self.interval, self.interval))
-            self.loss_cut_prices = list(range(self.bottom_price + self.interval - self.loss_cut, self.top_price, self.interval))
+            self.interval_prices = numpy.arange(self.bottom_price, self.top_price + self.interval, self.interval)
+            self.loss_cut_prices = numpy.arange(self.bottom_price + self.interval - self.loss_cut, self.top_price, self.interval)
         self.ax.grid(axis='x', alpha=0.5)
         self.ax.set_yticks(self.interval_prices)
         for price in self.interval_prices:
@@ -372,39 +392,19 @@ class Trader(TraderBase):
         self.fig.tight_layout()
         self.canvas.draw()
 
-    # def annotate_chart(self, current_time):
-    #     start_time = self.algorithm.start_time
-    #     start_price = self.algorithm.start_price
-    #     start_comment = 'start\n' + self.algorithm.start_time_text + '\n' + format(start_price, ',')
-    #     self.ax.plot(start_time, start_price, marker='o', markersize=3, color='Lime')
-    #     self.ax.vlines(start_time, self.bottom_price, start_price, alpha=0.8, linewidth=0.2, color='Green')
-    #     self.ax.text(start_time, self.bottom_price, start_comment, color='RebeccaPurple')
-    #     self.ax.axhline(self.algorithm.reference_price, alpha=1, linewidth=0.2, color='Maroon')
-    #     self.ax.text(0, self.algorithm.reference_price, 'Reference')
-    #     self.ax.axhline(self.algorithm.buy_limit, alpha=1, linewidth=0.2, color='Maroon')
-    #     self.ax.text(0, self.algorithm.buy_limit, 'Buy limit')
-    #     self.ax.axhline(self.algorithm.loss_limit, alpha=1, linewidth=0.2, color='DeepPink')
-    #     self.ax.text(0, self.algorithm.loss_limit, 'Loss cut')
-    #
-    #     total_range = self.top_price - self.bottom_price
-    #     offset = total_range * 0.035
-    #     x = current_time
-    #     y = self.algorithm.reference_price
-    #     sales = copy.deepcopy(self.algorithm.leverage.sales)
-    #     for order in sales.values():
-    #         if order.open_amount:
-    #             y += offset
-    #             self.ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
-    #
-    #     y = self.algorithm.buy_limit - offset
-    #     purchases = copy.deepcopy(self.algorithm.leverage.purchases)
-    #     for order in purchases.values():
-    #         if order.open_amount:
-    #             y -= offset
-    #             self.ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
+    def on_select_account(self, index):
+        self.broker.account_number = self.cbb_account.currentText()
 
-    def on_select_account(self, account):
-        self.broker.account_number = int(account)
+        if index == self.futures_account_index:
+            self.broker.request_futures_deposit_info()
+            self.broker.request_futures_portfolio_info()
+            if not self.running_futures_code():
+                self.cbb_item_code.setCurrentText('101')
+        else:
+            self.broker.request_deposit_info()
+            self.broker.request_portfolio_info()
+            if self.running_futures_code():
+                self.cbb_item_code.setCurrentText('')
 
     def on_select_item_code(self, item_code):
         item_name = CODES.get(item_code)
@@ -418,9 +418,11 @@ class Trader(TraderBase):
         if item_code[:3] == FUTURES_CODE:
             self.cbb_order_type.clear()
             self.cbb_order_type.addItems(FUTURES_ORDER_TYPE)
+            self.cbb_account.setCurrentIndex(self.futures_account_index)
         else:
             self.cbb_order_type.clear()
             self.cbb_order_type.addItems(ORDER_TYPE)
+            self.cbb_account.setCurrentIndex(self.general_account_index)
 
         self.cbb_item_name.setCurrentText(item_name)
         self.update_order_variables()
@@ -463,6 +465,8 @@ class Trader(TraderBase):
         item_name_column = 0
         item_name_item = self.table_portfolio.item(row, item_name_column)
         item_name = item_name_item.text()
+        if item_name[:8] == 'KOSPI200':
+            item_name = item_name[9:]
         index = self.cbb_item_name.findText(item_name)
         self.cbb_item_name.setCurrentIndex(index)
 
@@ -474,7 +478,7 @@ class Trader(TraderBase):
         holding_amount_column = 3
         holding_amount_item = self.table_portfolio.item(row, holding_amount_column)
         holding_amount = self.process_type(holding_amount_item.text())
-        self.sb_amount.setValue(holding_amount)
+        self.sb_amount.setValue(abs(holding_amount))
 
         self.cbb_order_position.setCurrentText('SELL')
         self.cbb_order_type.setCurrentText('MARKET')
@@ -615,6 +619,18 @@ class Trader(TraderBase):
         if file != '':
             self.le_save_file.setText(file)
             self.broker.log_file = file
+
+    def running_futures_code(self):
+        if self.cbb_item_code.currentText()[:3] == FUTURES_CODE:
+            return True
+        else:
+            return False
+
+    def running_futures_account(self):
+        if self.cbb_account.currentIndex() == self.futures_account_index:
+            return True
+        else:
+            return False
 
     def edit_setting(self):
         self.debug('setting')
