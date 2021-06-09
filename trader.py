@@ -19,7 +19,7 @@ from wookalgorithm.movingaverage.algorithm1 import MAlgorithm1
 from wookalgorithm.movingaverage.algorithm2 import MAlgorithm2
 from wookalgorithm.movingaverage.algorithm3 import MAlgorithm3
 from wookutil import ChartDrawer
-from wookitem import Item, Order
+from wookitem import Item, FuturesItem, Order
 from wookdata import *
 import math, copy, time
 
@@ -61,11 +61,27 @@ class Trader(TraderBase):
 
         # self.broker.request_portfolio_info()
         # self.cbb_item_code.setCurrentIndex(3)
-        self.broker.portfolio.clear()
+        # self.update_chart_prices(434.0, 2)
+        # self.on_add_item()
+        # self.broker.update_monitoring_items_test('101R6000')
+        self.chart.Close[-1] = 399.5
+        self.update_chart_prices(399.2, 43)
+        print(self.chart)
 
     def test2(self):
         self.debug('test2 button clicked')
-        self.algorithm.settle_up()
+        # self.algorithm.settle_up()
+        # self.broker.price -= 1
+        # self.broker.update_monitoring_items_test('101R6000')
+
+        chart_prices = [['20210608153000', 400,400,400,400,400]]
+        columns = ['Time', 'Open', 'High', 'Low', 'Close', 'Volume']
+        past_chart = pandas.DataFrame(chart_prices, columns=columns)
+        past_chart.Time = pandas.to_datetime(past_chart.Time)
+        past_chart.set_index('Time', inplace=True)
+        # self.chart = past_chart.append(self.chart)
+        self.chart = past_chart
+        print(self.chart)
 
     def connect_broker(self):
         # if self.cb_auto_login.isChecked():
@@ -102,6 +118,7 @@ class Trader(TraderBase):
 
         self.chart_item_code = self.cbb_item_code.currentText()
         item_name = self.cbb_item_name.currentText()
+        self.broker.chart_prices.clear()
         self.chart = self.chart[0:0]
         self.chart_locator = list()
         self.chart_formatter = list()
@@ -194,7 +211,24 @@ class Trader(TraderBase):
             self.table_portfolio.setItem(0, 7, self.to_item(item.tax))
             self.table_portfolio.setItem(0, 8, self.to_item_sign(item.profit))
             self.table_portfolio.setItem(0, 9, self.to_item_sign(item.profit_rate))
-        self.table_portfolio.sortItems(0, Qt.DescendingOrder)
+            if isinstance(item, FuturesItem):
+                self.display_futures_portfolio(item)
+        self.table_portfolio.sortItems(0, Qt.AscendingOrder)
+
+    def display_futures_portfolio(self, futures_item):
+        for index, contract in enumerate(futures_item.contracts):
+            self.table_portfolio.insertRow(0)
+            self.table_portfolio.setRowHeight(0, 8)
+            self.table_portfolio.setItem(0, 0, self.to_item_gray(contract.item_name + ' ({})'.format(index)))
+            self.table_portfolio.setItem(0, 1, self.to_item_float2(contract.current_price))
+            self.table_portfolio.setItem(0, 2, self.to_item_float2(contract.purchase_price))
+            self.table_portfolio.setItem(0, 3, self.to_item_sign(contract.holding_amount))
+            self.table_portfolio.setItem(0, 4, self.to_item(contract.purchase_sum))
+            self.table_portfolio.setItem(0, 5, self.to_item(contract.evaluation_sum))
+            self.table_portfolio.setItem(0, 6, self.to_item(contract.total_fee))
+            self.table_portfolio.setItem(0, 7, self.to_item(contract.tax))
+            self.table_portfolio.setItem(0, 8, self.to_item_sign(contract.profit))
+            self.table_portfolio.setItem(0, 9, self.to_item_sign(contract.profit_rate))
 
     def display_monitoring_items(self):
         self.clear_table(self.table_monitoring_items)
@@ -319,9 +353,13 @@ class Trader(TraderBase):
         past_chart.set_index('Time', inplace=True)
         # self.chart = past_chart.append(self.chart)
         self.chart = past_chart
+
         self.draw_chart.start()
 
-    def update_chart_prices(self, price, volume):
+    def update_chart_prices(self, price, volume, item_code):
+        if item_code != self.chart_item_code:
+            return
+
         current_time = datetime.now().replace(second=0, microsecond=0)
         if not len(self.chart):
             price_data = [price, price, price, price, volume]
@@ -331,12 +369,12 @@ class Trader(TraderBase):
             self.chart.loc[current_time] = price_data
         else:
             if price > self.chart.High[-1]:
-                self.chart.High[-1] = price
+                self.chart.loc[current_time, 'High'] = price
             elif price < self.chart.Low[-1]:
-                self.chart.Low[-1] = price
+                self.chart.loc[current_time, 'Low'] = price
             last_price = self.chart.Close[-1]
-            self.chart.Close[-1] = price
-            self.chart.Volume[-1] += volume
+            self.chart.loc[current_time, 'Close'] = price
+            self.chart.loc[current_time, 'Volume'] += volume
             if last_price == price:
                 return
         self.draw_chart.start()
@@ -384,7 +422,12 @@ class Trader(TraderBase):
         # Current Price Annotation
         current_time = len(self.chart)
         current_price = self.chart.Close.iloc[-1]
-        self.ax.text(current_time + 2, current_price, format(current_price, ','))
+        if self.chart_item_code[:3] == FUTURES_CODE:
+            formatted_current_price = format(current_price, ',.2f')
+        else:
+            formatted_current_price = format(current_price, ',')
+        # self.ax.text(current_time + 2, current_price, format(current_price, ','))
+        self.ax.text(current_time + 2, current_price, formatted_current_price)
 
         # Draw Chart
         candlestick2_ohlc(self.ax, self.chart.Open, self.chart.High, self.chart.Low, self.chart.Close,

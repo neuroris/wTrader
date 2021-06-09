@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import time, math, copy
 from kiwoombase import KiwoomBase
 from wookauto import LoginPasswordThread, AccountPasswordThread
-from wookitem import Item, BalanceItem, Order
+from wookitem import Item, BalanceItem, FuturesItem, Order
 from wookdata import *
 
 class Kiwoom(KiwoomBase):
@@ -98,6 +98,7 @@ class Kiwoom(KiwoomBase):
         self.comm_rq_data('stock price min', REQUEST_MINUTE_PRICE, sPrevNext, self.screen_stock_price)
 
     def request_futures_stock_price_min(self, item_code, sPrevNext='0'):
+        self.check_request_time()
         self.chart_item_code = item_code
         self.set_input_value(ITEM_CODE, item_code)
         self.set_input_value(TIME_UNIT, MIN_1)
@@ -228,80 +229,6 @@ class Kiwoom(KiwoomBase):
                 self.info('Portfolio information (No item found)')
             self.init_screen(sScrNo)
 
-    def get_futures_portfolio_info_deprecated(self, sTrCode, sRecordName, sScrNo, sPrevNext):
-        portfolio_copy = copy.deepcopy(self.portfolio)
-        for item_code in portfolio_copy:
-            if item_code[:3] == FUTURES_CODE:
-                del self.portfolio[item_code]
-
-        number_of_item = self.get_repeat_count(sTrCode, sRecordName)
-        for count in range(number_of_item):
-            get_comm_data = self.new_get_comm_data(sTrCode, sRecordName, count)
-
-            item = Item()
-            item.item_code = get_comm_data(ITEM_CODE)
-            if not item.item_code:
-                self.info('Portfolio information (NO ITEM)')
-                return
-            item.item_name = get_comm_data(ITEM_NAME)
-            item.trade_position = get_comm_data(TRADE_POSITION)
-            item.holding_amount = get_comm_data(BALANCE_AMOUNT)
-            item.purchase_price = get_comm_data(PURCHASE_UNIT_PRICE) / 100
-            item.purchase_sum = get_comm_data(TRANSACTION_SUM)
-            item.current_price = get_comm_data(CURRENT_PRICE) / 100
-            item.profit = get_comm_data(EVALUATION_PROFIT)
-            item.profit_rate = get_comm_data(EVALUATION_PROFIT_RATE)
-            item.evaluation_sum = get_comm_data(EVALUATION_SUM)
-            item.purchase_fee = item.purchase_sum * self.futures_fee_ratio
-            item.evaluation_fee = item.evaluation_sum * self.futures_fee_ratio
-            item.total_fee = int((item.purchase_fee + item.evaluation_fee) / 10) * 10
-            item.tax = self.get_tax(item)
-            item.profit -= item.total_fee
-            item.profit_rate = round(item.profit / item.purchase_sum * 100, 2)
-            # calculated_purchase_sum = int(item.purchase_price * abs(item.holding_amount) * 250000)
-            # item.profit = item.evaluation_sum - calculated_purchase_sum - item.total_fee - item.tax
-            # item.profit_rate = round(item.profit / item.purchase_sum * 100, 2)
-
-            if item.trade_position == SELL[1:]:
-                item.holding_amount = -item.holding_amount
-
-            # Check item is in portfolio
-            if item.item_code in self.portfolio:
-                port_item = self.portfolio[item.item_code]
-                port_item.holding_amount += item.holding_amount
-                port_item.current_price = item.current_price
-                port_item.purchase_sum += item.purchase_sum
-                port_item.purchase_price = port_item.purchase_sum / abs(port_item.holding_amount) / 250000
-                port_item.evaluation_sum = int(abs(port_item.holding_amount) * item.current_price * 250000)
-                port_item.purchase_fee = port_item.purchase_sum * self.futures_fee_ratio
-                port_item.evaluation_fee = port_item.evaluation_sum * self.futures_fee_ratio
-                port_item.total_fee = int((port_item.purchase_fee + port_item.evaluation_fee) / 10) * 10
-                port_item.tax = self.get_tax(port_item)
-                # calculated_purchase_sum = int(port_item.purchase_price * abs(port_item.holding_amount) * 250000)
-                # port_item.profit = port_item.evaluation_sum - calculated_purchase_sum - port_item.total_fee - port_item.tax
-                port_item.profit = (port_item.evaluation_sum - port_item.purchase_sum) * numpy.sign(port_item.holding_amount)
-                port_item.profit = port_item.profit - port_item.total_fee - port_item.tax
-                # port_item.profit += item.profit
-                port_item.profit_rate = round(port_item.profit / port_item.purchase_sum * 100, 2)
-            else:
-                self.portfolio[item.item_code] = item
-
-        if sPrevNext == '2':
-            self.request_portfolio_info(sPrevNext)
-        else:
-            # portfolio_sum = Item()
-            # portfolio_sum.item_code = '000000'
-            # portfolio_sum.item_name = 'Account Total'
-            # self.portfolio[portfolio_sum.item_code] = portfolio_sum
-            # self.update_portfolio_sum()
-            if number_of_item:
-                self.trader.update_order_variables()
-                self.trader.display_portfolio()
-                self.info('Portfolio information (Futures)')
-            else:
-                self.info('Portfolio information (Futures) (No item found)')
-            self.init_screen(sScrNo)
-
     def get_futures_portfolio_info(self, sTrCode, sRecordName, sScrNo, sPrevNext):
         portfolio_copy = copy.deepcopy(self.portfolio)
         for item_code in portfolio_copy:
@@ -317,7 +244,7 @@ class Kiwoom(KiwoomBase):
             if not item.item_code:
                 self.info('Portfolio information (NO ITEM)')
                 return
-            item.item_name = get_comm_data(ITEM_NAME)
+            item.item_name = get_comm_data(ITEM_NAME)[9:]
             item.trade_position = get_comm_data(TRADE_POSITION)
             item.holding_amount = get_comm_data(BALANCE_AMOUNT)
             item.purchase_price = get_comm_data(PURCHASE_UNIT_PRICE) / 100
@@ -339,26 +266,17 @@ class Kiwoom(KiwoomBase):
             if item.trade_position == SELL[1:]:
                 item.holding_amount = -item.holding_amount
 
+            # item_debug = copy.deepcopy(item)
+            # item_debug.item_name = str(count)
+            # self.portfolio[count] = item_debug
+
             # Check item is in portfolio
             if item.item_code in self.portfolio:
-                port_item = self.portfolio[item.item_code]
-                port_item.holding_amount += item.holding_amount
-                port_item.current_price = item.current_price
-                port_item.purchase_sum += item.purchase_sum
-                port_item.purchase_price = port_item.purchase_sum / abs(port_item.holding_amount) / 250000
-                port_item.evaluation_sum = int(abs(port_item.holding_amount) * item.current_price * 250000)
-                port_item.purchase_fee = port_item.purchase_sum * self.futures_fee_ratio
-                port_item.evaluation_fee = port_item.evaluation_sum * self.futures_fee_ratio
-                port_item.total_fee = int((port_item.purchase_fee + port_item.evaluation_fee) / 10) * 10
-                port_item.tax = self.get_tax(port_item)
-                # calculated_purchase_sum = int(port_item.purchase_price * abs(port_item.holding_amount) * 250000)
-                # port_item.profit = port_item.evaluation_sum - calculated_purchase_sum - port_item.total_fee - port_item.tax
-                port_item.profit = (port_item.evaluation_sum - port_item.purchase_sum) * numpy.sign(port_item.holding_amount)
-                port_item.profit = port_item.profit - port_item.total_fee - port_item.tax
-                # port_item.profit += item.profit
-                port_item.profit_rate = round(port_item.profit / port_item.purchase_sum * 100, 2)
+                futures_item = self.portfolio[item.item_code]
             else:
-                self.portfolio[item.item_code] = item
+                futures_item = FuturesItem(item)
+                self.portfolio[item.item_code] = futures_item
+            futures_item.append(item)
 
         if sPrevNext == '2':
             self.request_portfolio_info(sPrevNext)
@@ -410,7 +328,7 @@ class Kiwoom(KiwoomBase):
             self.info('Order history information')
             self.init_screen(sScrNo)
 
-    def get_stock_price_min(self, sTrCode, sRecordName, sScrNo, sPrevNext):
+    def get_stock_price_min_deprecated(self, sTrCode, sRecordName, sScrNo, sPrevNext):
         number_of_item = self.get_repeat_count(sTrCode, sRecordName)
         today = int(datetime.today().strftime('%Y%m%d'))
         item_code = self.get_comm_data(sTrCode, sRecordName, 0, ITEM_CODE)
@@ -436,6 +354,31 @@ class Kiwoom(KiwoomBase):
         if sPrevNext == '2':
             self.request_stock_price_min(item_code, sPrevNext)
 
+    def get_stock_price_min(self, sTrCode, sRecordName, sScrNo, sPrevNext):
+        number_of_item = self.get_repeat_count(sTrCode, sRecordName)
+        today = int(datetime.today().strftime('%Y%m%d'))
+        item_code = self.get_comm_data(sTrCode, sRecordName, 0, ITEM_CODE)
+        for count in range(number_of_item):
+            get_comm_data = self.new_get_comm_data(sTrCode, sRecordName, count)
+            transaction_time = str(get_comm_data(TRANSACTION_TIME))
+            current_date = int(transaction_time[:8])
+
+            if current_date < today:
+                self.trader.process_past_chart_prices(str(item_code), self.chart_prices)
+                self.init_screen(sScrNo)
+                return
+
+            open_price = int(abs(get_comm_data(OPEN_PRICE)))
+            high_price = int(abs(get_comm_data(HIGH_PRICE)))
+            low_price = int(abs(get_comm_data(LOW_PRICE)))
+            current_price = int(abs(get_comm_data(CURRENT_PRICE)))
+            volume = int(abs(get_comm_data(VOLUME)))
+            data = [transaction_time, open_price, high_price, low_price, current_price, volume]
+            self.chart_prices.insert(0, data)
+
+        if sPrevNext == '2':
+            self.request_stock_price_min(item_code, sPrevNext)
+
     def get_futures_stock_price_min(self, sTrCode, sRecordName, sScrNo, sPrevNext):
         number_of_item = self.get_repeat_count(sTrCode, sRecordName)
         today = int(datetime.today().strftime('%Y%m%d'))
@@ -445,7 +388,6 @@ class Kiwoom(KiwoomBase):
             current_date = int(transaction_time[:8])
 
             if current_date < today:
-                self.chart_prices.reverse()
                 self.trader.process_past_chart_prices(self.chart_item_code, self.chart_prices)
                 self.init_screen(sScrNo)
                 return
@@ -456,10 +398,10 @@ class Kiwoom(KiwoomBase):
             current_price = float(abs(get_comm_data(CURRENT_PRICE)))
             volume = int(abs(get_comm_data(VOLUME)))
             data = [transaction_time, open_price, high_price, low_price, current_price, volume]
-            self.chart_prices.append(data)
+            self.chart_prices.insert(0, data)
 
         if sPrevNext == '2':
-            self.request_futures_stock_price_min(item_code, sPrevNext)
+            self.request_futures_stock_price_min(self.chart_item_code, sPrevNext)
 
     def get_order_state(self, sTrCode, sRecordName, sScrNo, sPrevNext):
         get_comm_data = self.new_get_comm_data(sTrCode, sRecordName)
@@ -495,7 +437,7 @@ class Kiwoom(KiwoomBase):
         if self.trader.algorithm.is_running:
             self.trader.algorithm.update_transaction_info(item)
         elif self.is_running_chart:
-            self.trader.update_chart_prices(item.current_price, item.volume)
+            self.trader.update_chart_prices(item.current_price, item.volume, item_code)
 
         if item_code in self.portfolio:
             portfolio_item = self.portfolio[item_code]
@@ -524,7 +466,7 @@ class Kiwoom(KiwoomBase):
     #     if self.trader.algorithm.is_running:
     #         self.trader.algorithm.update_transaction_info(item)
     #     elif self.is_running_chart:
-    #         self.trader.update_chart_prices(item.current_price, item.volume)
+    #         self.trader.update_chart_prices(item.current_price, item.volume, item_code)
     #
     #     if item_code in self.portfolio:
     #         portfolio_item = self.portfolio[item_code]
@@ -573,68 +515,26 @@ class Kiwoom(KiwoomBase):
         self.trader.display_portfolio()
 
     def update_futures_portfolio_info(self, updated_item):
-        item = self.portfolio[updated_item.item_code]
-        item.current_price = updated_item.current_price
-        item.evaluation_sum = int(item.current_price * abs(item.holding_amount) * 250000)
-        item.purchase_fee = item.purchase_sum * self.futures_fee_ratio
-        item.evaluation_fee = item.evaluation_sum * self.futures_fee_ratio
-        item.total_fee = int((item.purchase_fee + item.evaluation_fee) / 10) * 10
-        item.tax = self.get_tax(item)
-        calculated_purchase_sum = int(item.purchase_price * abs(item.holding_amount) * 250000)
-        item.profit = (item.evaluation_sum - calculated_purchase_sum) * numpy.sign(item.holding_amount)
-        item.profit = item.profit - item.total_fee - item.tax
-        item.profit_rate = round(item.profit / item.purchase_sum * 100, 2)
-        self.trader.display_portfolio()
+        futures_item = self.portfolio[updated_item.item_code]
+        futures_item.current_price = updated_item.current_price
+        futures_item.evaluation_sum = int(futures_item.current_price * abs(futures_item.holding_amount) * 250000)
+        futures_item.evaluation_fee = futures_item.evaluation_sum * self.futures_fee_ratio
+        futures_item.total_fee = int((futures_item.purchase_fee + futures_item.evaluation_fee) / 10) * 10
+        futures_item.tax = self.get_tax(futures_item)
+        futures_item.profit = (futures_item.evaluation_sum - futures_item.purchase_sum) * numpy.sign(futures_item.holding_amount)
+        futures_item.profit = futures_item.profit - futures_item.total_fee - futures_item.tax
+        futures_item.profit_rate = round(futures_item.profit / futures_item.purchase_sum * 100, 2)
 
-    def update_portfolio_deprecated(self, order):
-        if order.item_code not in self.portfolio:
-            order = copy.deepcopy(order)
-            self.portfolio[order.item_code] = order
+        for contract in futures_item.contracts:
+            contract.current_price = updated_item.current_price
+            contract.evaluation_sum = int(contract.current_price * abs(contract.holding_amount) * 250000)
+            contract.evaluation_fee = contract.evaluation_sum * self.futures_fee_ratio
+            contract.total_fee = int((contract.purchase_fee + contract.evaluation_fee) / 10) * 10
+            contract.tax = self.get_tax(contract)
+            contract.profit = (contract.evaluation_sum - contract.purchase_sum) * numpy.sign(contract.holding_amount)
+            contract.profit = contract.profit - contract.total_fee - contract.tax
+            contract.profit_rate = round(contract.profit / contract.purchase_sum * 100, 2)
 
-        item = self.portfolio[order.item_code]
-        fee_ratio = self.fee_ratio
-        multiplier = 1
-        if item.item_code[:3] == FUTURES_CODE:
-            fee_ratio = self.futures_fee_ratio
-            multiplier = 250000
-
-        if order.order_position in (SELL, CORRECT_SELL):
-            order.executed_amount = -abs(order.executed_amount)
-
-        item.current_price = order.current_price
-        item.holding_amount += order.executed_amount
-        item.evaluation_sum = int(order.current_price * abs(item.holding_amount) * multiplier)
-
-        if not item.holding_amount:
-            del self.portfolio[order.item_code]
-            self.trader.display_portfolio()
-            return
-
-        # Purchase or Sell
-        if order.order_position in (PURCHASE, CORRECT_PURCHASE):
-            item.purchase_sum += int(order.executed_price * order.executed_amount * multiplier)
-            item.purchase_price = int(item.purchase_sum / abs(item.holding_amount)) / multiplier
-        else:
-            if item.holding_amount != order.executed_amount:
-                purchase_price_exact = item.purchase_sum / abs(item.holding_amount - order.executed_amount)
-                item.purchase_sum += int(purchase_price_exact * abs(order.executed_amount))
-            else:
-                item.purchase_sum = int(order.executed_price * abs(order.executed_amount) * multiplier)
-            item.purchase_price = int(item.purchase_sum / abs(item.holding_amount)) / multiplier
-
-        # Futures or General
-        if item.item_code[:3] == FUTURES_CODE:
-            item.purchase_fee = item.purchase_sum * fee_ratio
-            item.evaluation_fee = item.evaluation_sum * fee_ratio
-            item.total_fee = int((item.purchase_fee + item.evaluation_fee) / 10) * 10
-        else:
-            item.purchase_fee = int(item.purchase_sum * fee_ratio / 10) * 10
-            item.evaluation_fee = int(item.evaluation_sum * fee_ratio / 10) * 10
-            item.total_fee = item.purchase_fee + item.evaluation_fee
-        item.tax = self.get_tax(item)
-        calculated_purchase_sum = int(item.purchase_price * abs(item.holding_amount) * multiplier)
-        item.profit = item.evaluation_sum - calculated_purchase_sum - item.total_fee - item.tax
-        item.profit_rate = round(item.profit / item.purchase_sum * 100, 2)
         self.trader.display_portfolio()
 
     def update_portfolio(self, order):
@@ -673,41 +573,42 @@ class Kiwoom(KiwoomBase):
 
     def update_futures_portfolio(self, order):
         if order.item_code not in self.portfolio:
-            order = copy.deepcopy(order)
-            self.portfolio[order.item_code] = order
-        item = self.portfolio[order.item_code]
-        multiplier = 250000
+            futures_item = FuturesItem(order)
+            self.portfolio[order.item_code] = futures_item
+        futures_item = self.portfolio[order.item_code]
 
-        if order.order_position in (SELL, CORRECT_SELL):
-            order.executed_amount = -abs(order.executed_amount)
-        item.current_price = order.current_price
-        item.holding_amount += order.executed_amount
-        item.evaluation_sum = round(int(order.current_price * abs(item.holding_amount) * multiplier), -1)
-
-        if not item.holding_amount:
+        holding_amount = futures_item.holding_amount + order.executed_amount
+        if not holding_amount:
             del self.portfolio[order.item_code]
             self.trader.display_portfolio()
             return
 
-        increase = int(order.executed_price * order.executed_amount) * numpy.sign(item.holing_amount)
-        item.purchase_sum += increase * multiplier
-        item.purchase_price = int(item.purchase_sum / abs(item.holding_amount)) / multiplier
+        # Futures entry or settlement
+        if futures_item.holding_amount * order.executed_amount > 0:
+            futures_item.add(order)
+        else:
+            working_order = copy.deepcopy(order)
+            contracts = copy.deepcopy(futures_item.contracts)
+            for individual_contract in contracts:
+                if abs(individual_contract.holding_amount) <= abs(working_order.executed_amount):
+                    futures_item.pop()
+                    working_order.executed_amount += individual_contract.holding_amount
+                else:
+                    futures_item.settle(working_order)
+                    working_order.executed_amount = 0
+                if not working_order.executed_amount:
+                    break
+            if working_order.executed_amount:
+                futures_item.add(working_order)
 
-        # Futures or General
-        item.purchase_fee = item.purchase_sum * self.futures_fee_ratio
-        item.evaluation_fee = item.evaluation_sum * self.futures_fee_ratio
-        item.total_fee = int((item.purchase_fee + item.evaluation_fee) / 10) * 10
-        item.tax = self.get_tax(item)
-        # calculated_purchase_sum = int(item.purchase_price * abs(item.holding_amount) * multiplier)
-        # item.profit = int((item.evaluation_sum - calculated_purchase_sum - item.total_fee - item.tax) / 10) * 10
-        item.profit = (item.evaluation_sum - item.purchase_sum) * numpy.sign(item.holding_amount)
-        item.profit = item.profit - item.total_fee - item.tax
-        item.profit_rate = round(item.profit / item.purchase_sum * 100, 2)
+        futures_item.update(order.current_price)
         self.trader.display_portfolio()
 
     def obtain_executed_order_info(self):
         order = Order()
         order.item_code = self.get_chejan_data(FID.ITEM_CODE)
+        if order.item_code[0] == 'A':
+            order.item_code = order.item_code[1:]
         order.item_name = self.get_item_name(order.item_code)
         order.executed_time = self.get_chejan_data(FID.ORDER_EXECUTED_TIME)
         order.order_amount = self.get_chejan_data(FID.ORDER_AMOUNT, number=True)
@@ -729,8 +630,8 @@ class Kiwoom(KiwoomBase):
         # order.volume = self.get_chejan_data(FID.VOLUME, number=True)
         # order.transaction_fee = self.get_chejan_data(FID.TRANSACTION_FEE, number=True)
         # order.tax = self.get_chejan_data(FID.TRANSACTION_TAX, number=True)
-        if order.item_code[0] == 'A':
-            order.item_code = order.item_code[1:]
+        if order.order_position in (SELL, CORRECT_SELL):
+            order.executed_amount = -abs(order.executed_amount)
 
         self.update_execution_info(order)
 

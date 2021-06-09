@@ -1,17 +1,18 @@
 from PyQt5.QtWidgets import QMainWindow, QLabel, QPushButton, QLineEdit, \
     QTextEdit, QVBoxLayout, QHBoxLayout, QWidget, QRadioButton, QGridLayout, \
     QCheckBox, QComboBox, QGroupBox, QDateTimeEdit, QAction, QFileDialog, QTableWidget, \
-    QTableWidgetItem, QSpinBox, QDoubleSpinBox, QGraphicsView, QGraphicsScene
+    QTableWidgetItem, QSpinBox, QDoubleSpinBox, QGraphicsView, QGraphicsScene, QSystemTrayIcon
 from PyQt5.QtCore import Qt, QDateTime, QPoint, QRect, QTimer
 from PyQt5.QtGui import QIcon, QBrush
 from matplotlib import ticker
 import pandas
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+import datetime, os, math
+import ctypes
 import json
 from wookutil import WookLog, WookUtil, ChartDrawer
 from wookdata import *
-import datetime, os, math
 
 class TraderBase(QMainWindow, WookLog, WookUtil):
     def __init__(self, log):
@@ -205,7 +206,7 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         self.table_portfolio.cellClicked.connect(self.on_select_portfolio_table)
         self.table_portfolio.setHorizontalHeaderLabels(portfolio_header)
         for column in range(1, self.table_portfolio.columnCount()):
-            self.table_portfolio.setColumnWidth(column, 93)
+            self.table_portfolio.setColumnWidth(column, 92)
         self.table_portfolio.setColumnWidth(0, 215)
         self.table_portfolio.setColumnWidth(4, 119)
         self.table_portfolio.setColumnWidth(5, 119)
@@ -217,6 +218,7 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         portfolio_grid = QGridLayout()
         portfolio_grid.addWidget(self.table_portfolio)
         portfolio_gbox.setLayout(portfolio_grid)
+        # portfolio_gbox.setMinimumHeight(140)
 
         ##### Monitoring items table
         monitoring_items_header = ['Item', 'Time', 'Price', 'Ask', 'Bid']
@@ -233,6 +235,7 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         monitoring_items_grid = QGridLayout()
         monitoring_items_grid.addWidget(self.table_monitoring_items)
         monitoring_items_gbox.setLayout(monitoring_items_grid)
+        monitoring_items_gbox.setMaximumHeight(250)
 
         ##### Balance table
         balance_header = ['Item', 'Current\nPrice', 'Reference\nPrice', 'Purchase\nPrice']
@@ -244,12 +247,13 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         for column in range(1, self.table_balance.columnCount()):
             self.table_balance.setColumnWidth(column, 100)
         self.table_balance.setColumnWidth(0, 215)
-        self.table_balance.setColumnWidth(5, 120)
+        self.table_balance.setColumnWidth(5, 130)
 
         balance_gbox = QGroupBox('Balance')
         balance_grid = QGridLayout()
         balance_grid.addWidget(self.table_balance)
         balance_gbox.setLayout(balance_grid)
+        balance_gbox.setMaximumHeight(250)
 
         ##### Information
         self.te_info = QTextEdit()
@@ -454,7 +458,13 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         self.resize(2550, 1700)
         # self.move(-350, 100)
         self.move(100, 100)
-        self.setWindowIcon(QIcon('data/nyang1.ico'))
+        # self.setWindowIcon(QIcon('data/nyang1.ico'))
+        # self.setWindowIcon(QIcon('data/wIcon.png'))
+        self.setWindowIcon(QIcon('data/wTrader.png'))
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('myApp')
+        # icon = QIcon('data/wIcon.png')
+        # tray_icon = QSystemTrayIcon(icon, self)
+        # tray_icon.show()
         self.show()
 
     def wheelEvent(self, event):

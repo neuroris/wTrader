@@ -1,4 +1,5 @@
 import copy
+import numpy
 import pandas
 from wookutil import WookLog
 from wookdata import *
@@ -18,6 +19,7 @@ class Item:
         self.reference_price = 0
         self.purchase_price_avg = 0
         self.purchase_sum = 0
+        self.evaluation_sum = 0
         self.purchase_amount = 0
         self.purchase_amount_net_today = 0
         self.order_amount = 0
@@ -46,6 +48,106 @@ class BalanceItem(Item):
 
     def __init__(self):
         super().__init__()
+
+class FuturesItem(Item):
+    def __init__(self, item):
+        super().__init__()
+        self.contracts = list()
+        self.futures_fee_ratio = 0.00003
+        self.futures_tax_ratio = 0.0
+
+        self.item_code = item.item_code
+        if item.item_name[:5] == 'KOSPI':
+            item.item_name = item.item_name[6:]
+        self.item_name = item.item_name + ' - SUM'
+
+    def append(self, item):
+        self.contracts.append(item)
+
+        self.current_price = item.current_price
+        self.holding_amount += item.holding_amount
+        self.purchase_sum += item.purchase_sum
+        self.purchase_price = self.purchase_sum / abs(self.holding_amount) / 250000
+        self.evaluation_sum = int(abs(self.holding_amount) * item.current_price * 250000)
+        self.purchase_fee = self.purchase_sum * self.futures_fee_ratio
+        self.evaluation_fee = self.evaluation_sum * self.futures_fee_ratio
+        self.total_fee = int((self.purchase_fee + self.evaluation_fee) / 10) * 10
+        self.tax = int(self.evaluation_sum * self.futures_tax_ratio)
+        self.profit += item.profit
+        self.profit_rate = round(self.profit / self.purchase_sum * 100, 2)
+
+    def pop(self):
+        contract = self.contracts.pop(0)
+
+        self.holding_amount -= contract.holding_amount
+        if not self.holding_amount:
+            return
+        self.purchase_sum -= contract.purchase_sum
+        self.purchase_price = self.purchase_sum / abs(self.holding_amount) / 250000
+        self.evaluation_sum = int(abs(self.holding_amount) * contract.current_price * 250000)
+        self.purchase_fee = self.purchase_sum * self.futures_fee_ratio
+        self.evaluation_fee = self.evaluation_sum * self.futures_fee_ratio
+        self.total_fee = int((self.purchase_fee + self.evaluation_fee) / 10) * 10
+        self.tax = int(self.evaluation_sum * self.futures_tax_ratio)
+        self.profit -= contract.profit
+        self.profit_rate = round(self.profit / self.purchase_sum * 100, 2)
+
+        return contract
+
+    def add(self, order):
+        item = Item()
+        item.item_code = order.item_code
+        item.item_name = order.item_name
+        item.current_price = order.current_price
+        item.purchase_price = order.executed_price_avg
+        item.holding_amount = order.executed_amount
+        item.purchase_sum = int(order.executed_price_avg * abs(order.executed_amount) * 250000)
+        item.evaluation_sum = order.current_price * abs(order.holding_amount)
+        item.purchase_fee = item.purchase_sum * self.futures_fee_ratio
+        item.evaluation_fee = item.evaluation_sum * self.futures_fee_ratio
+        item.total_fee = int((item.purchase_fee + item.evaluation_fee) / 10) * 10
+        item.tax = int(item.evaluation_sum * self.futures_tax_ratio)
+        item.profit = (item.evaluation_sum - item.purchase_sum) * numpy.sign(item.holding_amount)
+        item.profit_rate = round(item.profit / item.purchase_sum * 100, 2)
+        self.append(item)
+
+    def settle(self, order):
+        contract = self.contracts[0]
+        contract.holding_amount += order.executed_amount
+        contract.purchase_sum = int(abs(contract.holding_amount) * contract.purchase_price * 250000)
+        contract.purchase_fee = int(contract.purchase_sum * self.futures_fee_ratio)
+
+    def update(self, current_price):
+        self.current_price = current_price
+        self.holding_amount = 0
+        self.purchase_sum = 0
+        self.evaluation_sum = 0
+        self.purchase_fee = 0
+        self.evaluation_fee = 0
+        self.total_fee = 0
+        self.tax = 0
+        self.profit = 0
+
+        for contract in self.contracts:
+            contract.current_price = current_price
+            contract.evaluation_sum = int(abs(contract.holding_amount) * current_price * 250000)
+            contract.evaluation_fee = contract.evaluation_sum * self.futures_fee_ratio
+            contract.total_fee = int((contract.purchase_fee + contract.evaluation_fee) / 10) * 10
+            contract.tax = int(self.evaluation_sum * self.futures_tax_ratio)
+            contract.profit = (contract.evaluation_sum - contract.purchase_sum) * numpy.sign(contract.holding_amount)
+            contract.profit = contract.profit - contract.total_fee - contract.tax
+            contract.profit_rate = round(contract.profit / contract.purchase_sum * 100, 2)
+
+            self.holding_amount += contract.holding_amount
+            self.purchase_sum += contract.purchase_sum
+            self.evaluation_sum += contract.evaluation_sum
+            self.purchase_fee += contract.purchase_fee
+            self.evaluation_fee += contract.evaluation_fee
+            self.total_fee += contract.total_fee
+            self.tax += contract.tax
+            self.purchase_price = self.purchase_sum / abs(self.holding_amount) / 250000
+            self.profit += contract.profit
+            self.profit_rate = round(self.profit / self.purchase_sum * 100, 2)
 
 class Order(Item):
     def __init__(self):

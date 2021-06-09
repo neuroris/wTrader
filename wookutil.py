@@ -336,3 +336,9 @@ class WookUtil:
         else:
             table_item.setForeground(Qt.red)
         return table_item
+
+    def to_item_gray(self, data):
+        table_item = QTableWidgetItem(data)
+        table_item.setForeground(Qt.darkGray)
+
+        return table_item
