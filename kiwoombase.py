@@ -77,8 +77,8 @@ class KiwoomBase(QAxWidget, WookLog, WookUtil):
         # Fee and Tax
         # self.fee_ratio = 0.0035
         self.fee_ratio = 0.00015
-        self.futures_fee_ratio = 0.00003
         self.tax_ratio = 0.0023
+        self.futures_fee_ratio = 0.00003
         self.futures_tax_ratio = 0.0
 
         # Screen numbers

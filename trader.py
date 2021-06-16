@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QFileDialog, QTableWidgetSelectionRange
 from PyQt5.QtCore import Qt, QTimer
-import numpy
+import numpy as np
 import pandas
 from matplotlib import ticker, pyplot
 from mplfinance.original_flavor import candlestick2_ohlc
@@ -18,6 +18,7 @@ from wookalgorithm.volitility.algorithm6 import VAlgorithm6
 from wookalgorithm.movingaverage.algorithm1 import MAlgorithm1
 from wookalgorithm.movingaverage.algorithm2 import MAlgorithm2
 from wookalgorithm.movingaverage.algorithm3 import MAlgorithm3
+from wookalgorithm.futures.algorithm1 import FMAlgorithm1
 from wookutil import ChartDrawer
 from wookitem import Item, FuturesItem, Order
 from wookdata import *
@@ -27,9 +28,9 @@ class Trader(TraderBase):
     def __init__(self, log, key):
         self.broker = Kiwoom(self, log, key)
         # self.broker = Bankis(self, log, key)
-        self.algorithm = MAlgorithm3(self, log)
-        self.general_account_index = 0
-        self.futures_account_index = 1
+        self.algorithm = FMAlgorithm1(self, log)
+        self.general_account_index = 1
+        self.futures_account_index = 0
         super().__init__(log)
 
         # Initial work
@@ -40,9 +41,9 @@ class Trader(TraderBase):
         # self.broker.request_order_history()
 
         # Initial Values
-        self.sb_capital.setValue(1000000)
-        self.sb_interval.setValue(1)
-        self.sb_loss_cut.setValue(0.3)
+        self.sb_capital.setValue(2000000000)
+        self.sb_interval.setValue(0.15)
+        self.sb_loss_cut.setValue(0.1)
         self.sb_fee.setValue(0.015)
         self.sb_min_transaction.setValue(10)
         self.sb_amount.setValue(1)
@@ -53,35 +54,18 @@ class Trader(TraderBase):
 
         # Test setup
         self.cbb_item_name.setCurrentIndex(3)
-        self.broker.request_futures_deposit_info()
-        self.broker.request_futures_portfolio_info()
+        # self.broker.request_futures_deposit_info()
+        # self.broker.request_futures_portfolio_info()
 
     def test1(self):
         self.debug('test1 button clicked')
 
-        # self.broker.request_portfolio_info()
-        # self.cbb_item_code.setCurrentIndex(3)
-        # self.update_chart_prices(434.0, 2)
-        # self.on_add_item()
-        # self.broker.update_monitoring_items_test('101R6000')
-        self.chart.Close[-1] = 399.5
-        self.update_chart_prices(399.2, 43)
-        print(self.chart)
+        self.algorithm.test = 1
 
     def test2(self):
         self.debug('test2 button clicked')
         # self.algorithm.settle_up()
-        # self.broker.price -= 1
-        # self.broker.update_monitoring_items_test('101R6000')
-
-        chart_prices = [['20210608153000', 400,400,400,400,400]]
-        columns = ['Time', 'Open', 'High', 'Low', 'Close', 'Volume']
-        past_chart = pandas.DataFrame(chart_prices, columns=columns)
-        past_chart.Time = pandas.to_datetime(past_chart.Time)
-        past_chart.set_index('Time', inplace=True)
-        # self.chart = past_chart.append(self.chart)
-        self.chart = past_chart
-        print(self.chart)
+        self.algorithm.test = 10
 
     def connect_broker(self):
         # if self.cb_auto_login.isChecked():
@@ -311,8 +295,8 @@ class Trader(TraderBase):
             self.table_algorithm_trading.setItem(0, 3, self.to_item_plain(order.order_number))
             self.table_algorithm_trading.setItem(0, 4, self.to_item_center(order.order_position))
             self.table_algorithm_trading.setItem(0, 5, self.to_item_center(order.order_state))
-            self.table_algorithm_trading.setItem(0, 6, self.to_item(order.order_price))
-            self.table_algorithm_trading.setItem(0, 7, self.to_item(order.executed_price_avg))
+            self.table_algorithm_trading.setItem(0, 6, self.to_item_float2(order.order_price))
+            self.table_algorithm_trading.setItem(0, 7, self.to_item_float2(order.executed_price_avg))
             self.table_algorithm_trading.setItem(0, 8, self.to_item(order.order_amount))
             self.table_algorithm_trading.setItem(0, 9, self.to_item(order.executed_amount_sum))
             self.table_algorithm_trading.setItem(0, 10, self.to_item_sign(order.open_amount))
@@ -410,8 +394,8 @@ class Trader(TraderBase):
         if max_price > self.top_price or min_price < self.bottom_price:
             self.top_price = math.ceil(max_price / self.interval) * self.interval
             self.bottom_price = math.floor(min_price / self.interval) * self.interval
-            self.interval_prices = numpy.arange(self.bottom_price, self.top_price + self.interval, self.interval)
-            self.loss_cut_prices = numpy.arange(self.bottom_price + self.interval - self.loss_cut, self.top_price, self.interval)
+            self.interval_prices = np.arange(self.bottom_price, self.top_price + self.interval, self.interval)
+            self.loss_cut_prices = np.arange(self.bottom_price + self.interval - self.loss_cut, self.top_price, self.interval)
         self.ax.grid(axis='x', alpha=0.5)
         self.ax.set_yticks(self.interval_prices)
         for price in self.interval_prices:
@@ -508,8 +492,8 @@ class Trader(TraderBase):
         item_name_column = 0
         item_name_item = self.table_portfolio.item(row, item_name_column)
         item_name = item_name_item.text()
-        if item_name[:8] == 'KOSPI200':
-            item_name = item_name[9:]
+        if item_name[:2] == 'F ':
+            item_name = item_name[:8]
         index = self.cbb_item_name.findText(item_name)
         self.cbb_item_name.setCurrentIndex(index)
 

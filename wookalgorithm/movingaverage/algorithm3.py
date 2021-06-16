@@ -4,7 +4,6 @@ from matplotlib import ticker
 from datetime import datetime
 from wookitem import Order, AlgorithmItem
 from wookutil import wmath
-from wookchart import WookChart
 from wookdata import *
 from wookalgorithm.algorithmbase import AlgorithmBase
 import pandas

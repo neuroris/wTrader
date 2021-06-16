@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QTableWidgetItem
 from PyQt5.QtCore import QObject, QThread
-import pandas, numpy
+import pandas
+import numpy as np
 from datetime import datetime, timedelta
 import time, math, copy
 from kiwoombase import KiwoomBase
@@ -259,7 +260,7 @@ class Kiwoom(KiwoomBase):
             item.tax = self.get_tax(item)
             item.profit -= item.total_fee
             item.profit_rate = round(item.profit / item.purchase_sum * 100, 2)
-            # calculated_purchase_sum = int(item.purchase_price * abs(item.holding_amount) * 250000)
+            # calculated_purchase_sum = int(item.purchase_price * abs(item.holding_amount) * MULTIPLIER)
             # item.profit = item.evaluation_sum - calculated_purchase_sum - item.total_fee - item.tax
             # item.profit_rate = round(item.profit / item.purchase_sum * 100, 2)
 
@@ -517,21 +518,21 @@ class Kiwoom(KiwoomBase):
     def update_futures_portfolio_info(self, updated_item):
         futures_item = self.portfolio[updated_item.item_code]
         futures_item.current_price = updated_item.current_price
-        futures_item.evaluation_sum = int(futures_item.current_price * abs(futures_item.holding_amount) * 250000)
+        futures_item.evaluation_sum = int(futures_item.current_price * abs(futures_item.holding_amount) * MULTIPLIER)
         futures_item.evaluation_fee = futures_item.evaluation_sum * self.futures_fee_ratio
         futures_item.total_fee = int((futures_item.purchase_fee + futures_item.evaluation_fee) / 10) * 10
         futures_item.tax = self.get_tax(futures_item)
-        futures_item.profit = (futures_item.evaluation_sum - futures_item.purchase_sum) * numpy.sign(futures_item.holding_amount)
+        futures_item.profit = (futures_item.evaluation_sum - futures_item.purchase_sum) * np.sign(futures_item.holding_amount)
         futures_item.profit = futures_item.profit - futures_item.total_fee - futures_item.tax
         futures_item.profit_rate = round(futures_item.profit / futures_item.purchase_sum * 100, 2)
 
         for contract in futures_item.contracts:
             contract.current_price = updated_item.current_price
-            contract.evaluation_sum = int(contract.current_price * abs(contract.holding_amount) * 250000)
+            contract.evaluation_sum = int(contract.current_price * abs(contract.holding_amount) * MULTIPLIER)
             contract.evaluation_fee = contract.evaluation_sum * self.futures_fee_ratio
             contract.total_fee = int((contract.purchase_fee + contract.evaluation_fee) / 10) * 10
             contract.tax = self.get_tax(contract)
-            contract.profit = (contract.evaluation_sum - contract.purchase_sum) * numpy.sign(contract.holding_amount)
+            contract.profit = (contract.evaluation_sum - contract.purchase_sum) * np.sign(contract.holding_amount)
             contract.profit = contract.profit - contract.total_fee - contract.tax
             contract.profit_rate = round(contract.profit / contract.purchase_sum * 100, 2)
 

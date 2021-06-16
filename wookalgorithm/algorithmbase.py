@@ -7,7 +7,6 @@ from datetime import datetime
 from PyQt5.QtCore import QEventLoop
 from wookutil import WookUtil, WookLog, ChartDrawer, wmath
 from wookitem import Item, BalanceItem, Order, AlgorithmItem
-from wookchart import WookChart
 from wookdata import *
 import math
 
@@ -19,11 +18,11 @@ class AlgorithmBase(WookUtil, WookLog):
         self.broker = None
 
         self.is_running = False
-        self.purchase_episode_shifted = False
-        self.sale_episode_shifted = False
+        # self.run_futures = False
         self.sell_off_ordered = False
         self.settle_up_in_progress = False
         self.finish_in_progress = False
+        self.multiplier = 1
         self.open_orders = 0
         self.open_correct_orders = 0
         self.open_cancel_orders = 0
@@ -46,12 +45,17 @@ class AlgorithmBase(WookUtil, WookLog):
         self.loss_cut_prices = list()
         self.top_price = 0
         self.bottom_price = 0
-        self.chart_scope = 60
+        self.chart_scope = 90
 
         self.items = dict()
         self.orders = dict()
         self.episode_purchase = Order()
         self.episode_sale = Order()
+        self.open_position = Order()
+        self.close_position = Order()
+        self.purchase_episode_shifted = False
+        self.sale_episode_shifted = False
+        self.episode_shifted = False
         self.episode_purchase_number = ''
         self.episode_sale_number = ''
         self.episode_count = 0
@@ -73,8 +77,10 @@ class AlgorithmBase(WookUtil, WookLog):
         self.total_fee = 0
         self.net_profit = 0
         self.fee = 0
+        self.fee_ratio = 0.0
+        self.futures_fee_ratio = 0.0
 
-    def initialize(self, broker, capital, interval, loss_cut, fee, minimum_transaction_amount):
+    def initialize(self, broker, capital, interval, loss_cut, fee, minimum_transaction_amount, futures=False):
         for item in self.items.values():
             item.set_broker(broker)
             item.set_log(self.log)
@@ -87,6 +93,12 @@ class AlgorithmBase(WookUtil, WookLog):
         self.shift_interval = interval
         self.fee = fee
         self.minimum_transaction_amount = minimum_transaction_amount
+        # self.run_futures = True if futures else False
+        self.multiplier = MULTIPLIER if futures else 1
+        self.fee_ratio = self.broker.fee_ratio
+        self.tax_ratio = self.broker.tax_ratio
+        self.futures_fee_ratio = self.broker.futures_fee_ratio
+        self.futures_tax_ratio = self.broker.futures_tax_ratio
 
     def stop(self):
         if not self.is_running:
@@ -99,11 +111,11 @@ class AlgorithmBase(WookUtil, WookLog):
         # Init Fields
         self.broker = None
         self.is_running = False
-        self.purchase_episode_shifted = False
-        self.sale_episode_shifted = False
+        # self.run_futures = False
         self.sell_off_ordered = False
         self.settle_up_in_progress = False
         self.finish_in_progress = False
+        self.multiplier = 1
         self.open_orders = 0
         self.open_correct_orders = 0
         self.open_cancel_orders = 0
@@ -126,8 +138,13 @@ class AlgorithmBase(WookUtil, WookLog):
         self.chart_scope = 60
 
         self.orders.clear()
+        self.episode_shifted = False
+        self.purchase_episode_shifted = False
+        self.sale_episode_shifted = False
         self.episode_purchase = Order()
         self.episode_sale = Order()
+        self.open_position = Order()
+        self.close_position = Order()
         self.episode_purchase_number = ''
         self.episode_sale_number = ''
         self.episode_count = 0
@@ -148,6 +165,8 @@ class AlgorithmBase(WookUtil, WookLog):
         self.total_fee = 0
         self.net_profit = 0
         self.fee = 0
+        self.fee_ratio = 0.0
+        self.futures_fee_ratio = 0.0
 
         # Continue Charting
         self.trader.go_chart()
@@ -162,7 +181,7 @@ class AlgorithmBase(WookUtil, WookLog):
         self.reference_price = price
         self.buy_limit = self.reference_price - self.interval
         self.loss_limit = self.buy_limit - self.loss_cut
-        self.episode_amount = self.capital // self.buy_limit
+        self.episode_amount = int(self.capital // (self.buy_limit * self.multiplier))
 
     def shift_reference_up(self):
         self.set_reference(self.reference_price + self.shift_interval)
@@ -214,6 +233,10 @@ class AlgorithmBase(WookUtil, WookLog):
             number = '0' + number
         return number
 
+    def get_episode_number(self):
+        normalized_count = self.normalize_number(self.episode_count)
+        return normalized_count
+
     def get_episode_purchase_number(self):
         normalized_count = self.normalize_number(self.episode_count)
         return normalized_count + 'P'
@@ -233,6 +256,28 @@ class AlgorithmBase(WookUtil, WookLog):
         if not self.episode_sale_number:
             self.episode_sale_number = '00S'
         next_count = int(self.episode_sale_number[:-1]) + 1
+        normalized_count = self.normalize_number(next_count)
+        return normalized_count + 'S'
+
+    def get_open_position_episode_number(self):
+        normalized_count = self.normalize_number(self.episode_count)
+        return normalized_count + 'E'
+
+    def get_close_position_episode_number(self):
+        normalized_count = self.normalize_number(self.episode_count)
+        return normalized_count + 'S'
+
+    def get_next_open_position_episode_number(self):
+        if not self.open_position.episode_number:
+            self.open_position.episode_number = '00E'
+        next_count = int(self.open_position.episode_number[:-1]) + 1
+        normalized_count = self.normalize_number(next_count)
+        return normalized_count + 'E'
+
+    def get_next_close_position_episode_number(self):
+        if not self.close_position.episode_number:
+            self.close_position.episode_number = '00S'
+        next_count = int(self.close_position.episode_number[:-1]) + 1
         normalized_count = self.normalize_number(next_count)
         return normalized_count + 'S'
 
@@ -268,18 +313,18 @@ class AlgorithmBase(WookUtil, WookLog):
         chart = item.chart
         if not len(chart):
             chart.loc[current_time] = price
-            chart.Volume[-1] = volume
+            chart.loc[current_time, 'Volume'] = volume
         elif current_time > chart.index[-1]:
             chart.loc[current_time] = price
-            chart.Volume[-1] = volume
+            chart.loc[current_time, 'Volume'] = volume
         else:
             if price > chart.High[-1]:
-                chart.High[-1] = price
+                chart.loc[current_time, 'High'] = price
             elif price < chart.Low[-1]:
-                chart.Low[-1] = price
+                chart.loc[current_time, 'Low'] = price
             last_price = chart.Close[-1]
-            chart.Close[-1] = price
-            chart.Volume[-1] += volume
+            chart.loc[current_time, 'Close'] = price
+            chart.loc[current_time, 'Volume'] += volume
             if last_price == price:
                 return
 
@@ -294,7 +339,7 @@ class AlgorithmBase(WookUtil, WookLog):
             if current_time > item.chart.index[-1]:
                 price = item.chart.Close[-1]
                 item.chart.loc[current_time] = price
-                item.chart.Volume[-1] = 0
+                item.chart.loc[current_time, 'Volume'] = 0
                 self.update_custom_chart(item)
         self.draw_chart.start()
 
@@ -306,3 +351,18 @@ class AlgorithmBase(WookUtil, WookLog):
 
     def display_chart(self):
         pass
+
+    def post_cyan(self, *args):
+        if args != self.previous_msg:
+            self.debug('\033[96mALGORITHM', *args, '\033[97m')
+            self.previous_msg = args
+
+    def post_green(self, *args):
+        if args != self.previous_msg:
+            self.debug('\033[92mALGORITHM', *args, '\033[97m')
+            self.previous_msg = args
+
+    def post_blue(self, *args):
+        if args != self.previous_msg:
+            self.debug('\033[94mALGORITHM', *args, '\033[97m')
+            self.previous_msg = args
