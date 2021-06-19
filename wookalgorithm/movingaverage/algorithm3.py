@@ -65,7 +65,7 @@ class MAlgorithm3(AlgorithmBase):
         elif self.settle_up_in_progress:
             self.post_without_repetition('(BLOCK)', 'settle up in progress')
             return
-        elif self.finish_in_progress:
+        elif self.finish_up_in_progress:
             self.post_without_repetition('(BLOCK)', 'finish in progress')
             return
 
@@ -174,10 +174,10 @@ class MAlgorithm3(AlgorithmBase):
                 self.open_orders -= 1
                 if not self.open_orders:
                     self.settle_up_proper()
-            elif self.finish_in_progress:
+            elif self.finish_up_in_progress:
                 self.open_orders -= 1
                 if not self.open_orders:
-                    self.finish_proper()
+                    self.finish_up_proper()
 
     def update_episode_purchase(self, order):
         executed_amount = abs(order.executed_amount)

@@ -436,7 +436,7 @@ class Kiwoom(KiwoomBase):
         self.trader.display_monitoring_items()
 
         if self.trader.algorithm.is_running:
-            self.trader.algorithm.update_transaction_info(item)
+            self.trader.algorithm.market_status(item)
         elif self.is_running_chart:
             self.trader.update_chart_prices(item.current_price, item.volume, item_code)
 

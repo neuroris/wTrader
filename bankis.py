@@ -321,7 +321,7 @@ class Bankis(BankisBase):
         self.signal('monitoring_items_table')
 
         if self.algorithm.is_running:
-            self.algorithm.update_transaction_info(item)
+            self.algorithm.market_status(item)
 
         if item_code in self.portfolio:
             portfolio_item = self.portfolio[item_code]

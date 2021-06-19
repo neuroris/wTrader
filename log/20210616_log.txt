@@ -1070,3 +1070,331 @@
 2021-06-16 14:45:23,791 [94mALGORITHM (DEBUG) 14:44:06 Purchases 1 Sales 0 [97m
 2021-06-16 14:45:26,088 Balance information
 2021-06-16 14:45:26,091 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:4, open:14, price:0.0, number:48199, original:0
+2021-06-16 14:49:35,724 Kiwoom initializing...
+2021-06-16 14:49:40,889 Kiwoom log in success
+2021-06-16 14:49:40,889 Account information
+2021-06-16 14:49:41,397 Deposit information (Futures)
+2021-06-16 14:49:41,432 Portfolio information (Futures) (No item found)
+2021-06-16 14:49:49,514 [93mALGORITHM STARTED [97m
+2021-06-16 14:49:54,018 test2 button clicked
+2021-06-16 14:50:00,373 [96mALGORITHM (SELL) holding:0 price:0 amount:18 [97m
+2021-06-16 14:50:00,832 Send order (SELL) command committed successfully KOA_CREATE_FO_ORD
+2021-06-16 14:50:00,859 Order execution(-¸Åµµ) F 202109(Á¢¼ö), order:18, executed_sum:0, open:18, price:0.0, number:48711, original:0
+2021-06-16 14:50:00,859 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Á¢¼ö order:18 executed_each:0 open:18 number:48711 purchase:0 executed:0 holding:0 [97m
+2021-06-16 14:50:00,860 [94mALGORITHM (DEBUG) 14:50:01 Purchases 0 Sales 1 [97m
+2021-06-16 14:50:00,863 Balance information
+2021-06-16 14:50:00,999 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:1, open:17, price:0.0, number:48711, original:0
+2021-06-16 14:50:01,001 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-1 open:17 number:48711 purchase:0 executed:436.0 holding:-1 [97m
+2021-06-16 14:50:01,001 [94mALGORITHM (DEBUG) 14:50:02 Purchases 0 Sales 1 [97m
+2021-06-16 14:50:01,008 Balance information
+2021-06-16 14:50:01,043 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:6, open:12, price:0.0, number:48711, original:0
+2021-06-16 14:50:01,044 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-5 open:12 number:48711 purchase:0 executed:435.95 holding:-6 [97m
+2021-06-16 14:50:01,044 [94mALGORITHM (DEBUG) 14:50:02 Purchases 0 Sales 1 [97m
+2021-06-16 14:50:01,049 Balance information
+2021-06-16 14:50:01,226 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:18, open:0, price:0.0, number:48711, original:0
+2021-06-16 14:50:01,226 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-12 open:0 number:48711 purchase:0 executed:435.95 holding:-18 [97m
+2021-06-16 14:50:01,227 [94mALGORITHM (DEBUG) 14:50:02 Purchases 0 Sales 0 [97m
+2021-06-16 14:50:01,232 Balance information
+2021-06-16 14:50:22,378 [93mALGORITHM Situation 1 [97m
+2021-06-16 14:50:48,516 test1 button clicked
+2021-06-16 14:50:48,862 [96mALGORITHM (BUY) holding:-18 price:0 amount:18 [97m
+2021-06-16 14:50:48,878 Send order (BUY) command committed successfully KOA_CREATE_FO_ORD
+2021-06-16 14:50:48,964 Order execution(+¸Å¼ö) F 202109(Á¢¼ö), order:18, executed_sum:0, open:18, price:0.0, number:48764, original:0
+2021-06-16 14:50:48,965 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Á¢¼ö order:18 executed_each:0 open:18 number:48764 purchase:0 executed:0 holding:-18 [97m
+2021-06-16 14:50:48,965 [94mALGORITHM (DEBUG) 14:50:50 Purchases 1 Sales 0 [97m
+2021-06-16 14:50:49,032 Balance information
+2021-06-16 14:50:49,770 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:7, open:11, price:0.0, number:48764, original:0
+2021-06-16 14:53:01,642 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:7 open:11 number:48764 purchase:0 executed:436.05 holding:-12 [97m
+2021-06-16 14:53:01,643 [94mALGORITHM (DEBUG) 14:50:50 Purchases 1 Sales 0 [97m
+2021-06-16 14:53:05,135 Balance information
+2021-06-16 14:53:05,336 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:8, open:10, price:0.0, number:48764, original:0
+2021-06-16 14:53:25,588 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:1 open:10 number:48764 purchase:0 executed:436.05 holding:-12 [97m
+2021-06-16 14:53:25,589 [94mALGORITHM (DEBUG) 14:50:51 Purchases 1 Sales 0 [97m
+2021-06-16 14:53:27,007 Balance information
+2021-06-16 14:53:27,193 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:9, open:9, price:0.0, number:48764, original:0
+2021-06-16 14:53:38,334 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:1 open:9 number:48764 purchase:0 executed:436.0 holding:-12 [97m
+2021-06-16 14:53:38,335 [94mALGORITHM (DEBUG) 14:50:53 Purchases 1 Sales 0 [97m
+2021-06-16 14:53:41,814 Balance information
+2021-06-16 14:53:41,825 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:10, open:8, price:0.0, number:48764, original:0
+2021-06-16 14:54:02,239 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:1 open:8 number:48764 purchase:0 executed:436.0 holding:-12 [97m
+2021-06-16 14:54:02,239 [94mALGORITHM (DEBUG) 14:50:54 Purchases 1 Sales 0 [97m
+2021-06-16 14:54:03,510 Balance information
+2021-06-16 14:54:03,731 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:12, open:6, price:0.0, number:48764, original:0
+2021-06-16 14:54:04,957 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:2 open:6 number:48764 purchase:0 executed:436.0 holding:-12 [97m
+2021-06-16 14:54:04,957 [94mALGORITHM (DEBUG) 14:50:59 Purchases 1 Sales 0 [97m
+2021-06-16 14:54:06,775 Balance information
+2021-06-16 14:54:06,883 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:14, open:4, price:0.0, number:48764, original:0
+2021-06-16 14:54:07,773 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:2 open:4 number:48764 purchase:0 executed:436.05 holding:-12 [97m
+2021-06-16 14:54:07,773 [94mALGORITHM (DEBUG) 14:51:04 Purchases 1 Sales 0 [97m
+2021-06-16 14:54:08,628 Balance information
+2021-06-16 14:54:08,908 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:16, open:2, price:0.0, number:48764, original:0
+2021-06-16 14:54:09,979 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:2 open:2 number:48764 purchase:0 executed:436.0 holding:-12 [97m
+2021-06-16 14:54:09,980 [94mALGORITHM (DEBUG) 14:51:09 Purchases 1 Sales 0 [97m
+2021-06-16 14:54:11,232 Balance information
+2021-06-16 14:54:11,237 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:18, open:0, price:0.0, number:48764, original:0
+2021-06-16 14:54:23,336 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:2 open:0 number:48764 purchase:0 executed:436.0 holding:-10 [97m
+2021-06-16 14:54:23,336 [94mALGORITHM (DEBUG) 14:51:09 Purchases 0 Sales 0 [97m
+2021-06-16 14:54:24,769 Balance information
+2021-06-16 14:54:27,352 [93mALGORITHM Situation 1 [97m
+2021-06-16 14:54:27,624 [93mALGORITHM Situation 4 [97m
+2021-06-16 14:55:10,550 test2 button clicked
+2021-06-16 14:55:11,554 [96mALGORITHM (SELL) holding:-10 price:0 amount:18 [97m
+2021-06-16 14:55:11,585 Send order (SELL) command committed successfully KOA_CREATE_FO_ORD
+2021-06-16 14:55:11,957 Order execution(-¸Åµµ) F 202109(Á¢¼ö), order:18, executed_sum:0, open:18, price:0.0, number:49110, original:0
+2021-06-16 14:55:11,962 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Á¢¼ö order:18 executed_each:0 open:18 number:49110 purchase:0 executed:0 holding:-10 [97m
+2021-06-16 14:55:11,975 [94mALGORITHM (DEBUG) 14:55:13 Purchases 0 Sales 1 [97m
+2021-06-16 14:55:12,010 Balance information
+2021-06-16 14:55:12,012 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:3, open:15, price:0.0, number:49110, original:0
+2021-06-16 14:55:12,014 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-3 open:15 number:49110 purchase:0 executed:436.15 holding:-13 [97m
+2021-06-16 14:55:12,014 [94mALGORITHM (DEBUG) 14:55:13 Purchases 0 Sales 1 [97m
+2021-06-16 14:55:12,037 Balance information
+2021-06-16 14:55:13,775 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:4, open:14, price:0.0, number:49110, original:0
+2021-06-16 14:55:13,776 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-1 open:14 number:49110 purchase:0 executed:436.1 holding:-14 [97m
+2021-06-16 14:55:13,777 [94mALGORITHM (DEBUG) 14:55:15 Purchases 0 Sales 1 [97m
+2021-06-16 14:55:13,790 Balance information
+2021-06-16 14:55:18,204 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:5, open:13, price:0.0, number:49110, original:0
+2021-06-16 14:55:18,211 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-1 open:13 number:49110 purchase:0 executed:436.15 holding:-15 [97m
+2021-06-16 14:55:18,217 [94mALGORITHM (DEBUG) 14:55:19 Purchases 0 Sales 1 [97m
+2021-06-16 14:55:18,246 Balance information
+2021-06-16 14:55:19,106 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:10, open:8, price:0.0, number:49110, original:0
+2021-06-16 14:55:19,106 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-5 open:8 number:49110 purchase:0 executed:436.1 holding:-20 [97m
+2021-06-16 14:55:19,107 [94mALGORITHM (DEBUG) 14:55:20 Purchases 0 Sales 1 [97m
+2021-06-16 14:55:19,112 Balance information
+2021-06-16 14:55:19,259 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:15, open:3, price:0.0, number:49110, original:0
+2021-06-16 14:55:19,260 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-5 open:3 number:49110 purchase:0 executed:436.1 holding:-25 [97m
+2021-06-16 14:55:19,260 [94mALGORITHM (DEBUG) 14:55:20 Purchases 0 Sales 1 [97m
+2021-06-16 14:55:19,268 Balance information
+2021-06-16 14:55:19,276 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:18, open:0, price:0.0, number:49110, original:0
+2021-06-16 14:55:19,276 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-3 open:0 number:49110 purchase:0 executed:436.1 holding:-28 [97m
+2021-06-16 14:55:19,276 [94mALGORITHM (DEBUG) 14:55:20 Purchases 0 Sales 0 [97m
+2021-06-16 14:55:19,283 Balance information
+2021-06-16 14:55:30,512 test1 button clicked
+2021-06-16 14:55:31,054 [96mALGORITHM (BUY) holding:-28 price:0 amount:18 [97m
+2021-06-16 14:55:31,112 Send order (BUY) command committed successfully KOA_CREATE_FO_ORD
+2021-06-16 14:55:31,149 Order execution(+¸Å¼ö) F 202109(Á¢¼ö), order:18, executed_sum:0, open:18, price:0.0, number:49137, original:0
+2021-06-16 14:55:31,150 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Á¢¼ö order:18 executed_each:0 open:18 number:49137 purchase:0 executed:0 holding:-28 [97m
+2021-06-16 14:55:31,150 [94mALGORITHM (DEBUG) 14:55:32 Purchases 1 Sales 0 [97m
+2021-06-16 14:55:31,213 Balance information
+2021-06-16 14:55:38,553 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:1, open:17, price:0.0, number:49137, original:0
+2021-06-16 14:56:18,270 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:1 open:17 number:49137 purchase:0 executed:436.1 holding:-28 [97m
+2021-06-16 14:56:18,271 [94mALGORITHM (DEBUG) 14:55:39 Purchases 1 Sales 0 [97m
+2021-06-16 14:56:20,151 Balance information
+2021-06-16 14:56:20,225 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:2, open:16, price:0.0, number:49137, original:0
+2021-06-16 14:56:40,378 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:1 open:16 number:49137 purchase:0 executed:436.1 holding:-28 [97m
+2021-06-16 14:56:40,378 [94mALGORITHM (DEBUG) 14:55:42 Purchases 1 Sales 0 [97m
+2021-06-16 14:56:42,962 Balance information
+2021-06-16 14:56:42,972 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:3, open:15, price:0.0, number:49137, original:0
+2021-06-16 14:56:57,885 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:1 open:15 number:49137 purchase:0 executed:436.1 holding:-27 [97m
+2021-06-16 14:56:57,886 [94mALGORITHM (DEBUG) 14:55:43 Purchases 1 Sales 0 [97m
+2021-06-16 14:56:59,741 Balance information
+2021-06-16 14:56:59,747 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:4, open:14, price:0.0, number:49137, original:0
+2021-06-16 14:57:08,854 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:1 open:14 number:49137 purchase:0 executed:436.1 holding:-26 [97m
+2021-06-16 14:57:08,855 [94mALGORITHM (DEBUG) 14:55:43 Purchases 1 Sales 0 [97m
+2021-06-16 14:57:10,429 Balance information
+2021-06-16 14:57:10,883 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:18, open:0, price:0.0, number:49137, original:0
+2021-06-16 14:58:22,593 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:14 open:0 number:49137 purchase:0 executed:436.1 holding:-12 [97m
+2021-06-16 14:58:22,594 [94mALGORITHM (DEBUG) 14:55:44 Purchases 0 Sales 0 [97m
+2021-06-16 14:58:26,068 Balance information
+2021-06-16 15:01:58,659 [93mALGORITHM Situation 4 [97m
+2021-06-16 15:05:25,055 test2 button clicked
+2021-06-16 15:05:25,363 [96mALGORITHM (SELL) holding:-12 price:0 amount:18 [97m
+2021-06-16 15:05:25,400 Send order (SELL) command committed successfully KOA_CREATE_FO_ORD
+2021-06-16 15:05:25,548 Order execution(-¸Åµµ) F 202109(Á¢¼ö), order:18, executed_sum:0, open:18, price:0.0, number:49994, original:0
+2021-06-16 15:05:25,549 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Á¢¼ö order:18 executed_each:0 open:18 number:49994 purchase:0 executed:0 holding:-12 [97m
+2021-06-16 15:05:25,549 [94mALGORITHM (DEBUG) 15:05:26 Purchases 0 Sales 1 [97m
+2021-06-16 15:05:25,554 Balance information
+2021-06-16 15:05:27,133 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:1, open:17, price:0.0, number:49994, original:0
+2021-06-16 15:05:27,134 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-1 open:17 number:49994 purchase:0 executed:435.85 holding:-13 [97m
+2021-06-16 15:05:27,134 [94mALGORITHM (DEBUG) 15:05:28 Purchases 0 Sales 1 [97m
+2021-06-16 15:05:27,225 Balance information
+2021-06-16 15:05:27,683 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:2, open:16, price:0.0, number:49994, original:0
+2021-06-16 15:05:27,683 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-1 open:16 number:49994 purchase:0 executed:435.9 holding:-14 [97m
+2021-06-16 15:05:27,683 [94mALGORITHM (DEBUG) 15:05:28 Purchases 0 Sales 1 [97m
+2021-06-16 15:05:27,690 Balance information
+2021-06-16 15:05:27,890 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:3, open:15, price:0.0, number:49994, original:0
+2021-06-16 15:05:27,890 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-1 open:15 number:49994 purchase:0 executed:435.9 holding:-15 [97m
+2021-06-16 15:05:27,890 [94mALGORITHM (DEBUG) 15:05:29 Purchases 0 Sales 1 [97m
+2021-06-16 15:05:27,897 Balance information
+2021-06-16 15:05:28,534 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:5, open:13, price:0.0, number:49994, original:0
+2021-06-16 15:05:28,534 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-2 open:13 number:49994 purchase:0 executed:435.9 holding:-17 [97m
+2021-06-16 15:05:28,535 [94mALGORITHM (DEBUG) 15:05:29 Purchases 0 Sales 1 [97m
+2021-06-16 15:05:28,643 Balance information
+2021-06-16 15:05:33,884 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:6, open:12, price:0.0, number:49994, original:0
+2021-06-16 15:05:33,885 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-1 open:12 number:49994 purchase:0 executed:435.9 holding:-18 [97m
+2021-06-16 15:05:33,885 [94mALGORITHM (DEBUG) 15:05:34 Purchases 0 Sales 1 [97m
+2021-06-16 15:05:33,892 Balance information
+2021-06-16 15:05:33,950 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:8, open:10, price:0.0, number:49994, original:0
+2021-06-16 15:05:33,957 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-2 open:10 number:49994 purchase:0 executed:435.9 holding:-20 [97m
+2021-06-16 15:05:33,963 [94mALGORITHM (DEBUG) 15:05:34 Purchases 0 Sales 1 [97m
+2021-06-16 15:05:33,984 Balance information
+2021-06-16 15:05:33,989 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:10, open:8, price:0.0, number:49994, original:0
+2021-06-16 15:05:33,989 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-2 open:8 number:49994 purchase:0 executed:435.85 holding:-22 [97m
+2021-06-16 15:05:33,989 [94mALGORITHM (DEBUG) 15:05:35 Purchases 0 Sales 1 [97m
+2021-06-16 15:05:33,997 Balance information
+2021-06-16 15:05:35,730 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:11, open:7, price:0.0, number:49994, original:0
+2021-06-16 15:05:35,731 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-1 open:7 number:49994 purchase:0 executed:435.85 holding:-23 [97m
+2021-06-16 15:05:35,731 [94mALGORITHM (DEBUG) 15:05:37 Purchases 0 Sales 1 [97m
+2021-06-16 15:05:35,818 Balance information
+2021-06-16 15:05:41,734 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:18, open:0, price:0.0, number:49994, original:0
+2021-06-16 15:05:41,735 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-7 open:0 number:49994 purchase:0 executed:435.85 holding:-30 [97m
+2021-06-16 15:05:41,735 [94mALGORITHM (DEBUG) 15:05:42 Purchases 0 Sales 0 [97m
+2021-06-16 15:05:41,850 Balance information
+2021-06-16 15:05:55,550 [93mALGORITHM Situation 4 [97m
+2021-06-16 15:06:56,870 test1 button clicked
+2021-06-16 15:06:57,234 [96mALGORITHM (BUY) holding:-30 price:0 amount:18 [97m
+2021-06-16 15:06:57,335 Send order (BUY) command committed successfully KOA_CREATE_FO_ORD
+2021-06-16 15:06:57,433 Order execution(+¸Å¼ö) F 202109(Á¢¼ö), order:18, executed_sum:0, open:18, price:0.0, number:50164, original:0
+2021-06-16 15:06:57,449 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Á¢¼ö order:18 executed_each:0 open:18 number:50164 purchase:0 executed:0 holding:-30 [97m
+2021-06-16 15:06:57,484 [94mALGORITHM (DEBUG) 15:06:58 Purchases 1 Sales 0 [97m
+2021-06-16 15:06:57,659 Balance information
+2021-06-16 15:07:14,131 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:1, open:17, price:0.0, number:50164, original:0
+2021-06-16 15:07:14,135 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:1 open:17 number:50164 purchase:0 executed:435.85 holding:-29 [97m
+2021-06-16 15:07:14,136 [94mALGORITHM (DEBUG) 15:07:15 Purchases 1 Sales 0 [97m
+2021-06-16 15:07:14,238 Balance information
+2021-06-16 15:07:15,527 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:2, open:16, price:0.0, number:50164, original:0
+2021-06-16 15:07:15,531 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:1 open:16 number:50164 purchase:0 executed:435.85 holding:-28 [97m
+2021-06-16 15:07:15,531 [94mALGORITHM (DEBUG) 15:07:16 Purchases 1 Sales 0 [97m
+2021-06-16 15:07:15,666 Balance information
+2021-06-16 15:07:18,325 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:3, open:15, price:0.0, number:50164, original:0
+2021-06-16 15:07:18,329 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:1 open:15 number:50164 purchase:0 executed:435.8 holding:-27 [97m
+2021-06-16 15:07:18,329 [94mALGORITHM (DEBUG) 15:07:19 Purchases 1 Sales 0 [97m
+2021-06-16 15:07:18,405 Balance information
+2021-06-16 15:07:19,137 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:18, open:0, price:0.0, number:50164, original:0
+2021-06-16 15:07:19,141 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:15 open:0 number:50164 purchase:0 executed:435.8 holding:-12 [97m
+2021-06-16 15:07:19,141 [94mALGORITHM (DEBUG) 15:07:20 Purchases 0 Sales 0 [97m
+2021-06-16 15:07:19,240 Balance information
+2021-06-16 15:07:50,238 Deposit information (Futures)
+2021-06-16 15:07:56,344 test2 button clicked
+2021-06-16 15:07:57,544 [96mALGORITHM (SELL) holding:-12 price:0 amount:18 [97m
+2021-06-16 15:07:57,657 Send order (SELL) command committed successfully KOA_CREATE_FO_ORD
+2021-06-16 15:07:57,912 Order execution(-¸Åµµ) F 202109(Á¢¼ö), order:18, executed_sum:0, open:18, price:0.0, number:50275, original:0
+2021-06-16 15:07:57,917 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Á¢¼ö order:18 executed_each:0 open:18 number:50275 purchase:0 executed:0 holding:-12 [97m
+2021-06-16 15:07:57,927 [94mALGORITHM (DEBUG) 15:07:59 Purchases 0 Sales 1 [97m
+2021-06-16 15:07:57,976 Balance information
+2021-06-16 15:07:57,979 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:1, open:17, price:0.0, number:50275, original:0
+2021-06-16 15:07:57,980 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-1 open:17 number:50275 purchase:0 executed:435.75 holding:-13 [97m
+2021-06-16 15:07:57,980 [94mALGORITHM (DEBUG) 15:07:59 Purchases 0 Sales 1 [97m
+2021-06-16 15:07:58,003 Balance information
+2021-06-16 15:07:58,938 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:3, open:15, price:0.0, number:50275, original:0
+2021-06-16 15:07:58,939 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-2 open:15 number:50275 purchase:0 executed:435.75 holding:-15 [97m
+2021-06-16 15:07:58,939 [94mALGORITHM (DEBUG) 15:08:00 Purchases 0 Sales 1 [97m
+2021-06-16 15:07:59,048 Balance information
+2021-06-16 15:08:00,661 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:4, open:14, price:0.0, number:50275, original:0
+2021-06-16 15:08:00,661 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-1 open:14 number:50275 purchase:0 executed:435.8 holding:-16 [97m
+2021-06-16 15:08:00,662 [94mALGORITHM (DEBUG) 15:08:01 Purchases 0 Sales 1 [97m
+2021-06-16 15:08:00,669 Balance information
+2021-06-16 15:08:00,982 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:5, open:13, price:0.0, number:50275, original:0
+2021-06-16 15:08:00,988 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-1 open:13 number:50275 purchase:0 executed:435.8 holding:-17 [97m
+2021-06-16 15:08:00,989 [94mALGORITHM (DEBUG) 15:08:02 Purchases 0 Sales 1 [97m
+2021-06-16 15:08:01,003 Balance information
+2021-06-16 15:08:01,324 Order execution(-¸Åµµ) F 202109(Ã¼°á), order:18, executed_sum:18, open:0, price:0.0, number:50275, original:0
+2021-06-16 15:08:01,324 [92mALGORITHM (EXECUTION) F 202109 -¸Åµµ Ã¼°á order:18 executed_each:-13 open:0 number:50275 purchase:0 executed:435.75 holding:-30 [97m
+2021-06-16 15:08:01,325 [94mALGORITHM (DEBUG) 15:08:02 Purchases 0 Sales 0 [97m
+2021-06-16 15:08:01,411 Balance information
+2021-06-16 15:10:09,775 [93mALGORITHM Situation 1 [97m
+2021-06-16 15:10:54,327 [93mALGORITHM Situation 1 [97m
+2021-06-16 15:11:43,636 test1 button clicked
+2021-06-16 15:11:43,726 [96mALGORITHM (BUY) holding:-30 price:0 amount:18 [97m
+2021-06-16 15:11:43,739 Send order (BUY) command committed successfully KOA_CREATE_FO_ORD
+2021-06-16 15:11:43,930 Order execution(+¸Å¼ö) F 202109(Á¢¼ö), order:18, executed_sum:0, open:18, price:0.0, number:50808, original:0
+2021-06-16 15:11:43,930 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Á¢¼ö order:18 executed_each:0 open:18 number:50808 purchase:0 executed:0 holding:-30 [97m
+2021-06-16 15:11:43,930 [94mALGORITHM (DEBUG) 15:11:45 Purchases 1 Sales 0 [97m
+2021-06-16 15:11:44,028 Balance information
+2021-06-16 15:11:45,198 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:1, open:17, price:0.0, number:50808, original:0
+2021-06-16 15:11:45,207 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:1 open:17 number:50808 purchase:0 executed:436.05 holding:-29 [97m
+2021-06-16 15:11:45,208 [94mALGORITHM (DEBUG) 15:11:46 Purchases 1 Sales 0 [97m
+2021-06-16 15:11:45,251 Balance information
+2021-06-16 15:11:45,473 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:2, open:16, price:0.0, number:50808, original:0
+2021-06-16 15:11:45,475 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:1 open:16 number:50808 purchase:0 executed:436.1 holding:-29 [97m
+2021-06-16 15:11:45,476 [94mALGORITHM (DEBUG) 15:11:46 Purchases 1 Sales 0 [97m
+2021-06-16 15:11:45,484 Balance information
+2021-06-16 15:11:45,489 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:6, open:12, price:0.0, number:50808, original:0
+2021-06-16 15:11:45,491 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:4 open:12 number:50808 purchase:0 executed:436.1 holding:-26 [97m
+2021-06-16 15:11:45,492 [94mALGORITHM (DEBUG) 15:11:46 Purchases 1 Sales 0 [97m
+2021-06-16 15:11:45,500 Balance information
+2021-06-16 15:11:45,727 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:8, open:10, price:0.0, number:50808, original:0
+2021-06-16 15:11:45,728 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:2 open:10 number:50808 purchase:0 executed:436.1 holding:-26 [97m
+2021-06-16 15:11:45,728 [94mALGORITHM (DEBUG) 15:11:47 Purchases 1 Sales 0 [97m
+2021-06-16 15:11:45,785 Balance information
+2021-06-16 15:11:47,718 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:10, open:8, price:0.0, number:50808, original:0
+2021-06-16 15:11:47,719 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:2 open:8 number:50808 purchase:0 executed:436.1 holding:-26 [97m
+2021-06-16 15:11:47,720 [94mALGORITHM (DEBUG) 15:11:49 Purchases 1 Sales 0 [97m
+2021-06-16 15:11:47,768 Balance information
+2021-06-16 15:11:48,729 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:11, open:7, price:0.0, number:50808, original:0
+2021-06-16 15:11:48,730 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:1 open:7 number:50808 purchase:0 executed:436.1 holding:-26 [97m
+2021-06-16 15:11:48,731 [94mALGORITHM (DEBUG) 15:11:50 Purchases 1 Sales 0 [97m
+2021-06-16 15:11:48,861 Balance information
+2021-06-16 15:11:49,904 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:13, open:5, price:0.0, number:50808, original:0
+2021-06-16 15:11:49,917 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:2 open:5 number:50808 purchase:0 executed:436.1 holding:-26 [97m
+2021-06-16 15:11:49,946 [94mALGORITHM (DEBUG) 15:11:51 Purchases 1 Sales 0 [97m
+2021-06-16 15:11:49,953 Balance information
+2021-06-16 15:11:50,840 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:17, open:1, price:0.0, number:50808, original:0
+2021-06-16 15:11:50,841 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:4 open:1 number:50808 purchase:0 executed:436.1 holding:-26 [97m
+2021-06-16 15:11:50,842 [94mALGORITHM (DEBUG) 15:11:51 Purchases 1 Sales 0 [97m
+2021-06-16 15:11:50,948 Balance information
+2021-06-16 15:11:50,978 Order execution(+¸Å¼ö) F 202109(Ã¼°á), order:18, executed_sum:18, open:0, price:0.0, number:50808, original:0
+2021-06-16 15:11:50,979 [92mALGORITHM (EXECUTION) F 202109 +¸Å¼ö Ã¼°á order:18 executed_each:1 open:0 number:50808 purchase:0 executed:436.05 holding:-25 [97m
+2021-06-16 15:11:50,980 [94mALGORITHM (DEBUG) 15:11:52 Purchases 0 Sales 0 [97m
+2021-06-16 15:11:50,985 Balance information
+2021-06-16 15:19:58,793 market operation state 2 152000 001000
+2021-06-16 15:20:58,704 market operation state 2 152100 000900
+2021-06-16 15:21:58,610 market operation state 2 152200 000800
+2021-06-16 15:22:58,606 market operation state 2 152300 000700
+2021-06-16 15:23:58,694 market operation state 2 152400 000600
+2021-06-16 15:24:58,732 market operation state 2 152500 000500
+2021-06-16 15:25:58,831 market operation state 2 152600 000400
+2021-06-16 15:26:17,570 Deposit information (Futures)
+2021-06-16 15:26:58,701 market operation state 2 152700 000300
+2021-06-16 15:27:58,735 market operation state 2 152800 000200
+2021-06-16 15:28:58,603 market operation state 2 152900 000100
+2021-06-16 15:29:08,716 market operation state 2 152910 000050
+2021-06-16 15:29:18,594 market operation state 2 152920 000040
+2021-06-16 15:29:28,694 market operation state 2 152930 000030
+2021-06-16 15:29:38,686 market operation state 2 152940 000020
+2021-06-16 15:29:48,682 market operation state 2 152950 000010
+2021-06-16 15:29:56,404 [93mALGORITHM Situation 4 [97m
+2021-06-16 15:29:58,616 market operation state 4 153000 000000
+2021-06-16 15:30:09,803 [93mALGORITHM Situation 1 [97m
+2021-06-16 15:32:28,607 market operation state 8 888888 000000
+2021-06-16 15:34:53,592 [93mALGORITHM Situation 1 [97m
+2021-06-16 15:34:56,120 [93mALGORITHM Situation 4 [97m
+2021-06-16 15:34:57,799 [93mALGORITHM Situation 1 [97m
+2021-06-16 15:34:59,580 market operation state s 153500 000000
+2021-06-16 15:34:59,581 market operation state s 153500 000000
+2021-06-16 15:34:59,581 market operation state s 153500 000000
+2021-06-16 15:34:59,582 market operation state s 153500 000000
+2021-06-16 15:34:59,582 market operation state s 153500 000000
+2021-06-16 15:34:59,583 market operation state s 153500 000000
+2021-06-16 15:34:59,583 market operation state s 153500 000000
+2021-06-16 15:34:59,686 market operation state s 153500 000000
+2021-06-16 15:34:59,687 market operation state s 153500 000000
+2021-06-16 15:34:59,687 market operation state s 153500 000000
+2021-06-16 15:34:59,688 market operation state s 153500 000000
+2021-06-16 15:34:59,688 market operation state s 153500 000000
+2021-06-16 15:34:59,689 market operation state s 153500 000000
+2021-06-16 15:34:59,689 market operation state s 153500 000000
+2021-06-16 15:34:59,690 market operation state s 153500 000000
+2021-06-16 15:34:59,690 market operation state s 153500 000000
+2021-06-16 15:34:59,691 market operation state s 153500 000000
+2021-06-16 15:39:59,066 market operation state a 154000 000000
+2021-06-16 15:44:59,863 market operation state e 154500 000000
+2021-06-16 15:44:59,955 market operation state e 154500 000000
+2021-06-16 15:44:59,956 market operation state e 154500 000000
+2021-06-16 15:45:00,066 market operation state e 154500 000000
+2021-06-16 15:45:00,158 market operation state e 154500 000000
+2021-06-16 15:45:00,267 market operation state e 154500 000000
+2021-06-16 15:45:00,267 market operation state e 154500 000000
+2021-06-16 15:45:00,361 market operation state e 154500 000000
+2021-06-16 15:45:00,454 market operation state e 154500 000000
+2021-06-16 15:45:00,454 market operation state e 154500 000000
+2021-06-16 15:45:00,563 market operation state e 154500 000000
+2021-06-16 15:45:00,564 market operation state e 154500 000000
+2021-06-16 15:45:00,855 market operation state e 154500 000000
+2021-06-16 15:45:01,058 market operation state e 154500 000000
+2021-06-16 15:45:01,166 market operation state e 154500 000000
+2021-06-16 15:45:01,368 market operation state e 154500 000000
+2021-06-16 15:45:01,464 market operation state e 154500 000000
+2021-06-16 15:59:59,032 market operation state b 160000 000000
+2021-06-16 15:59:59,032 market operation state c 160000 000000
+2021-06-16 17:59:58,817 market operation state d 180000 000000
+2021-06-16 18:01:18,302 market operation state 9 999999 000000

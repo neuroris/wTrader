@@ -5,29 +5,27 @@ from datetime import datetime
 from wookitem import Order, AlgorithmItem, FuturesAlgorithmItem
 from wookutil import wmath
 from wookdata import *
-from wookalgorithm.algorithmbase import AlgorithmBase
+from wookalgorithm.futuresalgorithmbase import FuturesAlgorithmBase
 import pandas
 import math, copy
 
 '''
-Original Algorithm (2021, 06, 09)
+Original Algorithm (2021, 06, 17)
 1. Moving average algorithm
 2. Moving average is calculated by simple close price 
 3. Futures!!
 '''
 
-class FMAlgorithm1(AlgorithmBase):
+class FMAlgorithm1(FuturesAlgorithmBase):
     def __init__(self, trader, log):
         super().__init__(trader, log)
         self.futures = None
-        self.trade_position = ''
-
-        self.test = 0
+        self.slope = None
 
     def start(self, broker, capital, interval, loss_cut, fee, minimum_transaction_amount):
         self.futures = FuturesAlgorithmItem('101R9000')
         self.add_item(self.futures)
-        self.initialize(broker, capital, interval, loss_cut, fee, minimum_transaction_amount, futures=True)
+        self.initialize(broker, capital, interval, loss_cut, fee, minimum_transaction_amount)
 
         # Open Orders cancellation
         self.clear_open_orders()
@@ -37,14 +35,12 @@ class FMAlgorithm1(AlgorithmBase):
         broker.request_futures_stock_price_min(self.futures.item_code)
         broker.demand_monitoring_items_info(self.futures)
         self.timer.start()
-
         self.is_running = True
         self.post('STARTED')
 
-    def update_transaction_info(self, item):
-        if not self.start_price:
-            self.do_start_work(item.current_price)
-            return
+    def market_status(self, item):
+        if not self.start_time:
+            self.start_work(item.current_price)
 
         if self.work_in_progress():
             return
@@ -55,19 +51,26 @@ class FMAlgorithm1(AlgorithmBase):
         # Update chart
         self.update_chart_prices(item.item_code, item.current_price, item.volume)
 
-        # Purchase decision
-        self.consider_transaction()
+        # Purchase decision & shift transition
+        if self.episode_in_progress:
+            self.shift_transition(item.current_price)
+        else:
+            self.consider_transaction(item.current_price)
 
-        # Trade according to current price
-        self.action_on_shift(item.current_price)
+        # For debugging
+        self.debug('Slope', self.slope)
+        chart = self.futures.chart
+        # self.debug('Diff5: {}, DiffDifff5[-2]:{}, Diff10[-2]:{}, DiffDiff10[-2]: {}'.format
+        #            (chart.Diff5[-2], chart.DiffDiff5[-2], chart.Diff10[-2], chart.DiffDiff10[-1]))
+        # self.debug('Diff5: {}, DiffDifff5[-1]:{}, Diff10[-1]:{}, DiffDiff10[-1]: {}'.format
+        #            (chart.Diff5[-1], chart.DiffDiff5[-1], chart.Diff10[-1], chart.DiffDiff10[-1]))
+        # self.debug('MA5[-1]', chart.MA5[-1], 'MA5[-2]', chart.MA5[-2])
 
-    def do_start_work(self, current_price):
+    def start_work(self, current_price):
         self.start_time_text = datetime.now().strftime('%H:%M')
         self.start_time = self.to_min_count(self.start_time_text)
         self.start_price = current_price
         self.start_comment = 'start\n' + self.start_time_text + '\n' + format(self.start_price, ',')
-        reference_price = wmath.get_top(current_price, self.interval)
-        self.set_reference(reference_price)
 
     def work_in_progress(self):
         if self.open_purchase_correct_orders or self.open_sale_correct_orders:
@@ -79,13 +82,13 @@ class FMAlgorithm1(AlgorithmBase):
         elif self.open_cancel_orders:
             self.post('(BLOCK)', 'open cancel orders', self.open_cancel_orders)
             return True
-        elif self.sell_off_ordered:
-            self.post('(BLOCK)', 'sell off ordered')
+        elif self.stop_loss_ordered:
+            self.post('(BLOCK)', 'stop loss ordered')
             return True
         elif self.settle_up_in_progress:
             self.post_without_repetition('(BLOCK)', 'settle up in progress')
             return True
-        elif self.finish_in_progress:
+        elif self.finish_up_in_progress:
             self.post_without_repetition('(BLOCK)', 'finish in progress')
             return True
         else:
@@ -93,71 +96,87 @@ class FMAlgorithm1(AlgorithmBase):
 
     def bull_market(self):
         chart = self.futures.chart
-        # self.debug('Diff5: {}, DiffDifff5[-1]:{}, DiffDiff10[-1]: {}, DiffDiff10[-2]: {}'.format(chart.Diff5[-1], chart.DiffDiff5[-1], chart.DiffDiff10[-1], chart.DiffDiff10[-2]))
-        # if chart.Diff5[-1] > 0 and chart.DiffDiff10[-1] > 0 and chart.DiffDiff10[-2] > 0:
-        # if chart.Diff5[-1] > 0 and chart.DiffDiff10[-1] > 0:
-        if chart.DiffDiff5[-1] > 0 and chart.DiffDiff10[-1] > 0:
+        # if chart.DiffDiff5[-1] > 0 and chart.DiffDiff10[-1] > 0:
+        if chart.Diff5[-1] > 0:
             return True
         else:
             return False
 
     def bear_market(self):
         chart = self.futures.chart
-        if chart.Diff5[-1] < 0 and chart.Diff10[-1] < 0 and chart.DiffDiff20[-1] < 0:
+        if chart.Diff5[-1] < 0:
             return True
         else:
             return False
 
-    def consider_transaction(self):
-        if self.test == 1:
-            self.test = 0
-            self.buy()
-        elif self.test == 10:
-            self.test = 0
-            self.sell()
+    def consider_transaction(self, current_price):
+        # return
+        if self.bull_market():
+            self.episode_count += 1
+            self.episode_in_progress = True
+            self.trade_position = LONG_POSITION
+            self.set_reference(current_price)
+            # self.open_position.virtual_open_amount += self.episode_amount
+            self.futures.buy(0, self.episode_amount, 'MARKET')
+        elif self.bear_market():
+            self.episode_count += 1
+            self.episode_in_progress = True
+            self.trade_position = SHORT_POSITION
+            self.set_reference(current_price)
+            # self.open_position.virtual_open_amount += self.episode_amount
+            self.futures.sell(0, self.episode_amount, 'MARKET')
 
-        if not self.futures.purchase.ordered and self.bull_market():
-            pass
-            # self.buy(item)
-        if not self.futures.purchase.ordered and self.bear_market():
-            pass
-            # self.sell(item)
+    def shift_transition(self, current_price):
+        if self.trade_position == LONG_POSITION:
+            self.long_position_shift(current_price)
+        elif self.trade_position == SHORT_POSITION:
+            self.short_position_shift(current_price)
 
-    def action_on_shift(self, current_price):
-        # if current_price >= (self.reference_price + self.loss_cut):
-        if current_price > self.reference_price:
+    def long_position_shift(self, current_price):
+        if current_price >= (self.reference_price + self.loss_cut):
             self.post('Situation 1')
             self.shift_reference_up()
-            # if self.bull_market():
-            #     self.open_purchase_correct_orders = len(self.futures.purchases)
-            #     if self.open_purchase_correct_orders:
-            #         pass
-                    # self.futures.correct_purchases(self.buy_limit)
-                # if self.futures.holding_amount:
-                #     self.loss_limit -= self.loss_cut
-            # else:
-                # self.open_purchase_cancel_orders = len(self.futures.purchases)
-                # if self.open_purchase_cancel_orders:
-                #     self.futures.cancel_purchases()
+            self.open_purchase_correct_orders = len(self.futures.purchases)
+            if self.open_purchase_correct_orders:
+                if self.bull_market():
+                    self.futures.correct_purchases(self.trade_limit)
+                else:
+                    self.open_purchase_cancel_orders = len(self.futures.purchases)
+                    if self.open_purchase_cancel_orders:
+                        self.futures.cancel_purchases()
+            elif self.futures.holding_amount:
+                self.loss_limit -= self.loss_cut
         elif current_price <= self.loss_limit:
             self.post('Situation 4')
             self.shift_reference_down()
-        #     if self.futures.holding_amount:
-        #         self.open_cancel_orders = len(self.futures.sales)
-        #         self.sell_off_ordered = True
-        #         # self.futures.sell_off()
+            if self.futures.holding_amount:
+                self.open_cancel_orders = len(self.futures.sales)
+                self.stop_loss_ordered = True
+                self.episode_in_progress = False
+                self.futures.sell_off()
 
-    def buy(self):
-        self.open_position.virtual_open_amount += self.episode_amount
-        # self.episode_count += 1
-        # self.trade_position = PURCHASE
-        self.futures.buy(0, self.episode_amount, 'MARKET')
-
-    def sell(self):
-        self.open_position.virtual_open_amount += self.episode_amount
-        self.episode_count += 1
-        self.trade_position = SELL
-        self.futures.sell(0, self.episode_amount, 'MARKET')
+    def short_position_shift(self, current_price):
+        if current_price <= (self.reference_price - self.loss_cut):
+            self.post('Situation 1')
+            self.shift_reference_down()
+            self.open_sale_correct_orders = len(self.futures.sales)
+            if self.open_sale_correct_orders:
+                if self.bear_market():
+                    self.futures.correct_sales(self.trade_limit)
+                else:
+                    self.open_sale_cancel_orders = len(self.futures.sales)
+                    if self.open_sale_cancel_orders:
+                        self.futures.cancel_sales()
+            elif self.futures.holding_amount:
+                self.loss_limit += self.loss_cut
+        elif current_price >= self.loss_limit:
+            self.post('Situation 4')
+            self.shift_reference_up()
+            if self.futures.holding_amount:
+                self.open_cancel_orders = len(self.futures.sales)
+                self.stop_loss_ordered = True
+                self.episode_in_progress = False
+                self.futures.buy_off()
 
     def update_execution_info(self, order):
         # Update Algorithm item orders
@@ -177,8 +196,8 @@ class FMAlgorithm1(AlgorithmBase):
             self.update_close_position(order)
 
         # Order processing
-        self.process_subsequent_order(order)
-        self.process_synchronization(order)
+        self.subsequent_orders(order)
+        self.count_open_orders(order)
 
         # Display
         self.post_order_details(order)
@@ -187,7 +206,6 @@ class FMAlgorithm1(AlgorithmBase):
         self.draw_chart.start()
 
     def post_order_details(self, order):
-        # Update message
         msg = (order.item_name, order.order_position, order.order_state)
         msg += ('order:' + str(order.order_amount), 'executed_each:' + str(order.executed_amount))
         msg += ('open:' + str(order.open_amount), 'number:' + str(order.order_number))
@@ -199,15 +217,13 @@ class FMAlgorithm1(AlgorithmBase):
         self.post_blue('(DEBUG)', time_format, 'Purchases', len(self.futures.purchases),
                        'Sales', len(self.futures.sales))
 
-    def process_subsequent_order(self, order):
+    def subsequent_orders(self, order):
         if order.order_position in (PURCHASE, CORRECT_PURCHASE):
             pass
-            # self.update_open_position(order)
         elif order.order_position in (SELL, CORRECT_SELL):
             pass
-            # self.update_close_position(order)
 
-    def process_synchronization(self, order):
+    def count_open_orders(self, order):
         if order.order_position == CORRECT_PURCHASE and order.order_state == CONFIRMED:
             self.open_purchase_correct_orders -= 1
         elif order.order_position == CORRECT_SELL and order.order_state == CONFIRMED:
@@ -218,14 +234,14 @@ class FMAlgorithm1(AlgorithmBase):
         elif order.order_position == CANCEL_SELL and order.order_state == CONFIRMED:
             if self.open_sale_cancel_orders:
                 self.open_sale_cancel_orders -= 1
-            if self.settle_up_in_progress:
-                self.open_orders -= 1
-                if not self.open_orders:
-                    self.settle_up_proper()
-            elif self.finish_in_progress:
-                self.open_orders -= 1
-                if not self.open_orders:
-                    self.finish_proper()
+        elif self.settle_up_in_progress:
+            self.open_orders -= 1
+            if not self.open_orders:
+                self.settle_up_proper()
+        elif self.finish_up_in_progress:
+            self.open_orders -= 1
+            if not self.open_orders:
+                self.finish_up_proper()
 
     def update_open_position(self, order):
         executed_amount = abs(order.executed_amount)
@@ -278,102 +294,20 @@ class FMAlgorithm1(AlgorithmBase):
             self.total_fee += order.total_fee
             self.net_profit += order.net_profit
 
-        if self.sell_off_ordered and not order.open_amount:
-            self.sell_off_ordered = False
-
-    def update_episode_purchase(self, order):
-        executed_amount = abs(order.executed_amount)
-        if self.episode_shifted:
-            old_purchase = self.episode_purchase
-            self.episode_shifted = False
-            self.episode_purchase = Order()
-            self.episode_purchase_number = self.get_open_position_episode_number()
-            self.episode_purchase.episode_number = self.episode_purchase_number
-            self.episode_purchase.item_name = order.item_name
-            self.episode_purchase.virtual_open_amount = old_purchase.virtual_open_amount
-            self.episode_purchase.order_amount += order.order_amount
-            self.episode_purchase.open_amount += order.open_amount
-        self.episode_purchase.order_price = order.order_price
-        self.episode_purchase.executed_time = order.executed_time
-        self.episode_purchase.order_number = order.order_number
-        self.episode_purchase.order_position = order.order_position
-        self.episode_purchase.order_state = order.order_state
-        self.episode_purchase.executed_price_avg = order.executed_price_avg
-        if order.order_state == RECEIPT:
-            pass
-        elif order.order_state == ORDER_EXECUTED:
-            self.episode_purchase.open_amount -= executed_amount
-            self.episode_purchase.virtual_open_amount -= executed_amount
-            self.episode_purchase.executed_amount_sum += executed_amount
-        self.orders[self.episode_purchase_number] = self.episode_purchase
-
-    def update_episode_sale(self, order):
-        executed_amount = abs(order.executed_amount)
-        if self.episode_shifted:
-            self.sale_episode_shifted = False
-            old_sale = self.episode_sale
-            self.episode_sale = Order()
-            self.episode_sale_number = self.get_episode_sale_number()
-            self.episode_sale.episode_number = self.episode_sale_number
-            self.episode_sale.item_name = order.item_name
-            self.episode_sale.order_price = order.order_price
-            self.episode_sale.virtual_open_amount = old_sale.virtual_open_amount
-        self.episode_sale.executed_time = order.executed_time
-        self.episode_sale.order_number = order.order_number
-        self.episode_sale.order_position = order.order_position
-        self.episode_sale.order_state = order.order_state
-        self.episode_sale.executed_price_avg = order.executed_price_avg
-        if order.order_state == RECEIPT:
-            self.episode_sale.order_amount += order.order_amount
-            self.episode_sale.open_amount += order.open_amount
-        elif order.order_state == ORDER_EXECUTED:
-            self.episode_sale.open_amount -= executed_amount
-            self.episode_sale.virtual_open_amount -= executed_amount
-            self.episode_sale.executed_amount_sum += executed_amount
-            self.episode_sale.profit += order.profit
-            self.episode_sale.net_profit += order.net_profit
-        self.orders[self.episode_sale_number] = self.episode_sale
-
-        if self.sell_off_ordered and not order.open_amount:
-            self.sell_off_ordered = False
+        if self.stop_loss_ordered and not order.open_amount:
+            self.stop_loss_ordered = False
 
     def customize_past_chart(self, item):
         chart = item.chart
-        chart['MA5'] = chart.Close.rolling(5, 1).mean().apply(lambda x:round(x, 2))
-        chart['MA10'] = chart.Close.rolling(10, 1).mean().apply(lambda x:round(x, 2))
-        chart['MA20'] = chart.Close.rolling(20, 1).mean().apply(lambda x:round(x, 2))
-        chart['Diff5'] = chart.MA5.diff().fillna(0).apply(lambda x:round(x, 2))
-        chart['Diff10'] = chart.MA10.diff().fillna(0).apply(lambda x:round(x, 2))
-        chart['Diff20'] = chart.MA20.diff().fillna(0).apply(lambda x:round(x, 2))
-        chart['DiffDiff5'] = chart.Diff5.diff().fillna(0).apply(lambda x:round(x, 2))
-        chart['DiffDiff10'] = chart.Diff10.diff().fillna(0).apply(lambda x:round(x, 2))
-        chart['DiffDiff20'] = chart.Diff20.diff().fillna(0).apply(lambda x:round(x, 2))
-
-    def update_custom_chart_deprecated(self, item):
-        chart = item.chart
-        chart_len = len(chart)
-        ma5 = -5
-        ma10 = -10
-        ma20 = -20
-        if chart_len < 5:
-            ma5 = chart_len * -1
-            ma10 = chart_len * -1
-            ma20 = chart_len * -1
-        elif chart_len < 10:
-            ma10 = chart_len * -1
-            ma20 = chart_len * -1
-        elif chart_len < 20:
-            ma20 = chart_len * -1
-
-        chart.MA5[-1] = round(chart.Close[ma5:].mean(), 2)
-        chart.MA10[-1] = round(chart.Close[ma10:].mean(), 2)
-        chart.MA20[-1] = round(chart.Close[ma20:].mean(), 2)
-        chart.Diff5[-1] = chart.MA5[-1] - chart.MA5[-2]
-        chart.Diff10[-1] = chart.MA10[-1] - chart.MA10[-2]
-        chart.Diff20[-1] = chart.MA20[-1] - chart.MA20[-2]
-        chart.DiffDiff5[-1] = chart.Diff5[-1] - chart.Diff5[-2]
-        chart.DiffDiff10[-1] = chart.Diff10[-1] - chart.Diff10[-2]
-        chart.DiffDiff20[-1] = chart.Diff20[-1] - chart.Diff20[-2]
+        chart['MA5'] = chart.Close.rolling(5, 1).mean().apply(lambda x:round(x, 3))
+        chart['MA10'] = chart.Close.rolling(10, 1).mean().apply(lambda x:round(x, 3))
+        chart['MA20'] = chart.Close.rolling(20, 1).mean().apply(lambda x:round(x, 3))
+        chart['Diff5'] = chart.MA5.diff().fillna(0).apply(lambda x:round(x, 3))
+        chart['Diff10'] = chart.MA10.diff().fillna(0).apply(lambda x:round(x, 3))
+        chart['Diff20'] = chart.MA20.diff().fillna(0).apply(lambda x:round(x, 3))
+        chart['DiffDiff5'] = chart.Diff5.diff().fillna(0).apply(lambda x:round(x, 3))
+        chart['DiffDiff10'] = chart.Diff10.diff().fillna(0).apply(lambda x:round(x, 3))
+        chart['DiffDiff20'] = chart.Diff20.diff().fillna(0).apply(lambda x:round(x, 3))
 
     def update_custom_chart(self, item):
         chart = item.chart
@@ -392,15 +326,15 @@ class FMAlgorithm1(AlgorithmBase):
             ma20 = chart_len * -1
 
         current_time = chart.index[-1]
-        chart.loc[current_time, 'MA5'] = round(chart.Close[ma5:].mean(), 2)
-        chart.loc[current_time, 'MA10'] = round(chart.Close[ma10:].mean(), 2)
-        chart.loc[current_time, 'MA20'] = round(chart.Close[ma20:].mean(), 2)
-        chart.loc[current_time, 'Diff5'] = chart.MA5[-1] - chart.MA5[-2]
-        chart.loc[current_time, 'Diff10'] = chart.MA10[-1] - chart.MA10[-2]
-        chart.loc[current_time, 'Diff20'] = chart.MA20[-1] - chart.MA20[-2]
-        chart.loc[current_time, 'DiffDiff5'] = chart.Diff5[-1] - chart.Diff5[-2]
-        chart.loc[current_time, 'DiffDiff10'] = chart.Diff10[-1] - chart.Diff10[-2]
-        chart.loc[current_time, 'DiffDiff20'] = chart.Diff20[-1] - chart.Diff20[-2]
+        chart.loc[current_time, 'MA5'] = round(chart.Close[ma5:].mean(), 3)
+        chart.loc[current_time, 'MA10'] = round(chart.Close[ma10:].mean(), 3)
+        chart.loc[current_time, 'MA20'] = round(chart.Close[ma20:].mean(), 3)
+        chart.loc[current_time, 'Diff5'] = round(chart.MA5[-1] - chart.MA5[-2], 3)
+        chart.loc[current_time, 'Diff10'] = round(chart.MA10[-1] - chart.MA10[-2], 3)
+        chart.loc[current_time, 'Diff20'] = round(chart.MA20[-1] - chart.MA20[-2], 3)
+        chart.loc[current_time, 'DiffDiff5'] = round(chart.Diff5[-1] - chart.Diff5[-2], 3)
+        chart.loc[current_time, 'DiffDiff10'] = round(chart.Diff10[-1] - chart.Diff10[-2], 3)
+        chart.loc[current_time, 'DiffDiff20'] = round(chart.Diff20[-1] - chart.Diff20[-2], 3)
 
     def display_chart(self):
         chart = self.futures.chart
@@ -446,10 +380,10 @@ class FMAlgorithm1(AlgorithmBase):
         self.trader.ax.legend(loc='best')
 
         # Slope
-        slope_x = range(len(chart) - 1, len(chart) + 1)
-        slope = numpy.polyfit(slope_x, chart.MA5[-2:], 1)
+        x_range = range(len(chart) - 1, len(chart) + 1)
+        self.slope = numpy.polyfit(x_range, chart.MA5[-2:], 1)
         x = range(len(chart) - 20, len(chart))
-        y = numpy.poly1d(slope)
+        y = numpy.poly1d(self.slope)
         self.trader.ax.plot(x, y(x), color='Sienna')
 
         # Set lim
@@ -465,7 +399,7 @@ class FMAlgorithm1(AlgorithmBase):
         self.trader.ax.set_ylim(y1, y2)
 
         # After price data acquired
-        if self.reference_price:
+        if self.start_time:
             self.annotate_chart(current_time, x1, x2, y1, y2)
 
         # Draw chart
@@ -483,12 +417,19 @@ class FMAlgorithm1(AlgorithmBase):
 
         # References
         reference_offset = 0.5
+        if not self.episode_in_progress:
+            return
+
         self.trader.ax.axhline(self.reference_price, alpha=1, linewidth=0.2, color='Maroon')
         self.trader.ax.text(x1 + reference_offset, self.reference_price, 'Reference')
-        self.trader.ax.axhline(self.buy_limit, alpha=1, linewidth=0.2, color='Maroon')
-        self.trader.ax.text(x1 + reference_offset, self.buy_limit, 'Buy limit')
         self.trader.ax.axhline(self.loss_limit, alpha=1, linewidth=0.2, color='DeepPink')
         self.trader.ax.text(x1 + reference_offset, self.loss_limit, 'Loss cut')
+        if self.trade_position == LONG_POSITION:
+            self.trader.ax.axhline(self.trade_limit, alpha=1, linewidth=0.2, color='Maroon')
+            self.trader.ax.text(x1 + reference_offset, self.trade_limit, 'Buy limit')
+        elif self.trade_position == SHORT_POSITION:
+            self.trader.ax.axhline(self.trade_limit, alpha=1, linewidth=0.2, color='Maroon')
+            self.trader.ax.text(x1 + reference_offset, self.trade_limit, 'Sell limit')
 
         # Purchases and Sales
         total_range = self.top_price - self.bottom_price
@@ -501,7 +442,7 @@ class FMAlgorithm1(AlgorithmBase):
                 y += offset
                 self.trader.ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
 
-        y = self.buy_limit - offset
+        y = self.trade_limit - offset
         purchases = copy.deepcopy(self.futures.purchases)
         for order in purchases.values():
             if order.open_amount:

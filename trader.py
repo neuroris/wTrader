@@ -41,9 +41,9 @@ class Trader(TraderBase):
         # self.broker.request_order_history()
 
         # Initial Values
-        self.sb_capital.setValue(2000000000)
-        self.sb_interval.setValue(0.15)
-        self.sb_loss_cut.setValue(0.1)
+        self.sb_capital.setValue(200000000)
+        self.sb_interval.setValue(0.1)
+        self.sb_loss_cut.setValue(0.05)
         self.sb_fee.setValue(0.015)
         self.sb_min_transaction.setValue(10)
         self.sb_amount.setValue(1)

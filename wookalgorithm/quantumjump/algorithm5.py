@@ -48,7 +48,7 @@ class QAlgorithm5(AlgorithmBase):
             return
 
         # Block during situation processing
-        if self.finish_in_progress:
+        if self.finish_up_in_progress:
             return
 
         if self.open_correct_orders:
@@ -99,8 +99,8 @@ class QAlgorithm5(AlgorithmBase):
             if not self.open_orders:
                 if self.settle_up_in_progress:
                     self.settle_up_proper()
-                elif self.finish_in_progress:
-                    self.finish_proper()
+                elif self.finish_up_in_progress:
+                    self.finish_up_proper()
 
         self.signal('algorithm_update')
         self.broker.draw_chart.start()

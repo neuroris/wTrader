@@ -454,8 +454,8 @@ class FuturesAlgorithmItem(Order, WookLog):
         self.broker = None
         self.item_code = item_code
         self.item_name = CODES[item_code]
-        self.purchase = Order()
-        self.sale = Order()
+        # self.purchase = Order()
+        # self.sale = Order()
         self.purchases = dict()
         self.sales = dict()
         self.contracts = list()
@@ -528,36 +528,6 @@ class FuturesAlgorithmItem(Order, WookLog):
         self.net_profit_rate = round(self.net_profit / self.purchase_sum * 100, 2)
         return contract
 
-    def settle_contracts_deprecated(self, order):
-        settle_amount = copy.deepcopy(abs(order.executed_amount))
-        contracts = copy.deepcopy(self.contracts)
-        result = Order()
-        for individual_contract in contracts:
-            if abs(individual_contract.holding_amount) <= settle_amount:
-                contract = self.pop_contract()
-                evaluation_sum = int(abs(contract.holding_amount) * order.executed_price_avg)
-                purchase_sum = contract.purchase_sum
-                settle_amount -= abs(contract.holding_amount)
-            else:
-                contract = self.contracts[0]
-                contract.holding_amount -= settle_amount * np.sign(contract.holding_amount)
-                evaluation_sum = settle_amount * order.executed_price_avg
-                purchase_sum = settle_amount * contract.executed_price_avg
-                settle_amount = 0
-
-            evaluation_fee = evaluation_sum * self.futures_fee_ratio
-            purchase_fee = purchase_sum * self.futures_fee_ratio
-            total_fee = int((purchase_fee + evaluation_fee) / 10) * 10
-            tax = int(evaluation_sum * self.futures_tax_ratio)
-
-            result.profit += (evaluation_sum - purchase_sum) * np.sign(contract.holding_amount)
-            result.total_fee += total_fee
-            result.tax += tax
-            result.net_profit += result.profit - total_fee - tax
-
-            if not settle_amount:
-                return result
-
     def settle_contracts(self, order):
         settle_amount = copy.deepcopy(abs(order.executed_amount))
         contracts = copy.deepcopy(self.contracts)
@@ -581,12 +551,10 @@ class FuturesAlgorithmItem(Order, WookLog):
             total_fee = int((purchase_fee + evaluation_fee) / 10) * 10
             tax = int(evaluation_sum * self.futures_tax_ratio)
             profit = (evaluation_sum - purchase_sum) * np.sign(contract.holding_amount)
-
             order.profit += profit
             order.total_fee += total_fee
             order.tax += tax
             order.net_profit += profit - total_fee - tax
-
             if not settle_amount:
                 return
 
@@ -622,58 +590,58 @@ class FuturesAlgorithmItem(Order, WookLog):
             self.profit += contract.profit
             self.profit_rate = round(self.profit / self.purchase_sum * 100, 2)
 
-    def update_execution_info(self, order):
-        executed_amount = abs(order.executed_amount)
-
-        if order.order_position in (PURCHASE, CORRECT_PURCHASE):
-            self.purchases[order.order_number] = order
-            if not order.open_amount:
-                del self.purchases[order.order_number]
-            # if order.order_state == ORDER_EXECUTED:
-                # self.add_contract(order)
-                # self.holding_amount += executed_amount
-                # self.purchase_price = order.executed_price
-                # self.purchase_sum += int(executed_amount * order.executed_price) * MULTIPLIER
-                # self.purchase_price_avg = self.purchase_sum / self.holding_amount / MULTIPLIER
-        elif order.order_position in (SELL, CORRECT_SELL):
-            if order.order_number in self.sales:
-                old_order = self.sales[order.order_number]
-                order.purchase_price = old_order.purchase_price
-            else:
-                order.purchase_price = self.purchase_price
-            if order.order_state == ORDER_EXECUTED:
-                self.holding_amount -= executed_amount
-                self.purchase_sum = int(self.purchase_price_avg * self.holding_amount)
-                order.profit = int((order.executed_price - order.purchase_price) * order.executed_amount)
-                purchase_fee = order.purchase_price * executed_amount * (self.fee_ratio / 100)
-                sale_fee = order.executed_price_avg * executed_amount * (self.fee_ratio / 100)
-                order.transaction_fee = int(purchase_fee + sale_fee)
-                order.net_profit = order.profit - order.transaction_fee
-                self.profit += order.profit
-                self.total_fee += order.transaction_fee
-                self.net_profit += order.net_profit
-            self.sale = order
-            self.sales[order.order_number] = order
-            self.sale.ordered = False
-            if not order.open_amount:
-                del self.sales[order.order_number]
-        elif order.order_position == CANCEL_PURCHASE and order.order_state == CONFIRMED:
-            if order.original_order_number in self.purchases:
-                del self.purchases[order.original_order_number]
-        elif order.order_position == CANCEL_SELL and order.order_state == CONFIRMED:
-            if order.original_order_number in self.sales:
-                del self.sales[order.original_order_number]
-
-        # Update message
-        msg = (order.item_name, order.order_position, order.order_state)
-        msg += ('order:' + str(order.order_amount), 'executed_each:' + str(order.executed_amount))
-        msg += ('open:' + str(order.open_amount), 'number:' + str(order.order_number))
-        msg += ('purchase:' + str(order.purchase_price), 'executed:' + str(order.executed_price))
-        msg += ('holding:' + str(self.holding_amount),)
-        executed_time = str(order.executed_time)
-        time_format = executed_time[:2] + ':' + executed_time[2:4] + ':' + executed_time[4:]
-        self.post_green('(EXECUTION)', *msg)
-        self.post_blue('(DEBUG)', time_format, 'Purchases', len(self.purchases), 'Sales', len(self.sales))
+    # def update_execution_info_deprecated(self, order):
+    #     executed_amount = abs(order.executed_amount)
+    #
+    #     if order.order_position in (PURCHASE, CORRECT_PURCHASE):
+    #         self.purchases[order.order_number] = order
+    #         if not order.open_amount:
+    #             del self.purchases[order.order_number]
+    #         # if order.order_state == ORDER_EXECUTED:
+    #             # self.add_contract(order)
+    #             # self.holding_amount += executed_amount
+    #             # self.purchase_price = order.executed_price
+    #             # self.purchase_sum += int(executed_amount * order.executed_price) * MULTIPLIER
+    #             # self.purchase_price_avg = self.purchase_sum / self.holding_amount / MULTIPLIER
+    #     elif order.order_position in (SELL, CORRECT_SELL):
+    #         if order.order_number in self.sales:
+    #             old_order = self.sales[order.order_number]
+    #             order.purchase_price = old_order.purchase_price
+    #         else:
+    #             order.purchase_price = self.purchase_price
+    #         if order.order_state == ORDER_EXECUTED:
+    #             self.holding_amount -= executed_amount
+    #             self.purchase_sum = int(self.purchase_price_avg * self.holding_amount)
+    #             order.profit = int((order.executed_price - order.purchase_price) * order.executed_amount)
+    #             purchase_fee = order.purchase_price * executed_amount * (self.fee_ratio / 100)
+    #             sale_fee = order.executed_price_avg * executed_amount * (self.fee_ratio / 100)
+    #             order.transaction_fee = int(purchase_fee + sale_fee)
+    #             order.net_profit = order.profit - order.transaction_fee
+    #             self.profit += order.profit
+    #             self.total_fee += order.transaction_fee
+    #             self.net_profit += order.net_profit
+    #         self.sale = order
+    #         self.sales[order.order_number] = order
+    #         self.sale.ordered = False
+    #         if not order.open_amount:
+    #             del self.sales[order.order_number]
+    #     elif order.order_position == CANCEL_PURCHASE and order.order_state == CONFIRMED:
+    #         if order.original_order_number in self.purchases:
+    #             del self.purchases[order.original_order_number]
+    #     elif order.order_position == CANCEL_SELL and order.order_state == CONFIRMED:
+    #         if order.original_order_number in self.sales:
+    #             del self.sales[order.original_order_number]
+    #
+    #     # Update message
+    #     msg = (order.item_name, order.order_position, order.order_state)
+    #     msg += ('order:' + str(order.order_amount), 'executed_each:' + str(order.executed_amount))
+    #     msg += ('open:' + str(order.open_amount), 'number:' + str(order.order_number))
+    #     msg += ('purchase:' + str(order.purchase_price), 'executed:' + str(order.executed_price))
+    #     msg += ('holding:' + str(self.holding_amount),)
+    #     executed_time = str(order.executed_time)
+    #     time_format = executed_time[:2] + ':' + executed_time[2:4] + ':' + executed_time[4:]
+    #     self.post_green('(EXECUTION)', *msg)
+    #     self.post_blue('(DEBUG)', time_format, 'Purchases', len(self.purchases), 'Sales', len(self.sales))
 
     def update_orders(self, order):
         if order.order_position in (PURCHASE, CORRECT_PURCHASE):
@@ -684,102 +652,37 @@ class FuturesAlgorithmItem(Order, WookLog):
             self.sales[order.order_number] = order
             if not order.open_amount:
                 del self.sales[order.order_number]
+        elif order.order_position == CANCEL_PURCHASE and order.order_state == CONFIRMED:
+            if order.original_order_number in self.purchases:
+                del self.purchases[order.original_order_number]
+        elif order.order_position == CANCEL_SELL and order.order_state == CONFIRMED:
+            if order.original_order_number in self.sales:
+                del self.sales[order.original_order_number]
 
     def buy(self, price, amount, order_type='LIMIT'):
         msg = ('holding:' + str(self.holding_amount), 'price:' + str(price), 'amount:' + str(amount))
         self.post_cyan('(BUY)', *msg)
-        self.purchase.ordered = True
         self.target_amount = amount
         self.broker.buy(self.item_code, price, amount, order_type)
-
-    def buy_over(self, price, amount, order_type='LIMIT'):
-        pass
-        # if self.purchase.ordered:
-        #     return
-        #
-        # msg = ('holding:' + str(self.holding_amount), 'open:' + str(self.purchase.open_amount))
-        # self.post_cyan('(BUY_OVER)', *msg)
-        #
-        # self.purchase.ordered = True
-        # self.target_amount = amount
-        # if self.purchase.open_amount:
-        #     self.broker.cancel_and_buy(self.purchase, price, amount, order_type)
-        # else:
-        #     self.broker.buy(self.item_code, price, amount, order_type)
-
-    def buy_up(self):
-        pass
-        # if self.purchase.ordered:
-        #     return
-        #
-        # purchase_amount = self.target_amount - self.holding_amount
-        # refill_amount = purchase_amount - self.purchase.open_amount
-        #
-        # msg = ('holding:'+str(self.holding_amount), 'order:'+str(self.purchase.order_amount))
-        # msg += ('open:'+str(self.purchase.open_amount), 'refill:'+str(refill_amount))
-        # if refill_amount:
-        #     msg = ('\033[94mEXECUTED\033[97m',) + msg
-        # self.post_cyan('(BUY_UP)', *msg)
-        #
-        # if refill_amount:
-        #     self.purchase.ordered = True
-        #     if self.purchase.open_amount:
-        #         self.broker.cancel_and_buy(self.purchase, self.purchase.order_price, purchase_amount)
-        #     else:
-        #         self.broker.buy(self.item_code, self.purchase.order_price, purchase_amount)
 
     def sell(self, price, amount, order_type='LIMIT'):
         msg = ('holding:' + str(self.holding_amount), 'price:' + str(price), 'amount:' + str(amount))
         self.post_cyan('(SELL)', *msg)
-        self.sale.ordered = True
         self.target_amount = amount
         self.broker.sell(self.item_code, price, amount, order_type)
 
-    def sell_out(self, price):
-        pass
-        # if self.sale.ordered:
-        #     return
-        #
-        # sell_amount = self.holding_amount + self.sale.executed_amount_sum - self.sale.order_amount
-        #
-        # msg = ('holding:'+str(self.holding_amount), 'order:'+str(self.sale.order_amount))
-        # msg += ('executed:'+str(self.sale.executed_amount_sum), 'open:'+str(self.sale.open_amount))
-        # msg += ('sell:'+str(sell_amount),)
-        # if sell_amount:
-        #     msg = ('\033[94mEXECUTED\033[97m',) + msg
-        # self.post_cyan('(SELL_OUT)', *msg)
-        #
-        # if sell_amount:
-        #     self.sale.ordered = True
-        #     if self.sale.open_amount:
-        #         self.broker.cancel_and_sell(self.sale, price, self.holding_amount)
-        #     else:
-        #         self.broker.sell(self.item_code, price, self.holding_amount)
+    def buy_off(self):
+        msg = ('holding:' + str(self.holding_amount), 'purchases:' + str(len(self.purchases)))
+        self.post_cyan('(BUY_OFF)', *msg)
+        self.broker.buy(self.item_code, 0, abs(self.holding_amount), 'MARKET')
 
     def sell_off(self):
-        if not self.holding_amount or self.sale.ordered:
-            return
-
-        msg = ('holding:' + str(self.holding_amount), 'purchase.open:' + str(self.purchase.open_amount))
-        msg += ('sale.open:' + str(self.sale.open_amount),)
+        msg = ('holding:' + str(self.holding_amount), 'sales:' + str(len(self.sales)))
         self.post_cyan('(SELL_OFF)', *msg)
-
-        self.purchase.ordered = False
-        self.sale.ordered = True
-        self.broker.sell(self.item_code, 0, self.holding_amount, 'MARKET')
+        self.broker.sell(self.item_code, 0, abs(self.holding_amount), 'MARKET')
 
     def correct(self, order, price, amount=None):
         self.broker.correct(order, price, amount)
-
-    def correct_purchase(self, price):
-        if self.purchase.executed_amount_sum:
-            self.broker.cancel_and_buy(self.purchase, price)
-        else:
-            self.broker.correct(self.purchase, price)
-
-    def correct_sale(self, price):
-        if self.sale.ordered:
-            self.correct(self.sale, price)
 
     def correct_purchases(self, price):
         purchases = copy.deepcopy(self.purchases)
@@ -808,41 +711,14 @@ class FuturesAlgorithmItem(Order, WookLog):
             if order.open_amount:
                 self.cancel(order)
 
-    # def cancel_and_sell(self, order, price, amount):
-    #     self.broker.cancel_and_sell(order, price, amount)
-    #
-    # def clear_purchases(self):
-    #     self.purchases.clear()
-    #
-    # def clear_sales(self):
-    #     self.sales.clear()
-    #
-    # def init_purchase(self):
-    #     self.purchase = Order()
-    #
-    # def init_sale(self):
-    #     self.sale = Order()
-    #
-    # def get_open_purchases(self):
-    #     open_amount = 0
-    #     for order in self.purchases.values():
-    #         open_amount += order.open_amount
-    #     return open_amount
-    #
-    # def get_open_sales(self):
-    #     open_amount = 0
-    #     for order in self.sales.values():
-    #         open_amount += order.open_amount
-    #     return open_amount
-    #
-    # def add_purchase(self, order):
-    #     self.purchases[order.order_number] = order
-    #
-    # def add_sale(self, order):
-    #     self.sales[order.order_number] = order
-    #
-    # def remove_purchase(self, order):
-    #     del self.purchases[order.order_number]
-    #
-    # def remove_sale(self, order):
-    #     del self.sales[order.order_number]
+    def get_open_purchases(self):
+        open_amount = 0
+        for order in self.purchases.values():
+            open_amount += order.open_amount
+        return open_amount
+
+    def get_open_sales(self):
+        open_amount = 0
+        for order in self.sales.values():
+            open_amount += order.open_amount
+        return open_amount

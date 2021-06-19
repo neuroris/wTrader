@@ -63,7 +63,7 @@ class VAlgorithm4(AlgorithmBase):
         elif self.settle_up_in_progress:
             self.post('(BLOCK)', 'settle up in progress')
             return
-        elif self.finish_in_progress:
+        elif self.finish_up_in_progress:
             self.post('(BLOCK)', 'finish in progress')
             return
 
@@ -126,10 +126,10 @@ class VAlgorithm4(AlgorithmBase):
                 self.debug('%%%%%%%% (SETTLE UP) OPEN ORDER', self.open_orders)
                 if not self.open_orders:
                     self.settle_up_proper()
-            elif self.finish_in_progress:
+            elif self.finish_up_in_progress:
                 self.open_orders -= 1
                 if not self.open_orders:
-                    self.finish_proper()
+                    self.finish_up_proper()
 
     def update_episode_purchase(self, order):
         executed_amount = abs(order.executed_amount)
