@@ -202,6 +202,13 @@ class WookUtil:
         time_count = (hour - 9) * 60 + minute
         return time_count
 
+    def to_min_count2(self, time_text):
+        time_text = str(time_text)
+        hour = int(time_text[:2])
+        minute = int(time_text[2:4])
+        time_count = (hour - 9) * 60 + minute
+        return time_count
+
     def process_type(self, raw_data, number=False, time=False):
         data = str(raw_data)
         data = data.strip()

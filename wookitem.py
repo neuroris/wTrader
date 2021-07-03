@@ -55,9 +55,12 @@ class BalanceItem(Item):
         super().__init__()
 
 class FuturesItem(Item):
-    def __init__(self, item):
+    def __init__(self, item, broker):
         super().__init__()
         self.contracts = list()
+
+        self.futures_fee_ratio = broker.futures_fee_ratio
+        self.futures_tax_ratio = broker.futures_tax_ratio
 
         self.item_code = item.item_code
         if item.item_name[:5] == 'KOSPI':
@@ -105,7 +108,7 @@ class FuturesItem(Item):
         item.purchase_price = order.executed_price_avg
         item.holding_amount = order.executed_amount
         item.purchase_sum = int(order.executed_price_avg * abs(order.executed_amount) * MULTIPLIER)
-        item.evaluation_sum = order.current_price * abs(order.holding_amount)
+        item.evaluation_sum = int(order.current_price * abs(order.executed_amount) * MULTIPLIER)
         item.purchase_fee = item.purchase_sum * self.futures_fee_ratio
         item.evaluation_fee = item.evaluation_sum * self.futures_fee_ratio
         item.total_fee = int((item.purchase_fee + item.evaluation_fee) / 10) * 10
@@ -170,8 +173,12 @@ class Order(Item):
         self.order_number = 0
         self.original_order_number = 0
         self.executed_order_number = 0
-        self.episode_number = ''
         self.ordered = False
+
+class Episode(Order):
+    def __init__(self):
+        super().__init__()
+        self.episode_number = ''
 
     def get_episode_count(self):
         if self.episode_number:

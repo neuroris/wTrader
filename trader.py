@@ -19,6 +19,7 @@ from wookalgorithm.movingaverage.algorithm1 import MAlgorithm1
 from wookalgorithm.movingaverage.algorithm2 import MAlgorithm2
 from wookalgorithm.movingaverage.algorithm3 import MAlgorithm3
 from wookalgorithm.futures.algorithm1 import FMAlgorithm1
+from wookalgorithm.futures.algorithm2 import FMAlgorithm2
 from wookutil import ChartDrawer
 from wookitem import Item, FuturesItem, Order
 from wookdata import *
@@ -28,7 +29,7 @@ class Trader(TraderBase):
     def __init__(self, log, key):
         self.broker = Kiwoom(self, log, key)
         # self.broker = Bankis(self, log, key)
-        self.algorithm = FMAlgorithm1(self, log)
+        self.algorithm = FMAlgorithm2(self, log)
         self.general_account_index = 1
         self.futures_account_index = 0
         super().__init__(log)
@@ -42,9 +43,9 @@ class Trader(TraderBase):
 
         # Initial Values
         self.sb_capital.setValue(200000000)
-        self.sb_interval.setValue(0.1)
-        self.sb_loss_cut.setValue(0.05)
-        self.sb_fee.setValue(0.015)
+        self.sb_interval.setValue(0.3)
+        self.sb_loss_cut.setValue(0.15)
+        self.sb_fee.setValue(0.003)
         self.sb_min_transaction.setValue(10)
         self.sb_amount.setValue(1)
 
@@ -57,15 +58,33 @@ class Trader(TraderBase):
         # self.broker.request_futures_deposit_info()
         # self.broker.request_futures_portfolio_info()
 
+        self.t = 0
+
     def test1(self):
         self.debug('test1 button clicked')
 
-        self.algorithm.test = 1
+        # start = int(self.le_test.text())
+        # self.t = start
+        # self.algorithm.turnaround(start)
+
+        # self.algorithm.episode_count += 1
+        # self.algorithm.episode_in_progress = True
+        # self.algorithm.trade_position = LONG_POSITION
+        # self.set_reference(current_price)
+        # print('Episode in progress')
+
+        chart = self.algorithm.futures.chart
+        y = self.algorithm.get_linear_regression(chart, chart.MA5)
+        print(y)
 
     def test2(self):
         self.debug('test2 button clicked')
-        # self.algorithm.settle_up()
-        self.algorithm.test = 10
+
+        # self.t += 1
+        # self.algorithm.turnaround(self.t)
+
+        self.algorithm.episode_in_progress = False
+        print('Episode NOT in progress')
 
     def connect_broker(self):
         # if self.cb_auto_login.isChecked():
@@ -507,8 +526,11 @@ class Trader(TraderBase):
         holding_amount = self.process_type(holding_amount_item.text())
         self.sb_amount.setValue(abs(holding_amount))
 
-        self.cbb_order_position.setCurrentText('SELL')
         self.cbb_order_type.setCurrentText('MARKET')
+        if holding_amount > 0:
+            self.cbb_order_position.setCurrentText('SELL')
+        else:
+            self.cbb_order_position.setCurrentText('BUY')
 
     def on_select_trading_items_table(self, row, column):
         column_count = self.table_monitoring_items.columnCount() - 1
@@ -621,7 +643,8 @@ class Trader(TraderBase):
         order_price_column = 6
         order_price_item = self.table_algorithm_trading.item(row, order_price_column)
         order_price = self.process_type(order_price_item.text())
-        self.sb_price.setValue(order_price)
+        if order_price:
+            self.sb_price.setValue(order_price)
 
         open_amount_column = 10
         open_amount_item = self.table_algorithm_trading.item(row, open_amount_column)

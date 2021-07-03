@@ -6,7 +6,7 @@ from mplfinance.original_flavor import candlestick2_ohlc
 from datetime import datetime
 from PyQt5.QtCore import QEventLoop
 from wookutil import WookUtil, WookLog, ChartDrawer, wmath
-from wookitem import Item, BalanceItem, Order, AlgorithmItem
+from wookitem import Item, BalanceItem, Order, Episode, AlgorithmItem
 from wookdata import *
 import math
 
@@ -22,6 +22,7 @@ class FuturesAlgorithmBase(WookUtil, WookLog):
         self.stop_loss_ordered = False
         self.settle_up_in_progress = False
         self.finish_up_in_progress = False
+        self.time_off_in_progress = False
         self.trade_position = ''
 
         self.open_orders = 0
@@ -47,10 +48,13 @@ class FuturesAlgorithmBase(WookUtil, WookLog):
         self.bottom_price = 0
         self.chart_scope = 90
 
+        self.relax_timer = QTimer()
+        self.relax_time = 0
+
         self.items = dict()
         self.orders = dict()
-        self.open_position = Order()
-        self.close_position = Order()
+        self.open_position = Episode()
+        self.close_position = Episode()
         self.episode_count = 0
         self.episode_amount = 0
 
@@ -88,6 +92,7 @@ class FuturesAlgorithmBase(WookUtil, WookLog):
         self.stop_loss_ordered = False
         self.settle_up_in_progress = False
         self.finish_up_in_progress = False
+        self.time_off_in_progress = False
         self.trade_position = ''
 
         self.open_orders = 0
@@ -110,9 +115,11 @@ class FuturesAlgorithmBase(WookUtil, WookLog):
         self.bottom_price = 0
         self.chart_scope = 90
 
+        self.relax_timer.stop()
+
         self.orders.clear()
-        self.open_position = Order()
-        self.close_position = Order()
+        self.open_position = Episode()
+        self.close_position = Episode()
         self.episode_count = 0
         self.episode_amount = 0
 
@@ -135,7 +142,7 @@ class FuturesAlgorithmBase(WookUtil, WookLog):
         self.futures_tax_ratio = 0.0
 
         # Continue Charting
-        self.trader.go_chart()
+        # self.trader.go_chart()
 
     def initialize(self, broker, capital, interval, loss_cut, fee, minimum_transaction_amount):
         for item in self.items.values():
@@ -196,7 +203,8 @@ class FuturesAlgorithmBase(WookUtil, WookLog):
             if item.holding_amount:
                 # self.broker.sell(item.item_code, 0, item.holding_amount, 'PRIMARY PEG')
                 # self.broker.sell(item.item_code, item.ask_price, item.holding_amount, 'CONDITIONAL')
-                self.broker.sell(item.item_code, item.ask_price, item.holding_amount, 'MARKET')
+                ask_price = self.broker.monitoring_items[item.item_code].ask_price
+                self.broker.sell(item.item_code, ask_price, item.holding_amount, 'MARKET')
 
     def finish_up(self):
         self.finish_up_in_progress = True
@@ -224,28 +232,6 @@ class FuturesAlgorithmBase(WookUtil, WookLog):
     def get_episode_number(self):
         normalized_count = self.normalize_number(self.episode_count)
         return normalized_count
-
-    # def get_open_position_episode_number(self):
-    #     normalized_count = self.normalize_number(self.episode_count)
-    #     return normalized_count + 'E'
-    #
-    # def get_close_position_episode_number(self):
-    #     normalized_count = self.normalize_number(self.episode_count)
-    #     return normalized_count + 'S'
-    #
-    # def get_next_open_position_episode_number(self):
-    #     if not self.open_position.episode_number:
-    #         self.open_position.episode_number = '00E'
-    #     next_count = int(self.open_position.episode_number[:-1]) + 1
-    #     normalized_count = self.normalize_number(next_count)
-    #     return normalized_count + 'E'
-    #
-    # def get_next_close_position_episode_number(self):
-    #     if not self.close_position.episode_number:
-    #         self.close_position.episode_number = '00S'
-    #     next_count = int(self.close_position.episode_number[:-1]) + 1
-    #     normalized_count = self.normalize_number(next_count)
-    #     return normalized_count + 'S'
 
     def process_past_chart_prices(self, item_code, chart_prices):
         columns = ['Time', 'Open', 'High', 'Low', 'Close', 'Volume']
@@ -296,6 +282,16 @@ class FuturesAlgorithmBase(WookUtil, WookLog):
                 self.update_custom_chart(item)
         self.draw_chart.start()
 
+    def time_off(self):
+        self.time_off_in_progress = True
+        self.relax_timer.setInterval(self.relax_time)
+        self.relax_timer.setSingleShot(True)
+        self.relax_timer.timeout.connect(self.time_up)
+        self.relax_timer.start()
+
+    def time_up(self):
+        self.time_off_in_progress = False
+
     def customize_past_chart(self, item):
         # Override virtual function
         pass
@@ -326,6 +322,21 @@ class FuturesAlgorithmBase(WookUtil, WookLog):
             self.debug('\033[94mALGORITHM', *args, '\033[97m')
             self.previous_msg = args
 
+    def post_red(self, *args):
+        if args != self.previous_msg:
+            self.debug('\033[91mALGORITHM', *args, '\033[97m')
+            self.previous_msg = args
+
+    def post_magenta(self, *args):
+        if args != self.previous_msg:
+            self.debug('\033[95mALGORITHM', *args, '\033[97m')
+            self.previous_msg = args
+
+    def post_white(self, *args):
+        if args != self.previous_msg:
+            self.debug('\033[97mALGORITHM', *args, '\033[97m')
+            self.previous_msg = args
+
     def display_situation(self, current_situation):
         if current_situation != self.previous_situation:
             self.post_without_repetition(current_situation)
@@ -334,4 +345,9 @@ class FuturesAlgorithmBase(WookUtil, WookLog):
     def post_without_repetition(self, *args):
         if args != self.previous_msg:
             self.debug('\033[93mALGORITHM', *args, '\033[97m')
+            self.previous_msg = args
+
+    def post_white_without_repetition(self, *args):
+        if args != self.previous_msg:
+            self.debug('\033[97m', *args, '\033[97m')
             self.previous_msg = args

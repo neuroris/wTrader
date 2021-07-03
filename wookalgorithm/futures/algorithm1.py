@@ -2,7 +2,7 @@ import numpy
 from mplfinance.original_flavor import candlestick2_ohlc
 from matplotlib import ticker
 from datetime import datetime
-from wookitem import Order, AlgorithmItem, FuturesAlgorithmItem
+from wookitem import Order, Episode, AlgorithmItem, FuturesAlgorithmItem
 from wookutil import wmath
 from wookdata import *
 from wookalgorithm.futuresalgorithmbase import FuturesAlgorithmBase
@@ -21,6 +21,12 @@ class FMAlgorithm1(FuturesAlgorithmBase):
         super().__init__(trader, log)
         self.futures = None
         self.slope = None
+        self.open_position_purchase_history = dict()
+        self.close_position_purchase_history = dict()
+        self.open_position_sale_history = dict()
+        self.close_position_sale_history = dict()
+
+        self.diffdiff5 = dict()
 
     def start(self, broker, capital, interval, loss_cut, fee, minimum_transaction_amount):
         self.futures = FuturesAlgorithmItem('101R9000')
@@ -42,29 +48,36 @@ class FMAlgorithm1(FuturesAlgorithmBase):
         if not self.start_time:
             self.start_work(item.current_price)
 
-        if self.work_in_progress():
-            return
-
-        # Update ask price
-        self.items[item.item_code].ask_price = abs(item.ask_price)
-
         # Update chart
         self.update_chart_prices(item.item_code, item.current_price, item.volume)
 
-        # Purchase decision & shift transition
-        if self.episode_in_progress:
-            self.shift_transition(item.current_price)
-        else:
-            self.consider_transaction(item.current_price)
+        if self.work_in_progress():
+            return
 
         # For debugging
-        self.debug('Slope', self.slope)
+        # self.debug('Slope', self.slope)
         chart = self.futures.chart
+        self.post_white_without_repetition(
+            'DiffDiff5[-5]:{}, DiffDiff5[-4]:{}, DiffDiff5[-3]:{}, DiffDiff5[-2]:{}, DiffDiff5[-1]:{}'.format
+            (chart.DiffDiff5[-5], chart.DiffDiff5[-4], chart.DiffDiff5[-3], chart.DiffDiff5[-2],
+             chart.DiffDiff5[-1]))
+        # self.post_magenta('Diff5[-3]:{}, Diff5[-2]:{}, Diff[-1]:{}'.format(chart.Diff5[-3], chart.Diff5[-2], chart.Diff5[-1]))
+        # self.debug('Diff5[-2]:{}, Diff10[-2]:{}, Diff20[-2]:{}, Diff5[-1]:{}, Diff10[-1]:{}, Diff20[-1]:{}'.format
+        #            (chart.Diff5[-2], chart.Diff10[-2], chart.Diff20[-2], chart.Diff5[-1], chart.Diff10[-1], chart.Diff20[-1]))
+        # self.debug('Diff5[-4]:{} Diff5[-3]:{}, Diff5[-2]:{}, Diff[-1]:{}'.format
+        #            (chart.Diff5[-4], chart.Diff5[-3], chart.Diff5[-2], chart.Diff5[-1]))
         # self.debug('Diff5: {}, DiffDifff5[-2]:{}, Diff10[-2]:{}, DiffDiff10[-2]: {}'.format
         #            (chart.Diff5[-2], chart.DiffDiff5[-2], chart.Diff10[-2], chart.DiffDiff10[-1]))
         # self.debug('Diff5: {}, DiffDifff5[-1]:{}, Diff10[-1]:{}, DiffDiff10[-1]: {}'.format
         #            (chart.Diff5[-1], chart.DiffDiff5[-1], chart.Diff10[-1], chart.DiffDiff10[-1]))
         # self.debug('MA5[-1]', chart.MA5[-1], 'MA5[-2]', chart.MA5[-2])
+
+        # Purchase decision & shift transition
+        if self.episode_in_progress:
+            self.shift_transition(item.current_price)
+            self.consider_stop_loss(item.current_price)
+        else:
+            self.consider_transaction(item.current_price)
 
     def start_work(self, current_price):
         self.start_time_text = datetime.now().strftime('%H:%M')
@@ -83,7 +96,10 @@ class FMAlgorithm1(FuturesAlgorithmBase):
             self.post('(BLOCK)', 'open cancel orders', self.open_cancel_orders)
             return True
         elif self.stop_loss_ordered:
-            self.post('(BLOCK)', 'stop loss ordered')
+            self.post_without_repetition('(BLOCK)', 'stop loss ordered')
+            return True
+        elif self.time_off_in_progress:
+            self.post_without_repetition('(BLOCK)', 'time off')
             return True
         elif self.settle_up_in_progress:
             self.post_without_repetition('(BLOCK)', 'settle up in progress')
@@ -96,35 +112,133 @@ class FMAlgorithm1(FuturesAlgorithmBase):
 
     def bull_market(self):
         chart = self.futures.chart
-        # if chart.DiffDiff5[-1] > 0 and chart.DiffDiff10[-1] > 0:
-        if chart.Diff5[-1] > 0:
-            return True
+        if chart.Diff5[-2] > 0 and chart.Diff10[-2] > 0 and chart.Diff20[-2] > 0:
+            if chart.Diff5[-1] > 0 and chart.Diff10[-1] > 0 and chart.Diff20[-1] > 0:
+                self.post('Bull Market')
+                return True
         else:
             return False
 
     def bear_market(self):
         chart = self.futures.chart
-        if chart.Diff5[-1] < 0:
+        if chart.Diff5[-2] < 0 and chart.Diff10[-2] < 0 and chart.Diff20[-2] < 0:
+            if chart.Diff5[-1] < 0 and chart.Diff10[-1] < 0 and chart.Diff20[-1] < 0:
+                self.post('Bear Market')
+                return True
+        else:
+            return False
+
+    def turnaround(self):
+        chart = self.futures.chart
+        if (chart.DiffDiff5[-4] <= 0) and \
+                (chart.Diff5[-4] < 0) and \
+                (chart.DiffDiff5[-3] - chart.DiffDiff5[-4]) >= -0.01 and \
+                (chart.DiffDiff5[-2] - chart.DiffDiff5[-3]) >= -0.01 and \
+                (chart.DiffDiff5[-2] - chart.DiffDiff5[-1]) >= -0.01 and \
+                (chart.DiffDiff5[-2] - chart.DiffDiff5[-4]) >= 0 and \
+                (chart.DiffDiff5[-1] - chart.DiffDiff5[-3]) >= 0 and \
+                ((chart.DiffDiff5[-2] > 0 and chart.DiffDiff5[-1] > 0) or (chart.DiffDiff5[-1] >= 0.02)):
+            self.post('Turnaround')
+            return True
+        else:
+            return False
+
+    def downswing(self):
+        chart = self.futures.chart
+        if (chart.DiffDiff5[-4] >= 0) and \
+                (chart.Diff5[-4] > 0) and \
+                (chart.DiffDiff5[-3] - chart.DiffDiff5[-4]) <= 0.01 and \
+                (chart.DiffDiff5[-2] - chart.DiffDiff5[-3]) <= 0.01 and \
+                (chart.DiffDiff5[-1] - chart.DiffDiff5[-2]) <= 0.01 and \
+                (chart.DiffDiff5[-2] - chart.DiffDiff5[-4]) <= 0 and \
+                (chart.DiffDiff5[-1] - chart.DiffDiff5[-3]) <= 0 and \
+                ((chart.DiffDiff5[-2] < 0 and chart.DiffDiff5[-1] < 0) or (chart.DiffDiff5[-1] <= 0.02)):
+            self.post('Downswing')
+            return True
+        else:
+            return False
+
+    def turnaround2(self):
+        chart = self.futures.chart
+        if (chart.DiffDiff5[-5] <= 0) and \
+                (chart.Diff5[-5] < 0) and \
+                (chart.Diff5[-4] < 0) and \
+                (chart.DiffDiff5[-4] - chart.DiffDiff5[-5]) >= -0.01 and\
+                (chart.DiffDiff5[-3] - chart.DiffDiff5[-4]) >= -0.01 and \
+                (chart.DiffDiff5[-2] - chart.DiffDiff5[-3]) >= -0.01 and \
+                (chart.DiffDiff5[-2] - chart.DiffDiff5[-1]) >= -0.01 and \
+                (chart.DiffDiff5[-3] - chart.DiffDiff5[-5]) >= 0 and \
+                (chart.DiffDiff5[-2] - chart.DiffDiff5[-4]) >= 0 and \
+                (chart.DiffDiff5[-1] - chart.DiffDiff5[-3]) >= 0 and \
+                ((chart.DiffDiff5[-2] > 0 and chart.DiffDiff5[-1] > 0) or (chart.DiffDiff5[-1] >= 0.02)):
+            self.post('Turnaround')
+            return True
+        else:
+            return False
+
+    def downswing2(self):
+        chart = self.futures.chart
+        if (chart.DiffDiff5[-5] >= 0) and \
+                (chart.Diff5[-5] > 0) and \
+                (chart.Diff5[-4] > 0) and \
+                (chart.DiffDiff5[-4] - chart.DiffDiff5[-5]) <= 0.01 and \
+                (chart.DiffDiff5[-3] - chart.DiffDiff5[-4]) <= 0.01 and \
+                (chart.DiffDiff5[-2] - chart.DiffDiff5[-3]) <= 0.01 and \
+                (chart.DiffDiff5[-1] - chart.DiffDiff5[-2]) <= 0.01 and \
+                (chart.DiffDiff5[-3] - chart.DiffDiff5[-5]) <= 0 and \
+                (chart.DiffDiff5[-2] - chart.DiffDiff5[-4]) <= 0 and \
+                (chart.DiffDiff5[-1] - chart.DiffDiff5[-3]) <= 0 and \
+                ((chart.DiffDiff5[-2] < 0 and chart.DiffDiff5[-1] < 0) or (chart.DiffDiff5[-1] <= 0.02)):
+            self.post('Downswing')
             return True
         else:
             return False
 
     def consider_transaction(self, current_price):
-        # return
-        if self.bull_market():
-            self.episode_count += 1
-            self.episode_in_progress = True
-            self.trade_position = LONG_POSITION
-            self.set_reference(current_price)
-            # self.open_position.virtual_open_amount += self.episode_amount
-            self.futures.buy(0, self.episode_amount, 'MARKET')
-        elif self.bear_market():
-            self.episode_count += 1
-            self.episode_in_progress = True
-            self.trade_position = SHORT_POSITION
-            self.set_reference(current_price)
-            # self.open_position.virtual_open_amount += self.episode_amount
-            self.futures.sell(0, self.episode_amount, 'MARKET')
+        if self.turnaround():
+            self.buy(current_price)
+        elif self.downswing():
+            self.sell(current_price)
+
+    def buy(self, current_price):
+        self.episode_count += 1
+        self.episode_in_progress = True
+        self.trade_position = LONG_POSITION
+        self.set_reference(current_price)
+        # self.open_position.virtual_open_amount += self.episode_amount
+        self.futures.buy(0, self.episode_amount, 'MARKET')
+
+    def sell(self, current_price):
+        self.episode_count += 1
+        self.episode_in_progress = True
+        self.trade_position = SHORT_POSITION
+        self.set_reference(current_price)
+        # self.open_position.virtual_open_amount += self.episode_amount
+        self.futures.sell(0, self.episode_amount, 'MARKET')
+
+    def consider_stop_loss(self, current_price):
+        if self.trade_position == LONG_POSITION:
+            if self.downswing():
+                self.post('STOP LOSS BY DOWNSWING!')
+                self.stop_loss()
+        elif self.trade_position == SHORT_POSITION:
+            if self.turnaround():
+                self.post('STOP LOSS BY TURNAROUND!')
+                self.stop_loss()
+
+    def stop_loss(self):
+        if self.trade_position == LONG_POSITION:
+            self.open_cancel_orders = len(self.futures.sales)
+            self.stop_loss_ordered = True
+            self.episode_in_progress = False
+            self.futures.sell_off()
+            self.time_off()
+        elif self.trade_position == SHORT_POSITION:
+            self.open_cancel_orders = len(self.futures.purchases)
+            self.stop_loss_ordered = True
+            self.episode_in_progress = False
+            self.futures.buy_off()
+            self.time_off()
 
     def shift_transition(self, current_price):
         if self.trade_position == LONG_POSITION:
@@ -133,7 +247,8 @@ class FMAlgorithm1(FuturesAlgorithmBase):
             self.short_position_shift(current_price)
 
     def long_position_shift(self, current_price):
-        if current_price >= (self.reference_price + self.loss_cut):
+        # if current_price >= (self.reference_price + self.loss_cut):
+        if current_price > self.reference_price + self.loss_cut:
             self.post('Situation 1')
             self.shift_reference_up()
             self.open_purchase_correct_orders = len(self.futures.purchases)
@@ -144,19 +259,18 @@ class FMAlgorithm1(FuturesAlgorithmBase):
                     self.open_purchase_cancel_orders = len(self.futures.purchases)
                     if self.open_purchase_cancel_orders:
                         self.futures.cancel_purchases()
-            elif self.futures.holding_amount:
-                self.loss_limit -= self.loss_cut
+            # elif self.futures.holding_amount:
+            #     self.loss_limit -= self.loss_cut
         elif current_price <= self.loss_limit:
             self.post('Situation 4')
             self.shift_reference_down()
             if self.futures.holding_amount:
-                self.open_cancel_orders = len(self.futures.sales)
-                self.stop_loss_ordered = True
-                self.episode_in_progress = False
-                self.futures.sell_off()
+                self.post('STOP LOSS BY LOSS CUT!!')
+                self.stop_loss()
 
     def short_position_shift(self, current_price):
-        if current_price <= (self.reference_price - self.loss_cut):
+        # if current_price <= (self.reference_price - self.loss_cut):
+        if current_price < self.reference_price:
             self.post('Situation 1')
             self.shift_reference_down()
             self.open_sale_correct_orders = len(self.futures.sales)
@@ -167,16 +281,14 @@ class FMAlgorithm1(FuturesAlgorithmBase):
                     self.open_sale_cancel_orders = len(self.futures.sales)
                     if self.open_sale_cancel_orders:
                         self.futures.cancel_sales()
-            elif self.futures.holding_amount:
-                self.loss_limit += self.loss_cut
+            # elif self.futures.holding_amount:
+            #     self.loss_limit += self.loss_cut
         elif current_price >= self.loss_limit:
             self.post('Situation 4')
             self.shift_reference_up()
             if self.futures.holding_amount:
-                self.open_cancel_orders = len(self.futures.sales)
-                self.stop_loss_ordered = True
-                self.episode_in_progress = False
-                self.futures.buy_off()
+                self.post('STOP LOSS BY LOSS CUT!!')
+                self.stop_loss()
 
     def update_execution_info(self, order):
         # Update Algorithm item orders
@@ -247,7 +359,7 @@ class FMAlgorithm1(FuturesAlgorithmBase):
         executed_amount = abs(order.executed_amount)
         if self.episode_count != self.open_position.get_episode_count():
             old_open_position = self.open_position
-            self.open_position = Order()
+            self.open_position = Episode()
             self.open_position.episode_number = self.get_episode_number() + 'E'
             self.open_position.item_name = order.item_name
             self.open_position.virtual_open_amount = old_open_position.virtual_open_amount
@@ -265,12 +377,17 @@ class FMAlgorithm1(FuturesAlgorithmBase):
             self.open_position.open_amount -= executed_amount
             self.open_position.virtual_open_amount -= executed_amount
             self.open_position.executed_amount_sum += executed_amount
+            if not self.open_position.open_amount:
+                if self.trade_position == PURCHASE:
+                    self.open_position_purchase_history[self.open_position.executed_time] = self.open_position.executed_price_avg
+                else:
+                    self.open_position_sale_history[self.open_position.executed_time] = self.open_position.executed_price_avg
 
     def update_close_position(self, order):
         executed_amount = abs(order.executed_amount)
         if self.episode_count != self.close_position.get_episode_count():
             old_close_position = self.close_position
-            self.close_position = Order()
+            self.close_position = Episode()
             self.close_position.episode_number = self.get_episode_number() + 'S'
             self.close_position.item_name = order.item_name
             self.close_position.order_price = order.order_price
@@ -293,6 +410,11 @@ class FMAlgorithm1(FuturesAlgorithmBase):
             self.total_profit += order.profit
             self.total_fee += order.total_fee
             self.net_profit += order.net_profit
+            if not self.close_position.open_amount:
+                if self.trade_position == SELL:
+                    self.close_position_purchase_history[self.close_position.executed_time] = self.close_position.executed_price_avg
+                else:
+                    self.close_position_sale_history[self.close_position.executed_time] = self.close_position.executed_price_avg
 
         if self.stop_loss_ordered and not order.open_amount:
             self.stop_loss_ordered = False
@@ -415,15 +537,55 @@ class FMAlgorithm1(FuturesAlgorithmBase):
             self.trader.ax.vlines(self.start_time, y1, self.start_price, alpha=0.8, linewidth=0.2, color='Green')
             self.trader.ax.text(self.start_time, y1 + 0.05, self.start_comment, color='RebeccaPurple')
 
+        # Trade history
+        try:
+            for trade_time, price in self.open_position_purchase_history.items():
+                x = self.to_min_count2(trade_time)
+                if x > x1:
+                    self.trader.ax.text(x + 0.5, price, 'P')
+                    self.trader.ax.plot(x, price, marker='o', markersize=4, color='Cyan')
+
+            for trade_time, price in self.open_position_sale_history.items():
+                x = self.to_min_count2(trade_time)
+                if x > x1:
+                    self.trader.ax.text(x + 0.5, price, 'S')
+                    self.trader.ax.plot(x, price, marker='o', markersize=4, color='Cyan')
+
+            for trade_time, price in self.close_position_purchase_history.items():
+                x = self.to_min_count2(trade_time)
+                if x > x1:
+                    self.trader.ax.text(x - 1, price, 'P')
+                    self.trader.ax.plot(x, price, marker='o', markersize=4, color='Yellow')
+
+            for trade_time, price in self.close_position_sale_history.items():
+                x = self.to_min_count2(trade_time)
+                if x > x1:
+                    self.trader.ax.text(x - 1, price, 'S')
+                    self.trader.ax.plot(x, price, marker='o', markersize=4, color='Yellow')
+        except Exception as e:
+            self.warning('Runtime warning(during trade history):', e)
+
+        # chart = self.futures.chart
+        # alternate = 1
+        # for time in chart.index[x1:]:
+        #     time_text = time.strftime('%H%M')
+        #     x = self.to_min_count(time_text)
+        #     if alternate > 0:
+        #         price = chart.loc[time, 'Low']
+        #     else:
+        #         price = chart.loc[time, 'High']
+        #     diffdiff5 = chart.loc[time, 'DiffDiff5']
+        #     self.trader.ax.text(x, price, diffdiff5)
+        #     alternate *= -1
+
         # References
-        reference_offset = 0.5
         if not self.episode_in_progress:
             return
-
+        reference_offset = 0.5
         self.trader.ax.axhline(self.reference_price, alpha=1, linewidth=0.2, color='Maroon')
         self.trader.ax.text(x1 + reference_offset, self.reference_price, 'Reference')
         self.trader.ax.axhline(self.loss_limit, alpha=1, linewidth=0.2, color='DeepPink')
-        self.trader.ax.text(x1 + reference_offset, self.loss_limit, 'Loss cut')
+        self.trader.ax.text(x1 + reference_offset, self.loss_limit, 'Loss limit')
         if self.trade_position == LONG_POSITION:
             self.trader.ax.axhline(self.trade_limit, alpha=1, linewidth=0.2, color='Maroon')
             self.trader.ax.text(x1 + reference_offset, self.trade_limit, 'Buy limit')

@@ -245,7 +245,8 @@ class Kiwoom(KiwoomBase):
             if not item.item_code:
                 self.info('Portfolio information (NO ITEM)')
                 return
-            item.item_name = get_comm_data(ITEM_NAME)[9:]
+            # item.item_name = get_comm_data(ITEM_NAME)[9:]
+            item.item_name = get_comm_data(ITEM_NAME)
             item.trade_position = get_comm_data(TRADE_POSITION)
             item.holding_amount = get_comm_data(BALANCE_AMOUNT)
             item.purchase_price = get_comm_data(PURCHASE_UNIT_PRICE) / 100
@@ -275,7 +276,7 @@ class Kiwoom(KiwoomBase):
             if item.item_code in self.portfolio:
                 futures_item = self.portfolio[item.item_code]
             else:
-                futures_item = FuturesItem(item)
+                futures_item = FuturesItem(item, self)
                 self.portfolio[item.item_code] = futures_item
             futures_item.append(item)
 
@@ -574,7 +575,7 @@ class Kiwoom(KiwoomBase):
 
     def update_futures_portfolio(self, order):
         if order.item_code not in self.portfolio:
-            futures_item = FuturesItem(order)
+            futures_item = FuturesItem(order, self)
             self.portfolio[order.item_code] = futures_item
         futures_item = self.portfolio[order.item_code]
 
@@ -585,7 +586,7 @@ class Kiwoom(KiwoomBase):
             return
 
         # Futures entry or settlement
-        if futures_item.holding_amount * order.executed_amount > 0:
+        if futures_item.holding_amount * order.executed_amount >= 0:
             futures_item.add(order)
         else:
             working_order = copy.deepcopy(order)
