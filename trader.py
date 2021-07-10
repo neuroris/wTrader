@@ -63,28 +63,20 @@ class Trader(TraderBase):
     def test1(self):
         self.debug('test1 button clicked')
 
-        # start = int(self.le_test.text())
-        # self.t = start
-        # self.algorithm.turnaround(start)
-
         # self.algorithm.episode_count += 1
         # self.algorithm.episode_in_progress = True
         # self.algorithm.trade_position = LONG_POSITION
         # self.set_reference(current_price)
         # print('Episode in progress')
 
-        chart = self.algorithm.futures.chart
-        y = self.algorithm.get_linear_regression(chart, chart.MA5)
-        print(y)
+        futures = self.broker.monitoring_items['101R9000']
+        self.algorithm.buy(futures.current_price)
 
     def test2(self):
         self.debug('test2 button clicked')
 
-        # self.t += 1
-        # self.algorithm.turnaround(self.t)
-
-        self.algorithm.episode_in_progress = False
-        print('Episode NOT in progress')
+        futures = self.broker.monitoring_items['101R9000']
+        self.algorithm.sell(futures.current_price)
 
     def connect_broker(self):
         # if self.cb_auto_login.isChecked():

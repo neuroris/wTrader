@@ -30,19 +30,12 @@ class FMAlgorithm2(FuturesAlgorithmBase):
         self.close_position_sale_history = dict()
 
         # Regression
-        self.regression_interval = 9
         self.polynomial_features1 = PolynomialFeatures(degree=1, include_bias=False)
         self.polynomial_features2 = PolynomialFeatures(degree=2, include_bias=False)
         self.polynomial_features3 = PolynomialFeatures(degree=3, include_bias=False)
         self.linear_regression = LinearRegression()
-        self.x_regression = None
-        self.x_reshape = None
-        self.x_fitted = None
-        self.price_average_regression = None
-        self.ma5_regression3 = None
-        self.ma5_regression3 = None
-
-        self.diffdiff = None
+        self.r3_interval = 9
+        self.r1_interval = 30
 
     def start(self, broker, capital, interval, loss_cut, fee, minimum_transaction_amount):
         self.futures = FuturesAlgorithmItem('101R9000')
@@ -226,14 +219,14 @@ class FMAlgorithm2(FuturesAlgorithmBase):
             return False
 
     def turnaround3(self):
-        y = self.price_average_regression
+        y = self.y_price_average
         diff = (y[-2] - y[-3], y[-1] - y[-2])
         self.debug('diff[-1]', diff[-1], 'diff[-2]', diff[-2])
         if diff[-1] > diff[-2]:
             return True
 
     def downswing3(self):
-        y = self.price_average_regression
+        y = self.y_price_average
         diff = (y[-2] - y[-3], y[-1] - y[-2])
         self.debug('diff[-1]', diff[-1], 'diff[-2]', diff[-2])
         if diff[-1] < diff[-2]:
@@ -272,7 +265,7 @@ class FMAlgorithm2(FuturesAlgorithmBase):
         self.trader.canvas.draw()
         # self.draw_chart.start()
 
-    def turnaround(self):
+    def turnaround5(self):
         chart = self.futures.chart
 
         if (self.diffdiff[-4] < 0) and (self.diffdiff[-1] > 0):
@@ -280,10 +273,28 @@ class FMAlgorithm2(FuturesAlgorithmBase):
         else:
             return False
 
-    def downswing(self):
+    def downswing5(self):
         chart = self.futures.chart
 
         if (self.diffdiff[-4] > 0) and (self.diffdiff[-1] < 0):
+            return True
+        else:
+            return False
+
+    def turnaround(self):
+        return
+        chart = self.futures.chart
+
+        if (self.indicator.MA5_R3_Diff[-4] < 0) and (self.indicator.MA5_R3_Diff[-2] > 0):
+            return True
+        else:
+            return False
+
+    def downswing(self):
+        return
+        chart = self.futures.chart
+
+        if (self.indicator.MA5_R3_Diff[-4] > 0) and (self.indicator.MA5_R3_Diff[-2] < 0):
             return True
         else:
             return False
@@ -361,7 +372,7 @@ class FMAlgorithm2(FuturesAlgorithmBase):
             # self.shift_reference_down()
             if self.futures.holding_amount:
                 self.post('STOP LOSS BY LOSS CUT!!')
-                self.stop_loss()
+                # self.stop_loss()
 
     def short_position_shift(self, current_price):
         if current_price < self.reference_price - self.loss_cut:
@@ -382,7 +393,7 @@ class FMAlgorithm2(FuturesAlgorithmBase):
             # self.shift_reference_up()
             if self.futures.holding_amount:
                 self.post('STOP LOSS BY LOSS CUT!!')
-                self.stop_loss()
+                # self.stop_loss()
 
     def update_execution_info(self, order):
         # Update Algorithm item orders
@@ -526,14 +537,34 @@ class FMAlgorithm2(FuturesAlgorithmBase):
         chart['DiffDiff5'] = chart.Diff5.diff().fillna(0).apply(lambda x:round(x, 3))
         chart['DiffDiff10'] = chart.Diff10.diff().fillna(0).apply(lambda x:round(x, 3))
         chart['DiffDiff20'] = chart.Diff20.diff().fillna(0).apply(lambda x:round(x, 3))
+        chart['PA'] = round((chart.High + chart.Low) / 2, 3)
+        chart[['X1', 'X3', 'PAR1', 'PAR3', 'PAR3_Diff', 'PAR3_DiffDiff', 'PAR3_DiffDiffDiff']] = 0
+        chart[['MA5R3', 'MA5R3_Diff', 'MA5R3_DiffDiff', 'MA5R3_DiffDiffDiff']] = 0
 
-        chart['PriceAvg'] = (chart.High + chart.Low) / 2
+        x1, PAR1 = self.get_linear_regression(chart, chart.PA, self.r1_interval)
+        x3, PAR3 = self.get_cubic_regression(chart, chart.PA, self.r3_interval)
+        x3, MA5R3 = self.get_cubic_regression(chart, chart.MA5, self.r3_interval)
+        chart_len = len(chart)
+        x1_len = self.r1_interval
+        if chart_len < self.r1_interval:
+            x1_len = chart_len
+        x1_interval = chart.index[-x1_len:]
+        x3_len = self.r3_interval
+        if chart_len < self.r3_interval:
+            x3_len = chart_len
+        x3_interval = chart.index[-x3_len:]
 
-        self.x_regression, self.price_average_regression = self.get_cubic_regression(chart, chart.PriceAvg)
-        # chart['PriceAvgReg3'] = chart.
-
-        self.regression_analysis_price(chart)
-        self.regression_analysis_ma5_degree3(chart)
+        chart.loc[x1_interval, 'X1'] = x1
+        chart.loc[x1_interval, 'PAR1'] = PAR1
+        chart.loc[x3_interval, 'X3'] = x3
+        chart.loc[x3_interval, 'PAR3'] = PAR3
+        chart.loc[x3_interval, 'PAR3_Diff'] = chart.PAR3.diff().fillna(0)
+        chart.loc[x3_interval, 'PAR3_DiffDiff'] = chart.PAR3_Diff.diff().fillna(0)
+        chart.loc[x3_interval, 'PAR3_DiffDiffDiff'] = chart.PAR3_DiffDiff.diff().fillna(0)
+        chart.loc[x3_interval, 'MAR3'] = MA5R3
+        chart.loc[x3_interval, 'MAR3_Diff'] = chart.MAR3.diff().fillna(0)
+        chart.loc[x3_interval, 'MAR3_DiffDiff'] = chart.MAR3_Diff.diff().fillna(0)
+        chart.loc[x3_interval, 'MAR3_DiffDiffDiff'] = chart.MAR3_DiffDiff.diff().fillna(0)
 
     def update_custom_chart(self, item):
         chart = item.chart
@@ -561,90 +592,46 @@ class FMAlgorithm2(FuturesAlgorithmBase):
         chart.loc[current_time, 'DiffDiff5'] = round(chart.Diff5[-1] - chart.Diff5[-2], 3)
         chart.loc[current_time, 'DiffDiff10'] = round(chart.Diff10[-1] - chart.Diff10[-2], 3)
         chart.loc[current_time, 'DiffDiff20'] = round(chart.Diff20[-1] - chart.Diff20[-2], 3)
+        chart.loc[current_time, 'PA'] = round(((chart.High[-1] + chart.Low[-1]) / 2), 3)
 
-        self.regression_analysis_price(chart)
-        self.regression_analysis_ma5_degree3(chart)
+        x1, PAR1 = self.get_linear_regression(chart, chart.PA, self.r1_interval)
+        x3, PAR3 = self.get_cubic_regression(chart, chart.PA, self.r3_interval)
+        x3, MA5R3 = self.get_cubic_regression(chart, chart.MA5, self.r3_interval)
 
-    def regression_analysis_price(self, chart):
-        x2 = len(chart)
-        x1 = x2 - self.regression_interval
-        chart = chart[x1:x2]
+        chart_len = len(chart)
+        x1_len = self.r1_interval
+        x3_len = self.r3_interval
+        if chart_len < self.r1_interval:
+            x1_len = chart_len
+        x1_interval = chart.index[-x1_len:]
+        if chart_len < self.r3_interval:
+            x3_len = chart_len
+        x3_interval = chart.index[-x3_len:]
 
-        self.x_regression = numpy.arange(x1, x2)
-        self.x_reshape = self.x_regression.reshape(-1, 1)
-        self.x_fitted = self.polynomial_features2.fit_transform(self.x_reshape)
-
-        y = list()
-        for index, row in chart.iterrows():
-            average = (row.High + row.Low) / 2
-            y.append(average)
-
-        self.linear_regression.fit(self.x_fitted, y)
-        self.price_average_regression = self.linear_regression.predict(self.x_fitted)
-
-    def regression_analysis_ma5_degree2(self, chart):
-        x2 = len(chart)
-        x1 = x2 - self.regression_interval
-        chart = chart[x1:x2]
-
-        self.x_regression = numpy.arange(x1, x2)
-        x_reshape = self.x_regression.reshape(-1, 1)
-        x_fitted = self.polynomial_features2.fit_transform(x_reshape)
-        self.linear_regression.fit(x_fitted, chart.MA5)
-        self.ma5_regression3 = self.linear_regression.predict(x_fitted)
-
-        diff = list()
-        diff.append(self.ma5_regression3[-5] - self.ma5_regression3[-6])
-        diff.append(self.ma5_regression3[-4] - self.ma5_regression3[-5])
-        diff.append(self.ma5_regression3[-3] - self.ma5_regression3[-4])
-        diff.append(self.ma5_regression3[-2] - self.ma5_regression3[-3])
-        diff.append(self.ma5_regression3[-1] - self.ma5_regression3[-2])
-
-        diffdiff = list()
-        diffdiff.append(diff[-4] - diff[-5])
-        diffdiff.append(diff[-3] - diff[-4])
-        diffdiff.append(diff[-2] - diff[-3])
-        diffdiff.append(diff[-1] - diff[-2])
-
-        print('diff', diff)
-        print('diffdiff', diffdiff)
-
-    def regression_analysis_ma5_degree3(self, chart):
-        self.x_regression, self.ma5_regression3 = self.get_cubic_regression(chart, chart.MA5)
-
-        diff = list()
-        diff.append(self.ma5_regression3[-5] - self.ma5_regression3[-6])
-        diff.append(self.ma5_regression3[-4] - self.ma5_regression3[-5])
-        diff.append(self.ma5_regression3[-3] - self.ma5_regression3[-4])
-        diff.append(self.ma5_regression3[-2] - self.ma5_regression3[-3])
-        diff.append(self.ma5_regression3[-1] - self.ma5_regression3[-2])
-
-        diffdiff = list()
-        diffdiff.append(diff[-4] - diff[-5])
-        diffdiff.append(diff[-3] - diff[-4])
-        diffdiff.append(diff[-2] - diff[-3])
-        diffdiff.append(diff[-1] - diff[-2])
-
-        # print('diff', diff)
-        # print('diffdiff', diffdiff)
-        diffdiff = list(map(lambda x: x*10, diffdiff))
-        diffdiff = numpy.round(diffdiff, 4)
-        self.debug('\033[95m', diffdiff, '\033[97m')
-
-        self.diffdiff = diffdiff
-
-        return diffdiff
+        chart.loc[x1_interval, 'X1'] = x1
+        chart.loc[x1_interval, 'PAR1'] = PAR1
+        chart.loc[x3_interval, 'X3'] = x3
+        chart.loc[x3_interval, 'PAR3'] = PAR3
+        chart.loc[x3_interval, 'PAR3_Diff'] = chart.PAR3.diff().fillna(0)
+        chart.loc[x3_interval, 'PAR3_DiffDiff'] = chart.PAR3_Diff.diff().fillna(0)
+        chart.loc[chart.index[-1], 'PAR3_DiffDiffDiff'] = chart.PAR3_DiffDiff[-1] - chart.PAR3_DiffDiff[-2]
+        chart.loc[x3_interval, 'MAR3'] = MA5R3
+        chart.loc[x3_interval, 'MAR3_Diff'] = chart.MAR3.diff().fillna(0)
+        chart.loc[x3_interval, 'MAR3_DiffDiff'] = chart.MAR3_Diff.diff().fillna(0)
+        chart.loc[chart.index[-1], 'MAR3_DiffDiffDiff'] = chart.MAR3_DiffDiff[-1] - chart.MAR3_DiffDiff[-2]
+        print(chart.loc[chart.index[-1]:, ['X3', 'PAR3_DiffDiffDiff', 'MAR3_DiffDiffDiff']])
 
     def display_chart(self):
         chart = self.futures.chart
-        if not len(chart):
+        chart_len = len(chart)
+        if not chart_len:
             return
 
         self.trader.ax.clear()
 
         # Axis ticker formatting
-        if len(chart) // 30 > len(self.chart_locator) - 1:
-            for index in range(len(self.chart_locator) * 30, len(chart), 30):
+        if chart_len // 30 > len(self.chart_locator) - 1:
+            for index in range(len(self.chart_locator) * 30, chart_len, 30):
                 time_format = chart.index[index].strftime('%H:%M')
                 self.chart_locator.append(index)
                 self.chart_formatter.append(time_format)
@@ -667,7 +654,7 @@ class FMAlgorithm2(FuturesAlgorithmBase):
             self.trader.ax.axhline(price, alpha=0.4, linewidth=0.2, color='Gray')
 
         # Current Price Annotation
-        current_time = len(chart)
+        current_time = chart_len
         current_price = chart.Close.iloc[-1]
         self.trader.ax.text(current_time + 0.5, current_price, format(current_price, ',.2f'))
 
@@ -679,24 +666,26 @@ class FMAlgorithm2(FuturesAlgorithmBase):
         self.trader.ax.legend(loc='best')
 
         # Slope
-        x_range = range(len(chart) - 1, len(chart) + 1)
+        x_range = range(chart_len - 1, chart_len + 1)
         self.slope = numpy.polyfit(x_range, chart.MA5[-2:], 1)
-        x = range(len(chart) - 20, len(chart))
+        x = range(chart_len - 20, chart_len)
         y = numpy.poly1d(self.slope)
         self.trader.ax.plot(x, y(x), color='Sienna')
 
         # Regression
-        # if self.x_regression.all() and self.price_average_regression.all():
-        #     self.trader.ax.plot(self.x_regression, self.price_average_regression, color='DarkGreen')
+        x1_len = self.r1_interval
+        x3_len = self.r3_interval
+        if chart_len < x1_len:
+            x1_len = chart_len
+        if chart_len < x3_len:
+            x3_len = chart_len
 
-        # if self.x_regression is not None and self.ma5_regression2 is not None:
-        #     self.trader.ax.plot(self.x_regression, self.ma5_regression2, color='Black')
-
-        if self.x_regression is not None and self.ma5_regression3 is not None:
-            self.trader.ax.plot(self.x_regression, self.ma5_regression3, color='DarkSlateGray')
+        self.trader.ax.plot(chart.X1[-x1_len:], chart.PAR1[-x1_len:], color='DarkOrange')
+        self.trader.ax.plot(chart.X3[-x3_len:], chart.PAR3[-x3_len:], color='Cyan')
+        self.trader.ax.plot(chart.X3[-x3_len:], chart.MAR3[-x3_len:], color='DarkSlateGray')
 
         # Set lim
-        x2 = len(chart)
+        x2 = chart_len
         x1 = x2 - self.chart_scope
         if x1 < 0:
             x1 = 0
@@ -785,13 +774,18 @@ class FMAlgorithm2(FuturesAlgorithmBase):
                 y -= offset
                 self.trader.ax.text(x, y, '({}/{})'.format(order.executed_amount_sum, order.order_amount))
 
-    def get_regression(self, x, y, polynomial_features, interval=None):
+    def get_regression(self, x, y, interval, predict_len, polynomial_features):
         if interval is None:
-            interval = self.regression_interval
+            interval = self.r3_interval
 
-        x2 = len(x)
+        x_len = len(x)
+        if x_len < interval:
+            interval = x_len
+
+        x2 = x_len
         x1 = x2 - interval
-        x_regression = numpy.arange(x1, x2)
+        x3 = x2 + predict_len
+        x_regression = numpy.arange(x1, x3)
         x_reshape = x_regression.reshape(-1, 1)
         x_fitted = polynomial_features.fit_transform(x_reshape)
         self.linear_regression.fit(x_fitted, y.values[x1:x2])
@@ -799,16 +793,16 @@ class FMAlgorithm2(FuturesAlgorithmBase):
 
         return x_regression, y_regression
 
-    def get_linear_regression(self, x, y, interval=None):
-        x_regression, y_regression = self.get_regression(x, y, self.polynomial_features1, interval)
+    def get_linear_regression(self, x, y, interval=None, predict_len=0):
+        x_regression, y_regression = self.get_regression(x, y, interval, predict_len, self.polynomial_features1)
         return x_regression, y_regression
 
-    def get_quadratic_regression(self, x, y, interval=None):
-        x_regression, y_regression = self.get_regression(x, y, self.polynomial_features2, interval)
+    def get_quadratic_regression(self, x, y, interval=None, predict_len=0):
+        x_regression, y_regression = self.get_regression(x, y, interval, predict_len, self.polynomial_features2)
         return x_regression, y_regression
 
-    def get_cubic_regression(self, x, y, interval=None):
-        x_regression, y_regression = self.get_regression(x, y, self.polynomial_features3, interval)
+    def get_cubic_regression(self, x, y, interval=None, predict_len=0):
+        x_regression, y_regression = self.get_regression(x, y, interval, predict_len, self.polynomial_features3)
         return x_regression, y_regression
 
     def get_max_price(self, x1, x2):

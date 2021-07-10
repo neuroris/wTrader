@@ -456,7 +456,7 @@ class TraderBase(QMainWindow, WookLog, WookUtil):
         self.status_bar.showMessage('ready')
         self.setWindowTitle('wook\'s algorithm trader')
         self.resize(2550, 1700)
-        self.move(-350, 100)
+        self.move(-700, 100)
         # self.move(100, 100)
         self.setWindowIcon(QIcon('data/wTrader.png'))
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('myApp')
