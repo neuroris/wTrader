@@ -36,6 +36,7 @@ class FMAlgorithm2(FuturesAlgorithmBase):
         self.linear_regression = LinearRegression()
         self.r3_interval = 9
         self.r1_interval = 30
+        self.par1_slope_interval = 4
 
     def start(self, broker, capital, interval, loss_cut, fee, minimum_transaction_amount):
         self.futures = FuturesAlgorithmItem('101R9000')
@@ -80,26 +81,19 @@ class FMAlgorithm2(FuturesAlgorithmBase):
 
         # For debugging
         chart = self.futures.chart
-        self.post_white_without_repetition(
-            'DiffDiff5[-5]:{}, DiffDiff5[-4]:{}, DiffDiff5[-3]:{}, DiffDiff5[-2]:{}, DiffDiff5[-1]:{}'.format
-            (chart.DiffDiff5[-5], chart.DiffDiff5[-4], chart.DiffDiff5[-3], chart.DiffDiff5[-2],
-             chart.DiffDiff5[-1]))
-        # self.post_magenta('Diff5[-3]:{}, Diff5[-2]:{}, Diff[-1]:{}'.format(chart.Diff5[-3], chart.Diff5[-2], chart.Diff5[-1]))
-        # self.debug('Diff5[-2]:{}, Diff10[-2]:{}, Diff20[-2]:{}, Diff5[-1]:{}, Diff10[-1]:{}, Diff20[-1]:{}'.format
-        #            (chart.Diff5[-2], chart.Diff10[-2], chart.Diff20[-2], chart.Diff5[-1], chart.Diff10[-1], chart.Diff20[-1]))
-        # self.debug('Diff5[-4]:{} Diff5[-3]:{}, Diff5[-2]:{}, Diff[-1]:{}'.format
-        #            (chart.Diff5[-4], chart.Diff5[-3], chart.Diff5[-2], chart.Diff5[-1]))
-        # self.debug('Diff5: {}, DiffDifff5[-2]:{}, Diff10[-2]:{}, DiffDiff10[-2]: {}'.format
-        #            (chart.Diff5[-2], chart.DiffDiff5[-2], chart.Diff10[-2], chart.DiffDiff10[-1]))
-        # self.debug('Diff5: {}, DiffDifff5[-1]:{}, Diff10[-1]:{}, DiffDiff10[-1]: {}'.format
-        #            (chart.Diff5[-1], chart.DiffDiff5[-1], chart.Diff10[-1], chart.DiffDiff10[-1]))
-        # self.debug('MA5[-1]', chart.MA5[-1], 'MA5[-2]', chart.MA5[-2])
+        # pandas.set_option('display.max_columns', 5)
+        chart = chart.loc[:, ['PAR3_DiffDiffDiff', 'MAR3_DiffDiffDiff', 'PAR1_Slope', 'PAR1_SlopeSlope']]
+        chart = chart[-3:]
+        chart.columns = ['PAR3', 'MAR3', 'PAR1 Slope', 'PAR1 SlopeSlope']
+        print(chart)
+        print('------------------------------------------------------------------------------------')
 
         # Purchase decision & shift transition
         if self.episode_in_progress:
-            if self.reference_price:
-                self.shift_transition(item.current_price)
-                self.consider_stop_loss(item.current_price)
+            self.consider_stop_loss(item.current_price)
+            # if self.reference_price:
+            #     self.shift_transition(item.current_price)
+            #     self.consider_stop_loss(item.current_price)
         else:
             self.consider_transaction(item.current_price)
 
@@ -136,147 +130,48 @@ class FMAlgorithm2(FuturesAlgorithmBase):
 
     def bull_market(self):
         chart = self.futures.chart
-        if chart.Diff5[-2] > 0 and chart.Diff10[-2] > 0 and chart.Diff20[-2] > 0:
-            if chart.Diff5[-1] > 0 and chart.Diff10[-1] > 0 and chart.Diff20[-1] > 0:
-                self.post('Bull Market')
-                return True
+        if chart.PAR1_Slope[-1] >= 0:
+            self.post('Bull Market')
+            return True
         else:
             return False
 
     def bear_market(self):
         chart = self.futures.chart
-        if chart.Diff5[-2] < 0 and chart.Diff10[-2] < 0 and chart.Diff20[-2] < 0:
-            if chart.Diff5[-1] < 0 and chart.Diff10[-1] < 0 and chart.Diff20[-1] < 0:
-                self.post('Bear Market')
-                return True
-        else:
-            return False
-
-    def turnaround1(self):
-        chart = self.futures.chart
-        if (chart.DiffDiff5[-4] <= 0) and \
-                (chart.Diff5[-4] < 0) and \
-                (chart.DiffDiff5[-3] - chart.DiffDiff5[-4]) >= -0.01 and \
-                (chart.DiffDiff5[-2] - chart.DiffDiff5[-3]) >= -0.01 and \
-                (chart.DiffDiff5[-2] - chart.DiffDiff5[-1]) >= -0.01 and \
-                (chart.DiffDiff5[-2] - chart.DiffDiff5[-4]) >= 0 and \
-                (chart.DiffDiff5[-1] - chart.DiffDiff5[-3]) >= 0 and \
-                ((chart.DiffDiff5[-2] > 0 and chart.DiffDiff5[-1] > 0) or (chart.DiffDiff5[-1] >= 0.02)):
-            self.post('Turnaround')
+        if chart.PAR1_Slope[-1] < 0:
+            self.post('Bear Market')
             return True
         else:
             return False
 
-    def downswing1(self):
+    def over_valued(self, current_price):
         chart = self.futures.chart
-        if (chart.DiffDiff5[-4] >= 0) and \
-                (chart.Diff5[-4] > 0) and \
-                (chart.DiffDiff5[-3] - chart.DiffDiff5[-4]) <= 0.01 and \
-                (chart.DiffDiff5[-2] - chart.DiffDiff5[-3]) <= 0.01 and \
-                (chart.DiffDiff5[-1] - chart.DiffDiff5[-2]) <= 0.01 and \
-                (chart.DiffDiff5[-2] - chart.DiffDiff5[-4]) <= 0 and \
-                (chart.DiffDiff5[-1] - chart.DiffDiff5[-3]) <= 0 and \
-                ((chart.DiffDiff5[-2] < 0 and chart.DiffDiff5[-1] < 0) or (chart.DiffDiff5[-1] <= 0.02)):
-            self.post('Downswing')
+        if chart.PAR1[-1] < current_price < chart.PAR1[-1] + self.loss_cut:
+            self.post_magenta('Over Valued!')
             return True
         else:
             return False
 
-    def turnaround2(self):
+    def under_valued(self, current_price):
         chart = self.futures.chart
-        if (chart.DiffDiff5[-5] <= 0) and \
-                (chart.Diff5[-5] < 0) and \
-                (chart.Diff5[-4] < 0) and \
-                (chart.DiffDiff5[-4] - chart.DiffDiff5[-5]) >= -0.01 and\
-                (chart.DiffDiff5[-3] - chart.DiffDiff5[-4]) >= -0.01 and \
-                (chart.DiffDiff5[-2] - chart.DiffDiff5[-3]) >= -0.01 and \
-                (chart.DiffDiff5[-2] - chart.DiffDiff5[-1]) >= -0.01 and \
-                (chart.DiffDiff5[-3] - chart.DiffDiff5[-5]) >= 0 and \
-                (chart.DiffDiff5[-2] - chart.DiffDiff5[-4]) >= 0 and \
-                (chart.DiffDiff5[-1] - chart.DiffDiff5[-3]) >= 0 and \
-                ((chart.DiffDiff5[-2] > 0 and chart.DiffDiff5[-1] > 0) or (chart.DiffDiff5[-1] >= 0.02)):
-            self.post('Turnaround')
+        if chart.PAR1[-1] - self.loss_cut < current_price < chart.PAR1[-1]:
+            self.post_magenta('Under Valued!')
             return True
         else:
             return False
 
-    def downswing2(self):
+    def overshooting(self, current_price):
         chart = self.futures.chart
-        if (chart.DiffDiff5[-5] >= 0) and \
-                (chart.Diff5[-5] > 0) and \
-                (chart.Diff5[-4] > 0) and \
-                (chart.DiffDiff5[-4] - chart.DiffDiff5[-5]) <= 0.01 and \
-                (chart.DiffDiff5[-3] - chart.DiffDiff5[-4]) <= 0.01 and \
-                (chart.DiffDiff5[-2] - chart.DiffDiff5[-3]) <= 0.01 and \
-                (chart.DiffDiff5[-1] - chart.DiffDiff5[-2]) <= 0.01 and \
-                (chart.DiffDiff5[-3] - chart.DiffDiff5[-5]) <= 0 and \
-                (chart.DiffDiff5[-2] - chart.DiffDiff5[-4]) <= 0 and \
-                (chart.DiffDiff5[-1] - chart.DiffDiff5[-3]) <= 0 and \
-                ((chart.DiffDiff5[-2] < 0 and chart.DiffDiff5[-1] < 0) or (chart.DiffDiff5[-1] <= 0.02)):
-            self.post('Downswing')
+        if current_price > chart.PAR1[-1] + self.loss_cut:
+            self.post_cyan('Overshooting!!')
             return True
         else:
             return False
 
-    def turnaround3(self):
-        y = self.y_price_average
-        diff = (y[-2] - y[-3], y[-1] - y[-2])
-        self.debug('diff[-1]', diff[-1], 'diff[-2]', diff[-2])
-        if diff[-1] > diff[-2]:
-            return True
-
-    def downswing3(self):
-        y = self.y_price_average
-        diff = (y[-2] - y[-3], y[-1] - y[-2])
-        self.debug('diff[-1]', diff[-1], 'diff[-2]', diff[-2])
-        if diff[-1] < diff[-2]:
-            return True
-
-    def turnaround4(self, start=380):
+    def undershooting(self, current_price):
         chart = self.futures.chart
-        # x2 = len(chart)
-        x2 = start
-        # x1 = x2 - self.regression_interval
-        x1 = x2 - 6
-        chart = chart[x1:x2]
-        regression_x = numpy.arange(x1, x2)
-        x_reshape = regression_x.reshape(-1, 1)
-        x_fitted = self.polynomial_features2.fit_transform(x_reshape)
-        self.linear_regression.fit(x_fitted, chart.MA5)
-        ma5_regression = self.linear_regression.predict(x_fitted)
-
-        diff = list()
-        diff.append(ma5_regression[-5] - ma5_regression[-6])
-        diff.append(ma5_regression[-4] - ma5_regression[-5])
-        diff.append(ma5_regression[-3] - ma5_regression[-4])
-        diff.append(ma5_regression[-2] - ma5_regression[-3])
-        diff.append(ma5_regression[-1] - ma5_regression[-2])
-
-        diffdiff = list()
-        diffdiff.append(diff[-4] - diff[-5])
-        diffdiff.append(diff[-3] - diff[-4])
-        diffdiff.append(diff[-2] - diff[-3])
-        diffdiff.append(diff[-1] - diff[-2])
-
-        print('diff', diff)
-        print('diffdiff', diffdiff)
-
-        self.trader.ax.plot(regression_x, ma5_regression, color='Black')
-        self.trader.canvas.draw()
-        # self.draw_chart.start()
-
-    def turnaround5(self):
-        chart = self.futures.chart
-
-        if (self.diffdiff[-4] < 0) and (self.diffdiff[-1] > 0):
-            return True
-        else:
-            return False
-
-    def downswing5(self):
-        chart = self.futures.chart
-
-        if (self.diffdiff[-4] > 0) and (self.diffdiff[-1] < 0):
+        if current_price < chart.PAR1[-1] - self.loss_cut:
+            self.post_cyan('Undershooting!!')
             return True
         else:
             return False
@@ -300,9 +195,9 @@ class FMAlgorithm2(FuturesAlgorithmBase):
             return False
 
     def consider_transaction(self, current_price):
-        if self.turnaround():
+        if self.bull_market() and self.under_valued(current_price):
             self.buy(current_price)
-        elif self.downswing():
+        elif self.bear_market() and self.over_valued(current_price):
             self.sell(current_price)
 
     def buy(self, current_price):
@@ -323,16 +218,12 @@ class FMAlgorithm2(FuturesAlgorithmBase):
 
     def consider_stop_loss(self, current_price):
         if self.trade_position == LONG_POSITION:
-            # if current_price < self.open_position.executed_price_avg + self.loss_cut:
-            #     return
-            if self.downswing():
-                self.post('STOP LOSS BY DOWNSWING!')
+            if self.undershooting(current_price):
+                self.post('STOP LOSS BY UNDERSHOOTING!')
                 self.stop_loss()
         elif self.trade_position == SHORT_POSITION:
-            # if current_price > self.open_position.executed_price_avg - self.loss_cut:
-            #     return
-            if self.turnaround():
-                self.post('STOP LOSS BY TURNAROUND!')
+            if self.overshooting(current_price):
+                self.post('STOP LOSS BY OVERSHOOTING!')
                 self.stop_loss()
 
     def stop_loss(self):
@@ -538,12 +429,14 @@ class FMAlgorithm2(FuturesAlgorithmBase):
         chart['DiffDiff10'] = chart.Diff10.diff().fillna(0).apply(lambda x:round(x, 3))
         chart['DiffDiff20'] = chart.Diff20.diff().fillna(0).apply(lambda x:round(x, 3))
         chart['PA'] = round((chart.High + chart.Low) / 2, 3)
-        chart[['X1', 'X3', 'PAR1', 'PAR3', 'PAR3_Diff', 'PAR3_DiffDiff', 'PAR3_DiffDiffDiff']] = 0
+        chart[['X1', 'PAR1', 'PAR1_Slope', 'PAR1_SlopeSlope']] = 0
+        chart[['X3', 'PAR3', 'PAR3_Diff', 'PAR3_DiffDiff', 'PAR3_DiffDiffDiff']] = 0
         chart[['MA5R3', 'MA5R3_Diff', 'MA5R3_DiffDiff', 'MA5R3_DiffDiffDiff']] = 0
 
         x1, PAR1 = self.get_linear_regression(chart, chart.PA, self.r1_interval)
         x3, PAR3 = self.get_cubic_regression(chart, chart.PA, self.r3_interval)
         x3, MA5R3 = self.get_cubic_regression(chart, chart.MA5, self.r3_interval)
+
         chart_len = len(chart)
         x1_len = self.r1_interval
         if chart_len < self.r1_interval:
@@ -554,8 +447,17 @@ class FMAlgorithm2(FuturesAlgorithmBase):
             x3_len = chart_len
         x3_interval = chart.index[-x3_len:]
 
+        PAR1_Slope = numpy.polyfit(x1, PAR1, 1)[0]
         chart.loc[x1_interval, 'X1'] = x1
+        chart.loc[x1_interval, 'PAR1_Slope'] = PAR1_Slope
+
+        x_slope_interval = chart.index[-self.par1_slope_interval:]
+        x_slopeslope = chart.loc[x_slope_interval, 'X1']
+        y_slopeslope = chart.loc[x_slope_interval, 'PAR1_Slope']
+        PAR1_SlopeSlope = numpy.polyfit(x_slopeslope, y_slopeslope, 1)[0]
+
         chart.loc[x1_interval, 'PAR1'] = PAR1
+        chart.loc[x1_interval, 'PAR1_SlopeSlope'] = PAR1_SlopeSlope
         chart.loc[x3_interval, 'X3'] = x3
         chart.loc[x3_interval, 'PAR3'] = PAR3
         chart.loc[x3_interval, 'PAR3_Diff'] = chart.PAR3.diff().fillna(0)
@@ -608,8 +510,17 @@ class FMAlgorithm2(FuturesAlgorithmBase):
             x3_len = chart_len
         x3_interval = chart.index[-x3_len:]
 
+        PAR1_Slope = numpy.polyfit(x1, PAR1, 1)[0]
         chart.loc[x1_interval, 'X1'] = x1
         chart.loc[x1_interval, 'PAR1'] = PAR1
+
+        x_slope_interval = chart.index[-self.par1_slope_interval:]
+        x_slopeslope = chart.loc[x_slope_interval, 'X1']
+        y_slopeslope = chart.loc[x_slope_interval, 'PAR1_Slope']
+        PAR1_SlopeSlope = numpy.polyfit(x_slopeslope, y_slopeslope, 1)[0]
+
+        chart.loc[chart.index[-1], 'PAR1_Slope'] = PAR1_Slope
+        chart.loc[chart.index[-1], 'PAR1_SlopeSlope'] = PAR1_SlopeSlope
         chart.loc[x3_interval, 'X3'] = x3
         chart.loc[x3_interval, 'PAR3'] = PAR3
         chart.loc[x3_interval, 'PAR3_Diff'] = chart.PAR3.diff().fillna(0)
@@ -619,7 +530,6 @@ class FMAlgorithm2(FuturesAlgorithmBase):
         chart.loc[x3_interval, 'MAR3_Diff'] = chart.MAR3.diff().fillna(0)
         chart.loc[x3_interval, 'MAR3_DiffDiff'] = chart.MAR3_Diff.diff().fillna(0)
         chart.loc[chart.index[-1], 'MAR3_DiffDiffDiff'] = chart.MAR3_DiffDiff[-1] - chart.MAR3_DiffDiff[-2]
-        print(chart.loc[chart.index[-1]:, ['X3', 'PAR3_DiffDiffDiff', 'MAR3_DiffDiffDiff']])
 
     def display_chart(self):
         chart = self.futures.chart
@@ -683,6 +593,8 @@ class FMAlgorithm2(FuturesAlgorithmBase):
         self.trader.ax.plot(chart.X1[-x1_len:], chart.PAR1[-x1_len:], color='DarkOrange')
         self.trader.ax.plot(chart.X3[-x3_len:], chart.PAR3[-x3_len:], color='Cyan')
         self.trader.ax.plot(chart.X3[-x3_len:], chart.MAR3[-x3_len:], color='DarkSlateGray')
+        self.trader.ax.plot(chart.X1[-x1_len:], chart.PAR1[-x1_len:] + self.loss_cut, color='DarkGray')
+        self.trader.ax.plot(chart.X1[-x1_len:], chart.PAR1[-x1_len:] - self.loss_cut, color='DarkGray')
 
         # Set lim
         x2 = chart_len
