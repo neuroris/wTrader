@@ -1,0 +1,7 @@
+2021-11-10 18:28:35,256 Kiwoom initializing...
+2021-11-10 18:28:59,056 Kiwoom log in success
+2021-11-10 18:28:59,056 Account information
+2021-11-10 18:28:59,579 Deposit information (Futures)
+2021-11-10 18:29:00,090 Portfolio information (Futures)
+2021-11-10 18:29:00,092 F 202112 trading information begins to be monitored
+2021-11-10 18:29:00,092 Go Charting F 202112

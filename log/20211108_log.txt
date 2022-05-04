@@ -1,0 +1,1353 @@
+2021-11-08 19:59:18,240 Kiwoom initializing...
+2021-11-08 19:59:39,282 Kiwoom log in success
+2021-11-08 19:59:39,282 Account information
+2021-11-08 19:59:39,793 Deposit information (Futures)
+2021-11-08 19:59:40,304 Portfolio information (Futures)
+2021-11-08 19:59:40,304 F 202112 trading information begins to be monitored
+2021-11-08 19:59:40,305 Go Charting F 202112
+2021-11-08 20:01:24,065 Order execution(BUY) (접수), order:1, executed_sum:0, open:1, price:0.0, number:100001, original:0
+2021-11-08 20:07:18,555 Kiwoom initializing...
+2021-11-08 20:07:23,944 Kiwoom log in success
+2021-11-08 20:07:23,945 Account information
+2021-11-08 20:07:24,450 Deposit information (Futures)
+2021-11-08 20:07:24,983 Portfolio information (Futures)
+2021-11-08 20:07:24,986 F 202112 trading information begins to be monitored
+2021-11-08 20:07:24,986 Go Charting F 202112
+2021-11-08 20:07:37,193 Order execution(+매수) (접수), order:1, executed_sum:0, open:1, price:0.0, number:100001, original:0
+2021-11-08 20:16:04,612 Kiwoom initializing...
+2021-11-08 20:16:10,582 Kiwoom log in success
+2021-11-08 20:16:10,583 Account information
+2021-11-08 20:16:11,095 Deposit information (Futures)
+2021-11-08 20:16:11,610 Portfolio information (Futures)
+2021-11-08 20:16:11,612 F 202112 trading information begins to be monitored
+2021-11-08 20:16:11,612 Go Charting F 202112
+2021-11-08 20:17:21,298 Kiwoom initializing...
+2021-11-08 20:17:26,986 Kiwoom log in success
+2021-11-08 20:17:26,986 Account information
+2021-11-08 20:17:27,499 Deposit information (Futures)
+2021-11-08 20:17:28,013 Portfolio information (Futures)
+2021-11-08 20:17:28,014 F 202112 trading information begins to be monitored
+2021-11-08 20:17:28,015 Go Charting F 202112
+2021-11-08 20:19:12,021 Kiwoom initializing...
+2021-11-08 20:19:17,466 Kiwoom log in success
+2021-11-08 20:19:17,467 Account information
+2021-11-08 20:19:17,983 Deposit information (Futures)
+2021-11-08 20:19:18,495 Portfolio information (Futures)
+2021-11-08 20:19:18,497 F 202112 trading information begins to be monitored
+2021-11-08 20:19:18,497 Go Charting F 202112
+2021-11-08 20:19:23,881 no order is pending
+2021-11-08 20:19:23,895 no order is pending
+2021-11-08 20:19:23,896 Transaction proceed 1
+2021-11-08 20:19:32,166 no order is pending
+2021-11-08 20:19:32,169 no order is pending
+2021-11-08 20:19:32,169 Transaction proceed 2
+2021-11-08 20:19:49,547 no order is pending
+2021-11-08 20:19:49,550 no order is pending
+2021-11-08 20:19:49,550 Transaction proceed 3
+2021-11-08 20:19:51,006 no order is pending
+2021-11-08 20:19:51,009 no order is pending
+2021-11-08 20:19:51,009 Transaction proceed 4
+2021-11-08 20:19:53,226 no order is pending
+2021-11-08 20:19:53,229 no order is pending
+2021-11-08 20:19:53,230 Transaction proceed 5
+2021-11-08 20:19:54,540 no order is pending
+2021-11-08 20:19:54,543 no order is pending
+2021-11-08 20:19:54,543 Transaction proceed 6
+2021-11-08 20:21:35,279 Order execution(+매수) (접수), order:1, executed_sum:0, open:1, price:0.0, number:100001, original:0
+2021-11-08 20:22:26,553 Kiwoom initializing...
+2021-11-08 20:22:31,881 Kiwoom log in success
+2021-11-08 20:22:31,881 Account information
+2021-11-08 20:22:32,402 Deposit information (Futures)
+2021-11-08 20:22:32,934 Portfolio information (Futures)
+2021-11-08 20:22:32,994 F 202112 trading information begins to be monitored
+2021-11-08 20:22:32,994 Go Charting F 202112
+2021-11-08 20:22:43,696 Transaction proceed, index : 1
+2021-11-08 20:22:49,208 Transaction proceed, index : 2
+2021-11-08 20:22:50,278 Transaction proceed, index : 3
+2021-11-08 20:22:51,044 Transaction proceed, index : 4
+2021-11-08 20:22:54,990 Transaction proceed, index : 5
+2021-11-08 20:22:55,693 Transaction proceed, index : 6
+2021-11-08 20:22:56,373 Transaction proceed, index : 7
+2021-11-08 20:22:56,954 Transaction proceed, index : 8
+2021-11-08 20:22:57,124 Transaction proceed, index : 9
+2021-11-08 20:22:57,295 Transaction proceed, index : 10
+2021-11-08 20:22:57,469 Transaction proceed, index : 11
+2021-11-08 20:22:57,656 Transaction proceed, index : 12
+2021-11-08 20:22:57,860 Transaction proceed, index : 13
+2021-11-08 20:22:58,052 Transaction proceed, index : 14
+2021-11-08 20:22:58,219 Transaction proceed, index : 15
+2021-11-08 20:22:58,411 Transaction proceed, index : 16
+2021-11-08 20:22:58,601 Transaction proceed, index : 17
+2021-11-08 20:22:58,826 Transaction proceed, index : 18
+2021-11-08 20:22:59,027 Transaction proceed, index : 19
+2021-11-08 20:22:59,216 Transaction proceed, index : 20
+2021-11-08 20:22:59,422 Transaction proceed, index : 21
+2021-11-08 20:22:59,636 Transaction proceed, index : 22
+2021-11-08 20:22:59,840 Transaction proceed, index : 23
+2021-11-08 20:23:00,066 Transaction proceed, index : 24
+2021-11-08 20:23:00,273 Transaction proceed, index : 25
+2021-11-08 20:23:00,477 Transaction proceed, index : 26
+2021-11-08 20:23:00,694 Transaction proceed, index : 27
+2021-11-08 20:23:00,907 Transaction proceed, index : 28
+2021-11-08 20:23:01,115 Transaction proceed, index : 29
+2021-11-08 20:23:01,326 Transaction proceed, index : 30
+2021-11-08 20:23:01,544 Transaction proceed, index : 31
+2021-11-08 20:23:01,767 Transaction proceed, index : 32
+2021-11-08 20:23:01,960 Transaction proceed, index : 33
+2021-11-08 20:23:02,180 Transaction proceed, index : 34
+2021-11-08 20:23:04,678 Transaction proceed, index : 35
+2021-11-08 20:23:04,868 Transaction proceed, index : 36
+2021-11-08 20:23:05,077 Transaction proceed, index : 37
+2021-11-08 20:23:05,274 Transaction proceed, index : 38
+2021-11-08 20:23:05,488 Transaction proceed, index : 39
+2021-11-08 20:23:05,698 Transaction proceed, index : 40
+2021-11-08 20:23:05,898 Transaction proceed, index : 41
+2021-11-08 20:23:06,116 Transaction proceed, index : 42
+2021-11-08 20:23:06,324 Transaction proceed, index : 43
+2021-11-08 20:23:06,542 Transaction proceed, index : 44
+2021-11-08 20:23:06,772 Transaction proceed, index : 45
+2021-11-08 20:23:07,006 Transaction proceed, index : 46
+2021-11-08 20:23:07,213 Transaction proceed, index : 47
+2021-11-08 20:23:07,418 Transaction proceed, index : 48
+2021-11-08 20:23:07,616 Transaction proceed, index : 49
+2021-11-08 20:23:07,800 Transaction proceed, index : 50
+2021-11-08 20:23:07,986 Transaction proceed, index : 51
+2021-11-08 20:23:08,178 Transaction proceed, index : 52
+2021-11-08 20:23:08,348 Transaction proceed, index : 53
+2021-11-08 20:23:08,558 Transaction proceed, index : 54
+2021-11-08 20:23:08,745 Transaction proceed, index : 55
+2021-11-08 20:23:08,922 Transaction proceed, index : 56
+2021-11-08 20:23:11,729 Transaction proceed, index : 57
+2021-11-08 20:23:11,924 Transaction proceed, index : 58
+2021-11-08 20:23:12,110 Transaction proceed, index : 59
+2021-11-08 20:23:12,317 Transaction proceed, index : 60
+2021-11-08 20:23:12,520 Transaction proceed, index : 61
+2021-11-08 20:23:12,747 Transaction proceed, index : 62
+2021-11-08 20:23:12,960 Transaction proceed, index : 63
+2021-11-08 20:23:13,147 Transaction proceed, index : 64
+2021-11-08 20:23:13,355 Transaction proceed, index : 65
+2021-11-08 20:23:13,568 Transaction proceed, index : 66
+2021-11-08 20:23:13,781 Transaction proceed, index : 67
+2021-11-08 20:23:13,971 Transaction proceed, index : 68
+2021-11-08 20:23:14,164 Transaction proceed, index : 69
+2021-11-08 20:23:14,367 Transaction proceed, index : 70
+2021-11-08 20:23:14,572 Transaction proceed, index : 71
+2021-11-08 20:23:14,765 Transaction proceed, index : 72
+2021-11-08 20:23:14,946 Transaction proceed, index : 73
+2021-11-08 20:23:15,119 Transaction proceed, index : 74
+2021-11-08 20:23:15,317 Transaction proceed, index : 75
+2021-11-08 20:23:15,498 Transaction proceed, index : 76
+2021-11-08 20:23:15,627 Transaction proceed, index : 77
+2021-11-08 20:23:18,688 Transaction proceed, index : 78
+2021-11-08 20:23:18,926 Transaction proceed, index : 79
+2021-11-08 20:23:19,135 Transaction proceed, index : 80
+2021-11-08 20:23:19,333 Transaction proceed, index : 81
+2021-11-08 20:23:19,547 Transaction proceed, index : 82
+2021-11-08 20:23:19,777 Transaction proceed, index : 83
+2021-11-08 20:23:19,993 Transaction proceed, index : 84
+2021-11-08 20:23:20,205 Transaction proceed, index : 85
+2021-11-08 20:23:20,422 Transaction proceed, index : 86
+2021-11-08 20:23:20,634 Transaction proceed, index : 87
+2021-11-08 20:23:20,847 Transaction proceed, index : 88
+2021-11-08 20:23:21,060 Transaction proceed, index : 89
+2021-11-08 20:23:21,270 Transaction proceed, index : 90
+2021-11-08 20:23:21,488 Transaction proceed, index : 91
+2021-11-08 20:23:21,712 Transaction proceed, index : 92
+2021-11-08 20:23:21,928 Transaction proceed, index : 93
+2021-11-08 20:23:22,133 Transaction proceed, index : 94
+2021-11-08 20:23:22,335 Transaction proceed, index : 95
+2021-11-08 20:23:22,539 Transaction proceed, index : 96
+2021-11-08 20:23:22,737 Transaction proceed, index : 97
+2021-11-08 20:23:22,967 Transaction proceed, index : 98
+2021-11-08 20:23:23,171 Transaction proceed, index : 99
+2021-11-08 20:25:00,553 Go Charting F 202112
+2021-11-08 20:25:06,279 Transaction proceed, index : 100
+2021-11-08 20:25:06,473 Transaction proceed, index : 101
+2021-11-08 20:25:06,679 Transaction proceed, index : 102
+2021-11-08 20:25:06,882 Transaction proceed, index : 103
+2021-11-08 20:25:07,113 Transaction proceed, index : 104
+2021-11-08 20:25:07,314 Transaction proceed, index : 105
+2021-11-08 20:25:07,508 Transaction proceed, index : 106
+2021-11-08 20:25:07,709 Transaction proceed, index : 107
+2021-11-08 20:25:07,906 Transaction proceed, index : 108
+2021-11-08 20:25:08,106 Transaction proceed, index : 109
+2021-11-08 20:25:08,269 Transaction proceed, index : 110
+2021-11-08 20:25:08,458 Transaction proceed, index : 111
+2021-11-08 20:25:10,182 Transaction proceed, index : 112
+2021-11-08 20:25:10,367 Transaction proceed, index : 113
+2021-11-08 20:25:10,577 Transaction proceed, index : 114
+2021-11-08 20:25:10,758 Transaction proceed, index : 115
+2021-11-08 20:25:10,949 Transaction proceed, index : 116
+2021-11-08 20:25:11,140 Transaction proceed, index : 117
+2021-11-08 20:25:11,319 Transaction proceed, index : 118
+2021-11-08 20:25:11,498 Transaction proceed, index : 119
+2021-11-08 20:25:11,693 Transaction proceed, index : 120
+2021-11-08 20:25:11,871 Transaction proceed, index : 121
+2021-11-08 20:25:12,063 Transaction proceed, index : 122
+2021-11-08 20:25:12,245 Transaction proceed, index : 123
+2021-11-08 20:25:12,425 Transaction proceed, index : 124
+2021-11-08 20:25:12,598 Transaction proceed, index : 125
+2021-11-08 20:25:12,771 Transaction proceed, index : 126
+2021-11-08 20:25:15,154 Transaction proceed, index : 127
+2021-11-08 20:25:15,359 Transaction proceed, index : 128
+2021-11-08 20:25:15,538 Transaction proceed, index : 129
+2021-11-08 20:25:15,729 Transaction proceed, index : 130
+2021-11-08 20:25:15,926 Transaction proceed, index : 131
+2021-11-08 20:25:16,108 Transaction proceed, index : 132
+2021-11-08 20:25:16,288 Transaction proceed, index : 133
+2021-11-08 20:25:16,486 Transaction proceed, index : 134
+2021-11-08 20:25:16,667 Transaction proceed, index : 135
+2021-11-08 20:25:16,845 Transaction proceed, index : 136
+2021-11-08 20:25:17,024 Transaction proceed, index : 137
+2021-11-08 20:25:17,194 Transaction proceed, index : 138
+2021-11-08 20:25:17,356 Transaction proceed, index : 139
+2021-11-08 20:25:17,508 Transaction proceed, index : 140
+2021-11-08 20:25:19,415 Transaction proceed, index : 141
+2021-11-08 20:25:19,604 Transaction proceed, index : 142
+2021-11-08 20:25:19,786 Transaction proceed, index : 143
+2021-11-08 20:25:19,975 Transaction proceed, index : 144
+2021-11-08 20:25:20,164 Transaction proceed, index : 145
+2021-11-08 20:25:20,360 Transaction proceed, index : 146
+2021-11-08 20:25:20,542 Transaction proceed, index : 147
+2021-11-08 20:25:20,742 Transaction proceed, index : 148
+2021-11-08 20:25:20,932 Transaction proceed, index : 149
+2021-11-08 20:25:21,110 Transaction proceed, index : 150
+2021-11-08 20:25:21,320 Transaction proceed, index : 151
+2021-11-08 20:25:21,501 Transaction proceed, index : 152
+2021-11-08 20:25:21,690 Transaction proceed, index : 153
+2021-11-08 20:25:21,881 Transaction proceed, index : 154
+2021-11-08 20:25:22,060 Transaction proceed, index : 155
+2021-11-08 20:25:22,259 Transaction proceed, index : 156
+2021-11-08 20:25:22,637 Transaction proceed, index : 157
+2021-11-08 20:25:22,836 Transaction proceed, index : 158
+2021-11-08 20:25:23,032 Transaction proceed, index : 159
+2021-11-08 20:25:23,241 Transaction proceed, index : 160
+2021-11-08 20:25:23,422 Transaction proceed, index : 161
+2021-11-08 20:25:23,618 Transaction proceed, index : 162
+2021-11-08 20:25:26,817 Transaction proceed, index : 163
+2021-11-08 20:25:27,011 Transaction proceed, index : 164
+2021-11-08 20:25:27,204 Transaction proceed, index : 165
+2021-11-08 20:25:27,423 Transaction proceed, index : 166
+2021-11-08 20:25:27,628 Transaction proceed, index : 167
+2021-11-08 20:25:27,813 Transaction proceed, index : 168
+2021-11-08 20:25:28,003 Transaction proceed, index : 169
+2021-11-08 20:25:28,180 Transaction proceed, index : 170
+2021-11-08 20:25:28,356 Transaction proceed, index : 171
+2021-11-08 20:25:28,530 Transaction proceed, index : 172
+2021-11-08 20:25:28,694 Transaction proceed, index : 173
+2021-11-08 20:25:28,860 Transaction proceed, index : 174
+2021-11-08 20:25:29,032 Transaction proceed, index : 175
+2021-11-08 20:26:07,634 Kiwoom initializing...
+2021-11-08 20:26:12,966 Kiwoom log in success
+2021-11-08 20:26:12,967 Account information
+2021-11-08 20:26:13,475 Deposit information (Futures)
+2021-11-08 20:26:13,991 Portfolio information (Futures)
+2021-11-08 20:26:13,993 F 202112 trading information begins to be monitored
+2021-11-08 20:26:13,993 Go Charting F 202112
+2021-11-08 20:26:17,919 Go Charting F 202112
+2021-11-08 20:26:22,011 Transaction proceed, index : 1
+2021-11-08 20:26:23,669 Transaction proceed, index : 2
+2021-11-08 20:26:24,049 Transaction proceed, index : 3
+2021-11-08 20:26:26,199 Transaction proceed, index : 4
+2021-11-08 20:26:26,405 Transaction proceed, index : 5
+2021-11-08 20:26:26,627 Transaction proceed, index : 6
+2021-11-08 20:26:26,831 Transaction proceed, index : 7
+2021-11-08 20:26:27,032 Transaction proceed, index : 8
+2021-11-08 20:26:27,219 Transaction proceed, index : 9
+2021-11-08 20:26:27,423 Transaction proceed, index : 10
+2021-11-08 20:26:27,661 Transaction proceed, index : 11
+2021-11-08 20:26:27,859 Transaction proceed, index : 12
+2021-11-08 20:26:28,040 Transaction proceed, index : 13
+2021-11-08 20:26:28,222 Transaction proceed, index : 14
+2021-11-08 20:26:28,586 Transaction proceed, index : 15
+2021-11-08 20:26:28,801 Transaction proceed, index : 16
+2021-11-08 20:26:29,012 Transaction proceed, index : 17
+2021-11-08 20:26:29,213 Transaction proceed, index : 18
+2021-11-08 20:26:31,328 Transaction proceed, index : 19
+2021-11-08 20:26:31,544 Transaction proceed, index : 20
+2021-11-08 20:26:31,761 Transaction proceed, index : 21
+2021-11-08 20:26:31,975 Transaction proceed, index : 22
+2021-11-08 20:26:32,198 Transaction proceed, index : 23
+2021-11-08 20:26:32,403 Transaction proceed, index : 24
+2021-11-08 20:26:32,579 Transaction proceed, index : 25
+2021-11-08 20:26:32,761 Transaction proceed, index : 26
+2021-11-08 20:26:32,976 Transaction proceed, index : 27
+2021-11-08 20:26:33,212 Transaction proceed, index : 28
+2021-11-08 20:26:35,037 Transaction proceed, index : 29
+2021-11-08 20:26:35,243 Transaction proceed, index : 30
+2021-11-08 20:26:35,458 Transaction proceed, index : 31
+2021-11-08 20:26:35,676 Transaction proceed, index : 32
+2021-11-08 20:26:35,898 Transaction proceed, index : 33
+2021-11-08 20:26:36,090 Transaction proceed, index : 34
+2021-11-08 20:26:36,285 Transaction proceed, index : 35
+2021-11-08 20:26:36,491 Transaction proceed, index : 36
+2021-11-08 20:28:23,631 Kiwoom initializing...
+2021-11-08 20:28:29,095 Kiwoom log in success
+2021-11-08 20:28:29,096 Account information
+2021-11-08 20:28:29,598 Deposit information (Futures)
+2021-11-08 20:28:30,110 Portfolio information (Futures)
+2021-11-08 20:28:30,112 F 202112 trading information begins to be monitored
+2021-11-08 20:28:30,112 Go Charting F 202112
+2021-11-08 20:28:34,609 Go Charting F 202112
+2021-11-08 20:28:36,876 Transaction proceed, index : 1
+2021-11-08 20:28:38,194 Transaction proceed, index : 2
+2021-11-08 20:28:38,854 Transaction proceed, index : 3
+2021-11-08 20:28:40,889 Transaction proceed, index : 4
+2021-11-08 20:28:41,681 Transaction proceed, index : 5
+2021-11-08 20:28:48,250 Transaction proceed, index : 6
+2021-11-08 20:28:49,511 Transaction proceed, index : 7
+2021-11-08 20:28:50,519 Transaction proceed, index : 8
+2021-11-08 20:28:51,612 Transaction proceed, index : 9
+2021-11-08 20:28:52,560 Transaction proceed, index : 10
+2021-11-08 20:28:53,519 Transaction proceed, index : 11
+2021-11-08 20:28:54,353 Transaction proceed, index : 12
+2021-11-08 20:28:55,318 Transaction proceed, index : 13
+2021-11-08 20:28:56,533 Transaction proceed, index : 14
+2021-11-08 20:28:57,413 Transaction proceed, index : 15
+2021-11-08 20:28:58,296 Transaction proceed, index : 16
+2021-11-08 20:28:59,061 Transaction proceed, index : 17
+2021-11-08 20:28:59,887 Transaction proceed, index : 18
+2021-11-08 20:29:01,477 Transaction proceed, index : 19
+2021-11-08 20:29:02,576 Transaction proceed, index : 20
+2021-11-08 20:29:03,386 Transaction proceed, index : 21
+2021-11-08 20:32:17,433 Kiwoom initializing...
+2021-11-08 20:32:22,914 Kiwoom log in success
+2021-11-08 20:32:22,915 Account information
+2021-11-08 20:32:23,427 Deposit information (Futures)
+2021-11-08 20:32:23,938 Portfolio information (Futures)
+2021-11-08 20:32:23,940 F 202112 trading information begins to be monitored
+2021-11-08 20:32:23,940 Go Charting F 202112
+2021-11-08 20:32:33,154 Go Charting F 202112
+2021-11-08 20:32:34,462                        Open    High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.75  421.75  421.75  1315.0
+2021-11-08 20:32:34,463 Transaction proceed, index : 1
+2021-11-08 20:32:44,989                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.75  421.8  1316.0
+2021-11-08 20:32:44,990 Transaction proceed, index : 2
+2021-11-08 20:32:49,189                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.75  421.8  1317.0
+2021-11-08 20:32:49,189 Transaction proceed, index : 3
+2021-11-08 20:32:53,189                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.75  421.75  1318.0
+2021-11-08 20:32:53,190 Transaction proceed, index : 4
+2021-11-08 20:33:19,183                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.75  421.75  1319.0
+2021-11-08 20:33:19,183 Transaction proceed, index : 5
+2021-11-08 20:33:22,387                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.75  421.75  1320.0
+2021-11-08 20:33:22,388 Transaction proceed, index : 6
+2021-11-08 20:33:23,957                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.75  421.75  1321.0
+2021-11-08 20:33:23,957 Transaction proceed, index : 7
+2021-11-08 20:33:25,034                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.75  421.75  1329.0
+2021-11-08 20:33:25,034 Transaction proceed, index : 8
+2021-11-08 20:33:25,896                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.7  421.7  1341.0
+2021-11-08 20:33:25,897 Transaction proceed, index : 9
+2021-11-08 20:33:26,713                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.7  421.7  1356.0
+2021-11-08 20:33:26,713 Transaction proceed, index : 10
+2021-11-08 20:33:33,767                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.65  421.65  1361.0
+2021-11-08 20:33:33,767 Transaction proceed, index : 11
+2021-11-08 20:33:52,909                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.65  421.8  1368.0
+2021-11-08 20:33:52,909 Transaction proceed, index : 12
+2021-11-08 20:33:53,602                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.65  421.8  1373.0
+2021-11-08 20:33:53,602 Transaction proceed, index : 13
+2021-11-08 20:33:54,319                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.65  421.75  1377.0
+2021-11-08 20:33:54,319 Transaction proceed, index : 14
+2021-11-08 20:33:54,935                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.65  421.7  1378.0
+2021-11-08 20:33:54,936 Transaction proceed, index : 15
+2021-11-08 20:33:55,523                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.65  421.65  1397.0
+2021-11-08 20:33:55,524 Transaction proceed, index : 16
+2021-11-08 20:33:56,179                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.6  421.6  1415.0
+2021-11-08 20:33:56,179 Transaction proceed, index : 17
+2021-11-08 20:33:56,821                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.6  421.75  1416.0
+2021-11-08 20:33:56,821 Transaction proceed, index : 18
+2021-11-08 20:33:57,507                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.55  1417.0
+2021-11-08 20:33:57,508 Transaction proceed, index : 19
+2021-11-08 20:33:58,301                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.75  1420.0
+2021-11-08 20:33:58,302 Transaction proceed, index : 20
+2021-11-08 20:34:05,744                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.8  1424.0
+2021-11-08 20:34:05,744 Transaction proceed, index : 21
+2021-11-08 20:34:06,491                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.75  1425.0
+2021-11-08 20:34:06,492 Transaction proceed, index : 22
+2021-11-08 20:34:08,366                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.8  1426.0
+2021-11-08 20:34:08,367 Transaction proceed, index : 23
+2021-11-08 20:34:09,525                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.6  1427.0
+2021-11-08 20:34:09,526 Transaction proceed, index : 24
+2021-11-08 20:34:28,200                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.7  1428.0
+2021-11-08 20:34:28,200 Transaction proceed, index : 25
+2021-11-08 20:34:28,897                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.7  1430.0
+2021-11-08 20:34:28,897 Transaction proceed, index : 26
+2021-11-08 20:36:11,802 Kiwoom initializing...
+2021-11-08 20:36:17,529 Kiwoom log in success
+2021-11-08 20:36:17,529 Account information
+2021-11-08 20:36:18,042 Deposit information (Futures)
+2021-11-08 20:36:18,559 Portfolio information (Futures)
+2021-11-08 20:36:18,561 F 202112 trading information begins to be monitored
+2021-11-08 20:36:18,561 Go Charting F 202112
+2021-11-08 20:36:21,779 Go Charting F 202112
+2021-11-08 20:36:26,338                        Open    High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.75  421.75  421.75  1315.0
+2021-11-08 20:36:26,339 Transaction proceed, index : 1
+2021-11-08 20:36:26,453 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.75
+Name: High, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:36:34,032                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.75  421.8  1316.0
+2021-11-08 20:36:34,032 Transaction proceed, index : 2
+2021-11-08 20:36:34,145 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.8
+Name: Close, dtype: float64
+2021-11-08 20:37:02,276                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.75  421.8  1317.0
+2021-11-08 20:37:02,276 Transaction proceed, index : 3
+2021-11-08 20:37:02,376 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.8
+Name: Close, dtype: float64
+2021-11-08 20:37:03,396                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.75  421.75  1318.0
+2021-11-08 20:37:03,396 Transaction proceed, index : 4
+2021-11-08 20:37:03,499 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:37:10,471                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.75  421.75  1319.0
+2021-11-08 20:37:10,472 Transaction proceed, index : 5
+2021-11-08 20:37:10,575 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:37:14,987                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.75  421.75  1320.0
+2021-11-08 20:37:14,987 Transaction proceed, index : 6
+2021-11-08 20:37:15,092 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:37:15,518                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.75  421.75  1321.0
+2021-11-08 20:37:15,518 Transaction proceed, index : 7
+2021-11-08 20:37:15,620 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:37:15,833                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.75  421.75  1329.0
+2021-11-08 20:37:15,833 Transaction proceed, index : 8
+2021-11-08 20:37:15,937 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:37:16,138                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.7  421.7  1341.0
+2021-11-08 20:37:16,139 Transaction proceed, index : 9
+2021-11-08 20:37:16,247 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.7
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.7
+Name: Close, dtype: float64
+2021-11-08 20:37:16,453                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.7  421.7  1356.0
+2021-11-08 20:37:16,453 Transaction proceed, index : 10
+2021-11-08 20:37:16,559 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.7
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.7
+Name: Close, dtype: float64
+2021-11-08 20:37:16,735                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.65  421.65  1361.0
+2021-11-08 20:37:16,736 Transaction proceed, index : 11
+2021-11-08 20:37:16,850 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.65
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.65
+Name: Close, dtype: float64
+2021-11-08 20:37:17,139                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.65  421.8  1368.0
+2021-11-08 20:37:17,140 Transaction proceed, index : 12
+2021-11-08 20:37:17,257 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.65
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.8
+Name: Close, dtype: float64
+2021-11-08 20:37:17,500                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.65  421.8  1373.0
+2021-11-08 20:37:17,500 Transaction proceed, index : 13
+2021-11-08 20:37:17,617 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.65
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.8
+Name: Close, dtype: float64
+2021-11-08 20:37:17,760                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.65  421.75  1377.0
+2021-11-08 20:37:17,760 Transaction proceed, index : 14
+2021-11-08 20:37:17,876 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.65
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:37:18,111                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.65  421.7  1378.0
+2021-11-08 20:37:18,112 Transaction proceed, index : 15
+2021-11-08 20:37:18,229 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.65
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.7
+Name: Close, dtype: float64
+2021-11-08 20:37:18,430                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.65  421.65  1397.0
+2021-11-08 20:37:18,431 Transaction proceed, index : 16
+2021-11-08 20:37:18,548 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.65
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.65
+Name: Close, dtype: float64
+2021-11-08 20:37:18,756                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.6  421.6  1415.0
+2021-11-08 20:37:18,756 Transaction proceed, index : 17
+2021-11-08 20:37:18,872 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.6
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.6
+Name: Close, dtype: float64
+2021-11-08 20:37:19,059                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.6  421.75  1416.0
+2021-11-08 20:37:19,059 Transaction proceed, index : 18
+2021-11-08 20:37:19,177 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.6
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:37:19,423                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.55  1417.0
+2021-11-08 20:37:19,424 Transaction proceed, index : 19
+2021-11-08 20:37:19,549 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Close, dtype: float64
+2021-11-08 20:37:19,691                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.75  1420.0
+2021-11-08 20:37:19,692 Transaction proceed, index : 20
+2021-11-08 20:37:19,819 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:37:19,942                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.8  1424.0
+2021-11-08 20:37:19,943 Transaction proceed, index : 21
+2021-11-08 20:37:20,073 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.8
+Name: Close, dtype: float64
+2021-11-08 20:37:20,247                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.75  1425.0
+2021-11-08 20:37:20,248 Transaction proceed, index : 22
+2021-11-08 20:37:20,371 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:37:20,469                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.8  1426.0
+2021-11-08 20:37:20,469 Transaction proceed, index : 23
+2021-11-08 20:37:20,593 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.8
+Name: Close, dtype: float64
+2021-11-08 20:37:20,741                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.6  1427.0
+2021-11-08 20:37:20,741 Transaction proceed, index : 24
+2021-11-08 20:37:20,865 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.6
+Name: Close, dtype: float64
+2021-11-08 20:37:20,985                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.7  1428.0
+2021-11-08 20:37:20,986 Transaction proceed, index : 25
+2021-11-08 20:37:21,115 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.7
+Name: Close, dtype: float64
+2021-11-08 20:37:21,226                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.7  1430.0
+2021-11-08 20:37:21,226 Transaction proceed, index : 26
+2021-11-08 20:37:21,352 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.7
+Name: Close, dtype: float64
+2021-11-08 20:37:21,833                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.75  1431.0
+2021-11-08 20:37:21,834 Transaction proceed, index : 27
+2021-11-08 20:37:21,957 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:37:22,502                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.7  1432.0
+2021-11-08 20:37:22,502 Transaction proceed, index : 28
+2021-11-08 20:37:22,627 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.7
+Name: Close, dtype: float64
+2021-11-08 20:37:22,999                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.7  1437.0
+2021-11-08 20:37:22,999 Transaction proceed, index : 29
+2021-11-08 20:37:23,132 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.7
+Name: Close, dtype: float64
+2021-11-08 20:37:23,557                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.65  1441.0
+2021-11-08 20:37:23,558 Transaction proceed, index : 30
+2021-11-08 20:37:23,683 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.65
+Name: Close, dtype: float64
+2021-11-08 20:37:24,066                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.6  1445.0
+2021-11-08 20:37:24,067 Transaction proceed, index : 31
+2021-11-08 20:37:24,194 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.6
+Name: Close, dtype: float64
+2021-11-08 20:37:41,423                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.55  1453.0
+2021-11-08 20:37:41,424 Transaction proceed, index : 32
+2021-11-08 20:37:41,549 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Close, dtype: float64
+2021-11-08 20:37:41,708                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.55  1457.0
+2021-11-08 20:37:41,709 Transaction proceed, index : 33
+2021-11-08 20:37:41,836 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Close, dtype: float64
+2021-11-08 20:37:41,979                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.55  421.55  1459.0
+2021-11-08 20:37:41,980 Transaction proceed, index : 34
+2021-11-08 20:37:42,105 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Close, dtype: float64
+2021-11-08 20:37:42,279                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.5  1460.0
+2021-11-08 20:37:42,280 Transaction proceed, index : 35
+2021-11-08 20:37:42,409 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Close, dtype: float64
+2021-11-08 20:37:42,532                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.55  1461.0
+2021-11-08 20:37:42,533 Transaction proceed, index : 36
+2021-11-08 20:37:42,664 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Close, dtype: float64
+2021-11-08 20:37:42,819                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.55  1504.0
+2021-11-08 20:37:42,819 Transaction proceed, index : 37
+2021-11-08 20:37:42,951 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Close, dtype: float64
+2021-11-08 20:37:43,271                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.55  1506.0
+2021-11-08 20:37:43,271 Transaction proceed, index : 38
+2021-11-08 20:37:43,400 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Close, dtype: float64
+2021-11-08 20:37:43,519                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.55  1509.0
+2021-11-08 20:37:43,519 Transaction proceed, index : 39
+2021-11-08 20:37:43,649 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Close, dtype: float64
+2021-11-08 20:37:44,058                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.55  1510.0
+2021-11-08 20:37:44,058 Transaction proceed, index : 40
+2021-11-08 20:37:44,191 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Close, dtype: float64
+2021-11-08 20:37:44,360                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.6  1513.0
+2021-11-08 20:37:44,360 Transaction proceed, index : 41
+2021-11-08 20:37:44,495 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.6
+Name: Close, dtype: float64
+2021-11-08 20:37:44,634                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.65  1514.0
+2021-11-08 20:37:44,635 Transaction proceed, index : 42
+2021-11-08 20:37:44,764 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.65
+Name: Close, dtype: float64
+2021-11-08 20:37:44,903                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.65  1515.0
+2021-11-08 20:37:44,903 Transaction proceed, index : 43
+2021-11-08 20:37:45,032 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.65
+Name: Close, dtype: float64
+2021-11-08 20:37:45,179                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.65  1517.0
+2021-11-08 20:37:45,179 Transaction proceed, index : 44
+2021-11-08 20:37:45,309 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.65
+Name: Close, dtype: float64
+2021-11-08 20:37:50,823                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.6  1520.0
+2021-11-08 20:37:50,824 Transaction proceed, index : 45
+2021-11-08 20:37:50,953 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.6
+Name: Close, dtype: float64
+2021-11-08 20:37:51,062                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.65  1521.0
+2021-11-08 20:37:51,062 Transaction proceed, index : 46
+2021-11-08 20:37:51,195 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.65
+Name: Close, dtype: float64
+2021-11-08 20:37:51,472                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.6  1522.0
+2021-11-08 20:37:51,472 Transaction proceed, index : 47
+2021-11-08 20:37:51,599 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.6
+Name: Close, dtype: float64
+2021-11-08 20:37:51,684                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.6  1523.0
+2021-11-08 20:37:51,685 Transaction proceed, index : 48
+2021-11-08 20:37:51,816 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.6
+Name: Close, dtype: float64
+2021-11-08 20:37:51,912                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.6  1524.0
+2021-11-08 20:37:51,913 Transaction proceed, index : 49
+2021-11-08 20:37:52,046 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.6
+Name: Close, dtype: float64
+2021-11-08 20:37:52,157                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.55  1525.0
+2021-11-08 20:37:52,157 Transaction proceed, index : 50
+2021-11-08 20:37:52,289 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Close, dtype: float64
+2021-11-08 20:37:52,376                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.6  1526.0
+2021-11-08 20:37:52,376 Transaction proceed, index : 51
+2021-11-08 20:37:52,506 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.6
+Name: Close, dtype: float64
+2021-11-08 20:37:52,604                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.6  1528.0
+2021-11-08 20:37:52,605 Transaction proceed, index : 52
+2021-11-08 20:37:52,744 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.6
+Name: Close, dtype: float64
+2021-11-08 20:37:52,825                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.6  1529.0
+2021-11-08 20:37:52,825 Transaction proceed, index : 53
+2021-11-08 20:37:52,959 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.6
+Name: Close, dtype: float64
+2021-11-08 20:37:53,077                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.55  1531.0
+2021-11-08 20:37:53,077 Transaction proceed, index : 54
+2021-11-08 20:37:53,210 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Close, dtype: float64
+2021-11-08 20:37:53,304                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.5  1536.0
+2021-11-08 20:37:53,305 Transaction proceed, index : 55
+2021-11-08 20:37:53,436 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Close, dtype: float64
+2021-11-08 20:37:53,526                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.55  1537.0
+2021-11-08 20:37:53,526 Transaction proceed, index : 56
+2021-11-08 20:37:53,659 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Close, dtype: float64
+2021-11-08 20:37:53,751                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.6  1538.0
+2021-11-08 20:37:53,751 Transaction proceed, index : 57
+2021-11-08 20:37:53,885 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.6
+Name: Close, dtype: float64
+2021-11-08 20:37:53,978                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.6  1539.0
+2021-11-08 20:37:53,978 Transaction proceed, index : 58
+2021-11-08 20:37:54,113 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.6
+Name: Close, dtype: float64
+2021-11-08 20:37:54,196                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.55  1540.0
+2021-11-08 20:37:54,196 Transaction proceed, index : 59
+2021-11-08 20:37:54,329 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.55
+Name: Close, dtype: float64
+2021-11-08 20:37:54,411                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.6  1541.0
+2021-11-08 20:37:54,411 Transaction proceed, index : 60
+2021-11-08 20:37:54,544 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.6
+Name: Close, dtype: float64
+2021-11-08 20:37:54,650                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.6  1542.0
+2021-11-08 20:37:54,651 Transaction proceed, index : 61
+2021-11-08 20:37:54,780 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.6
+Name: Close, dtype: float64
+2021-11-08 20:37:54,880                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.6  1543.0
+2021-11-08 20:37:54,880 Transaction proceed, index : 62
+2021-11-08 20:37:55,009 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.6
+Name: Close, dtype: float64
+2021-11-08 20:37:55,091                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.6  1544.0
+2021-11-08 20:37:55,091 Transaction proceed, index : 63
+2021-11-08 20:37:55,226 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.6
+Name: Close, dtype: float64
+2021-11-08 20:37:55,332                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.65  1545.0
+2021-11-08 20:37:55,332 Transaction proceed, index : 64
+2021-11-08 20:37:55,463 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.65
+Name: Close, dtype: float64
+2021-11-08 20:37:55,578                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.6  1546.0
+2021-11-08 20:37:55,579 Transaction proceed, index : 65
+2021-11-08 20:37:55,715 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.6
+Name: Close, dtype: float64
+2021-11-08 20:37:55,801                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.65  1547.0
+2021-11-08 20:37:55,801 Transaction proceed, index : 66
+2021-11-08 20:37:55,931 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.65
+Name: Close, dtype: float64
+2021-11-08 20:37:56,024                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.65  1549.0
+2021-11-08 20:37:56,024 Transaction proceed, index : 67
+2021-11-08 20:37:56,153 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.65
+Name: Close, dtype: float64
+2021-11-08 20:37:56,261                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.65  1550.0
+2021-11-08 20:37:56,261 Transaction proceed, index : 68
+2021-11-08 20:37:56,391 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.65
+Name: Close, dtype: float64
+2021-11-08 20:37:56,495                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.65  1551.0
+2021-11-08 20:37:56,496 Transaction proceed, index : 69
+2021-11-08 20:37:56,623 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.65
+Name: Close, dtype: float64
+2021-11-08 20:37:56,717                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.7  1556.0
+2021-11-08 20:37:56,718 Transaction proceed, index : 70
+2021-11-08 20:37:56,853 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.7
+Name: Close, dtype: float64
+2021-11-08 20:37:56,949                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.75  1557.0
+2021-11-08 20:37:56,950 Transaction proceed, index : 71
+2021-11-08 20:37:57,083 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:37:57,175                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.7  1559.0
+2021-11-08 20:37:57,175 Transaction proceed, index : 72
+2021-11-08 20:37:57,308 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.7
+Name: Close, dtype: float64
+2021-11-08 20:37:57,407                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.75  1560.0
+2021-11-08 20:37:57,407 Transaction proceed, index : 73
+2021-11-08 20:37:57,536 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:37:57,632                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.8  1565.0
+2021-11-08 20:37:57,632 Transaction proceed, index : 74
+2021-11-08 20:37:57,765 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.8
+Name: Close, dtype: float64
+2021-11-08 20:37:57,857                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.5  421.8  1567.0
+2021-11-08 20:37:57,858 Transaction proceed, index : 75
+2021-11-08 20:37:57,985 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.8
+Name: Close, dtype: float64
+2021-11-08 20:37:58,078                        Open    High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.85  421.5  421.85  1568.0
+2021-11-08 20:37:58,079 Transaction proceed, index : 76
+2021-11-08 20:37:58,214 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.85
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.85
+Name: Close, dtype: float64
+2021-11-08 20:37:58,318                        Open    High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.85  421.5  421.8  1569.0
+2021-11-08 20:37:58,319 Transaction proceed, index : 77
+2021-11-08 20:37:58,456 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.85
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.8
+Name: Close, dtype: float64
+2021-11-08 20:37:58,581                        Open    High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.85  421.5  421.75  1570.0
+2021-11-08 20:37:58,581 Transaction proceed, index : 78
+2021-11-08 20:37:58,736 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.85
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:37:58,784                        Open    High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.85  421.5  421.75  1571.0
+2021-11-08 20:37:58,784 Transaction proceed, index : 79
+2021-11-08 20:37:59,007                        Open    High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.85  421.5  421.75  1573.0
+2021-11-08 20:37:59,007 Transaction proceed, index : 80
+2021-11-08 20:37:59,143 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.85
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:37:59,229                        Open    High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.85  421.5  421.7  1579.0
+2021-11-08 20:37:59,229 Transaction proceed, index : 81
+2021-11-08 20:37:59,370 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.85
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.7
+Name: Close, dtype: float64
+2021-11-08 20:37:59,455                        Open    High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.85  421.5  421.8  1580.0
+2021-11-08 20:37:59,456 Transaction proceed, index : 82
+2021-11-08 20:37:59,595 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.85
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.8
+Name: Close, dtype: float64
+2021-11-08 20:37:59,680                        Open    High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.85  421.5  421.8  1581.0
+2021-11-08 20:37:59,681 Transaction proceed, index : 83
+2021-11-08 20:37:59,816 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.85
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.8
+Name: Close, dtype: float64
+2021-11-08 20:37:59,905                        Open    High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.85  421.5  421.75  1582.0
+2021-11-08 20:37:59,906 Transaction proceed, index : 84
+2021-11-08 20:38:00,045 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.85
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:38:00,131                        Open    High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.85  421.5  421.75  1583.0
+2021-11-08 20:38:00,131 Transaction proceed, index : 85
+2021-11-08 20:38:00,269 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.85
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:38:00,352                        Open    High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.85  421.5  421.75  1584.0
+2021-11-08 20:38:00,353 Transaction proceed, index : 86
+2021-11-08 20:38:00,492 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.85
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:38:00,576                        Open    High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.85  421.5  421.85  1588.0
+2021-11-08 20:38:00,577 Transaction proceed, index : 87
+2021-11-08 20:38:00,714 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.85
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.85
+Name: Close, dtype: float64
+2021-11-08 20:38:00,799                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.9  421.5  421.9  1589.0
+2021-11-08 20:38:00,800 Transaction proceed, index : 88
+2021-11-08 20:38:00,952 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.9
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.9
+Name: Close, dtype: float64
+2021-11-08 20:38:01,006                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.9  421.5  421.85  1590.0
+2021-11-08 20:38:01,006 Transaction proceed, index : 89
+2021-11-08 20:38:01,233                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.9  421.5  421.8  1591.0
+2021-11-08 20:38:01,234 Transaction proceed, index : 90
+2021-11-08 20:38:01,379 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.9
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.8
+Name: Close, dtype: float64
+2021-11-08 20:38:01,449                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.9  421.5  421.8  1593.0
+2021-11-08 20:38:01,450 Transaction proceed, index : 91
+2021-11-08 20:38:01,676                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.9  421.5  421.85  1596.0
+2021-11-08 20:38:01,677 Transaction proceed, index : 92
+2021-11-08 20:38:01,820 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.9
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.85
+Name: Close, dtype: float64
+2021-11-08 20:38:01,893                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.9  421.5  421.8  1597.0
+2021-11-08 20:38:01,894 Transaction proceed, index : 93
+2021-11-08 20:38:02,111                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.9  421.5  421.8  1598.0
+2021-11-08 20:38:02,111 Transaction proceed, index : 94
+2021-11-08 20:38:02,254 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.9
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.8
+Name: Close, dtype: float64
+2021-11-08 20:38:02,347                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.9  421.5  421.8  1599.0
+2021-11-08 20:38:02,347 Transaction proceed, index : 95
+2021-11-08 20:38:02,490 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.9
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.8
+Name: Close, dtype: float64
+2021-11-08 20:38:02,576                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.9  421.5  421.8  1600.0
+2021-11-08 20:38:02,577 Transaction proceed, index : 96
+2021-11-08 20:38:02,723 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.9
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.8
+Name: Close, dtype: float64
+2021-11-08 20:38:02,773                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.9  421.5  421.85  1602.0
+2021-11-08 20:38:02,773 Transaction proceed, index : 97
+2021-11-08 20:38:03,021                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.9  421.5  421.8  1603.0
+2021-11-08 20:38:03,021 Transaction proceed, index : 98
+2021-11-08 20:38:03,168 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.9
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.8
+Name: Close, dtype: float64
+2021-11-08 20:38:03,238                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.9  421.5  421.8  1605.0
+2021-11-08 20:38:03,239 Transaction proceed, index : 99
+2021-11-08 20:38:03,382 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.9
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.8
+Name: Close, dtype: float64
+2021-11-08 20:38:03,476                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.9  421.5  421.8  1606.0
+2021-11-08 20:38:03,477 Transaction proceed, index : 100
+2021-11-08 20:38:03,618 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.9
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.8
+Name: Close, dtype: float64
+2021-11-08 20:38:03,703                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.9  421.5  421.85  1608.0
+2021-11-08 20:38:03,703 Transaction proceed, index : 101
+2021-11-08 20:38:03,847 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.9
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.85
+Name: Close, dtype: float64
+2021-11-08 20:38:03,937                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.9  421.5  421.8  1609.0
+2021-11-08 20:38:03,938 Transaction proceed, index : 102
+2021-11-08 20:38:04,089 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.9
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.8
+Name: Close, dtype: float64
+2021-11-08 20:38:04,146                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.9  421.5  421.8  1610.0
+2021-11-08 20:38:04,147 Transaction proceed, index : 103
+2021-11-08 20:38:04,382                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.9  421.5  421.8  1611.0
+2021-11-08 20:38:04,383 Transaction proceed, index : 104
+2021-11-08 20:38:04,559 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.9
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.8
+Name: Close, dtype: float64
+2021-11-08 20:38:04,593                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.9  421.5  421.8  1617.0
+2021-11-08 20:38:04,594 Transaction proceed, index : 105
+2021-11-08 20:38:04,824                        Open   High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.9  421.5  421.85  1619.0
+2021-11-08 20:38:04,824 Transaction proceed, index : 106
+2021-11-08 20:38:04,969 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.9
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.85
+Name: Close, dtype: float64
+2021-11-08 20:38:05,066                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.9  421.5  421.9  1627.0
+2021-11-08 20:38:05,066 Transaction proceed, index : 107
+2021-11-08 20:38:05,210 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.9
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.9
+Name: Close, dtype: float64
+2021-11-08 20:38:05,281                        Open    High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.95  421.5  421.95  1637.0
+2021-11-08 20:38:05,281 Transaction proceed, index : 108
+2021-11-08 20:38:05,515                        Open    High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.95  421.5  421.85  1640.0
+2021-11-08 20:38:05,516 Transaction proceed, index : 109
+2021-11-08 20:38:05,669 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.95
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.85
+Name: Close, dtype: float64
+2021-11-08 20:38:05,748                        Open    High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.95  421.5  421.8  1641.0
+2021-11-08 20:38:05,749 Transaction proceed, index : 110
+2021-11-08 20:38:05,948                        Open    High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.95  421.5  421.85  1643.0
+2021-11-08 20:38:05,949 Transaction proceed, index : 111
+2021-11-08 20:38:06,098 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.95
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.85
+Name: Close, dtype: float64
+2021-11-08 20:38:06,154                        Open    High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.95  421.5  421.9  1644.0
+2021-11-08 20:38:06,155 Transaction proceed, index : 112
+2021-11-08 20:38:06,355                        Open    High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.95  421.5  421.85  1645.0
+2021-11-08 20:38:06,356 Transaction proceed, index : 113
+2021-11-08 20:38:06,502 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.95
+Name: High, dtype: float64 2021-08-13 09:00:00    421.5
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.85
+Name: Close, dtype: float64
+2021-11-08 20:38:06,568                        Open    High    Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.95  421.5  421.85  1646.0
+2021-11-08 20:38:06,575 Transaction proceed, index : 114
+2021-11-08 20:38:42,889 Kiwoom initializing...
+2021-11-08 20:38:48,365 Kiwoom log in success
+2021-11-08 20:38:48,365 Account information
+2021-11-08 20:38:48,882 Deposit information (Futures)
+2021-11-08 20:38:49,394 Portfolio information (Futures)
+2021-11-08 20:38:49,396 F 202112 trading information begins to be monitored
+2021-11-08 20:38:49,396 Go Charting F 202112
+2021-11-08 20:38:53,868                        Open    High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.75  421.75  421.75  1315.0
+2021-11-08 20:38:53,869 Transaction proceed, index : 1
+2021-11-08 20:38:53,971 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.75
+Name: High, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:38:54,424                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.75  421.8  1316.0
+2021-11-08 20:38:54,424 Transaction proceed, index : 2
+2021-11-08 20:38:54,528 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.8
+Name: Close, dtype: float64
+2021-11-08 20:38:54,773                        Open   High     Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.75  421.8  1317.0
+2021-11-08 20:38:54,774 Transaction proceed, index : 3
+2021-11-08 20:38:54,879 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.8
+Name: Close, dtype: float64
+2021-11-08 20:38:54,957                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.75  421.75  1318.0
+2021-11-08 20:38:54,957 Transaction proceed, index : 4
+2021-11-08 20:38:55,063 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:38:55,153                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.75  421.75  1319.0
+2021-11-08 20:38:55,153 Transaction proceed, index : 5
+2021-11-08 20:38:55,259 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:38:55,347                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.75  421.75  1320.0
+2021-11-08 20:38:55,347 Transaction proceed, index : 6
+2021-11-08 20:38:55,454 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:38:55,520                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.75  421.75  1321.0
+2021-11-08 20:38:55,521 Transaction proceed, index : 7
+2021-11-08 20:38:55,627 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:38:55,708                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.75  421.75  1329.0
+2021-11-08 20:38:55,708 Transaction proceed, index : 8
+2021-11-08 20:38:55,810 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.75
+Name: Close, dtype: float64
+2021-11-08 20:38:55,878                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.7  421.7  1341.0
+2021-11-08 20:38:55,879 Transaction proceed, index : 9
+2021-11-08 20:38:55,990 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.7
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.7
+Name: Close, dtype: float64
+2021-11-08 20:38:56,026                        Open   High    Low  Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.7  421.7  1356.0
+2021-11-08 20:38:56,026 Transaction proceed, index : 10
+2021-11-08 20:38:56,309                        Open   High     Low   Close  Volume
+2021-08-13 09:00:00  421.75  421.8  421.65  421.65  1361.0
+2021-11-08 20:38:56,309 Transaction proceed, index : 11
+2021-11-08 20:38:56,428 2021-08-13 09:00:00    421.75
+Name: Open, dtype: float64 2021-08-13 09:00:00    421.8
+Name: High, dtype: float64 2021-08-13 09:00:00    421.65
+Name: Low, dtype: float64 2021-08-13 09:00:00    421.65
+Name: Close, dtype: float64

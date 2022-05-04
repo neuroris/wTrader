@@ -1,0 +1,264 @@
+2021-10-11 09:36:01,904 Kiwoom initializing...
+2021-10-11 09:36:41,439 Kiwoom log in success
+2021-10-11 09:36:41,439 Account information
+2021-10-11 09:36:42,037 Deposit information (Futures)
+2021-10-11 09:36:42,074 Portfolio information (Futures) (No item found)
+2021-10-11 09:37:19,615 [93mALGORITHM STARTED [97m
+2021-10-11 09:37:19,655 [93mALGORITHM No chart data [97m
+2021-10-11 11:25:39,220 Kiwoom initializing...
+2021-10-11 11:25:54,483 Kiwoom log in success
+2021-10-11 11:25:54,484 Account information
+2021-10-11 11:25:54,996 Deposit information (Futures)
+2021-10-11 11:25:55,072 Portfolio information (Futures) (No item found)
+2021-10-11 11:28:11,665 Kiwoom initializing...
+2021-10-11 11:28:17,424 Kiwoom log in success
+2021-10-11 11:28:17,425 Account information
+2021-10-11 11:28:17,932 Deposit information (Futures)
+2021-10-11 11:28:17,994 Portfolio information (Futures) (No item found)
+2021-10-11 11:28:32,606 Kiwoom initializing...
+2021-10-11 11:28:37,939 Kiwoom log in success
+2021-10-11 11:28:37,939 Account information
+2021-10-11 11:28:38,455 Deposit information (Futures)
+2021-10-11 11:28:38,463 F 202112 trading information begins to be monitored
+2021-10-11 11:28:38,548 Portfolio information (Futures) (No item found)
+2021-10-11 11:28:51,693 test1 button clicked
+2021-10-11 11:30:00,566 Kiwoom initializing...
+2021-10-11 11:30:06,019 Kiwoom log in success
+2021-10-11 11:30:06,019 Account information
+2021-10-11 11:30:06,530 Deposit information (Futures)
+2021-10-11 11:30:06,533 F 202112 trading information begins to be monitored
+2021-10-11 11:30:06,604 Portfolio information (Futures) (No item found)
+2021-10-11 11:30:15,237 test1 button clicked
+2021-10-11 11:31:16,788 test2 button clicked
+2021-10-11 11:31:48,433 test2 button clicked
+2021-10-11 11:33:03,603 Go Charting F 202112
+2021-10-11 11:33:09,301 test2 button clicked
+2021-10-11 11:33:43,591 test1 button clicked
+2021-10-11 11:33:53,590 Kiwoom initializing...
+2021-10-11 11:33:59,022 Kiwoom log in success
+2021-10-11 11:33:59,022 Account information
+2021-10-11 11:33:59,534 Deposit information (Futures)
+2021-10-11 11:33:59,536 F 202112 trading information begins to be monitored
+2021-10-11 11:33:59,603 Portfolio information (Futures) (No item found)
+2021-10-11 11:34:09,525 Go Charting F 202112
+2021-10-11 11:34:11,691 test1 button clicked
+2021-10-11 11:35:54,005 Kiwoom initializing...
+2021-10-11 11:35:59,443 Kiwoom log in success
+2021-10-11 11:35:59,443 Account information
+2021-10-11 11:35:59,954 Deposit information (Futures)
+2021-10-11 11:35:59,956 F 202112 trading information begins to be monitored
+2021-10-11 11:36:00,031 Portfolio information (Futures) (No item found)
+2021-10-11 11:36:00,462 Go Charting F 202112
+2021-10-11 11:36:03,275 test1 button clicked
+2021-10-11 11:37:18,579 Kiwoom initializing...
+2021-10-11 11:37:24,089 Kiwoom log in success
+2021-10-11 11:37:24,090 Account information
+2021-10-11 11:37:24,608 Deposit information (Futures)
+2021-10-11 11:37:24,610 F 202112 trading information begins to be monitored
+2021-10-11 11:37:24,686 Portfolio information (Futures) (No item found)
+2021-10-11 11:37:34,987 Go Charting F 202112
+2021-10-11 11:37:36,381 test1 button clicked
+2021-10-11 11:45:50,393 Kiwoom initializing...
+2021-10-11 11:45:56,800 Kiwoom log in success
+2021-10-11 11:45:56,800 Account information
+2021-10-11 11:45:57,306 Deposit information (Futures)
+2021-10-11 11:45:57,310 F 202112 trading information begins to be monitored
+2021-10-11 11:45:57,388 Portfolio information (Futures) (No item found)
+2021-10-11 11:46:09,236 Go Charting F 202112
+2021-10-11 11:46:10,604 test1 button clicked
+2021-10-11 11:50:17,373 test2 button clicked
+2021-10-11 12:04:49,101 Kiwoom initializing...
+2021-10-11 12:05:00,203 Kiwoom log in success
+2021-10-11 12:05:00,204 Account information
+2021-10-11 12:05:00,722 Deposit information (Futures)
+2021-10-11 12:05:00,725 F 202112 trading information begins to be monitored
+2021-10-11 12:05:00,798 Portfolio information (Futures) (No item found)
+2021-10-11 12:05:45,212 test1 button clicked
+2021-10-11 12:06:22,764 test2 button clicked
+2021-10-11 12:06:33,294 Go Charting F 202112
+2021-10-11 12:06:41,176 Kiwoom initializing...
+2021-10-11 12:06:47,651 Kiwoom log in success
+2021-10-11 12:06:47,651 Account information
+2021-10-11 12:06:48,158 Deposit information (Futures)
+2021-10-11 12:06:48,161 F 202112 trading information begins to be monitored
+2021-10-11 12:06:48,233 Portfolio information (Futures) (No item found)
+2021-10-11 12:06:48,667 Go Charting F 202112
+2021-10-11 12:06:53,476 test1 button clicked
+2021-10-11 12:09:12,818 test2 button clicked
+2021-10-11 12:17:12,133 Kiwoom initializing...
+2021-10-11 12:17:22,868 Kiwoom log in success
+2021-10-11 12:17:22,868 Account information
+2021-10-11 12:17:23,383 Deposit information (Futures)
+2021-10-11 12:17:23,385 F 202112 trading information begins to be monitored
+2021-10-11 12:17:23,460 Portfolio information (Futures) (No item found)
+2021-10-11 12:17:26,429 Go Charting F 202112
+2021-10-11 12:17:28,357 test1 button clicked
+2021-10-11 12:19:37,654 test2 button clicked
+2021-10-11 12:20:18,673 Kiwoom initializing...
+2021-10-11 12:20:24,607 Kiwoom log in success
+2021-10-11 12:20:24,607 Account information
+2021-10-11 12:20:25,119 Deposit information (Futures)
+2021-10-11 12:20:25,122 F 202112 trading information begins to be monitored
+2021-10-11 12:20:25,186 Portfolio information (Futures) (No item found)
+2021-10-11 12:20:44,547 test1 button clicked
+2021-10-11 12:21:38,171 test2 button clicked
+2021-10-11 12:21:43,741 test3 button clicked
+2021-10-11 12:21:49,196 test1 button clicked
+2021-10-11 12:23:00,009 test2 button clicked
+2021-10-11 12:23:27,287 test2 button clicked
+2021-10-11 12:23:36,519 test4 button clicked
+2021-10-11 12:23:37,942 test5 button clicked
+2021-10-11 12:24:07,680 Kiwoom initializing...
+2021-10-11 12:24:15,790 Kiwoom log in success
+2021-10-11 12:24:15,790 Account information
+2021-10-11 12:24:16,302 Deposit information (Futures)
+2021-10-11 12:24:16,305 F 202112 trading information begins to be monitored
+2021-10-11 12:24:16,389 Portfolio information (Futures) (No item found)
+2021-10-11 12:27:21,979 test1 button clicked
+2021-10-11 12:28:13,471 Go Charting F 202112
+2021-10-11 12:28:15,696 test1 button clicked
+2021-10-11 12:28:20,952 test1 button clicked
+2021-10-11 12:28:31,976 test3 button clicked
+2021-10-11 12:28:33,768 test1 button clicked
+2021-10-11 12:30:51,181 Kiwoom initializing...
+2021-10-11 12:30:56,939 Kiwoom log in success
+2021-10-11 12:30:56,939 Account information
+2021-10-11 12:30:57,445 Deposit information (Futures)
+2021-10-11 12:30:57,448 F 202112 trading information begins to be monitored
+2021-10-11 12:30:57,525 Portfolio information (Futures) (No item found)
+2021-10-11 12:31:06,946 Go Charting F 202112
+2021-10-11 12:31:08,980 test1 button clicked
+2021-10-11 12:31:54,914 Kiwoom initializing...
+2021-10-11 12:32:00,476 Kiwoom log in success
+2021-10-11 12:32:00,476 Account information
+2021-10-11 12:32:00,990 Deposit information (Futures)
+2021-10-11 12:32:00,993 F 202112 trading information begins to be monitored
+2021-10-11 12:32:01,060 Portfolio information (Futures) (No item found)
+2021-10-11 12:32:18,686 Go Charting F 202112
+2021-10-11 12:32:19,919 test1 button clicked
+2021-10-11 12:32:44,619 Kiwoom initializing...
+2021-10-11 12:32:50,273 Kiwoom log in success
+2021-10-11 12:32:50,273 Account information
+2021-10-11 12:32:50,781 Deposit information (Futures)
+2021-10-11 12:32:50,784 F 202112 trading information begins to be monitored
+2021-10-11 12:32:50,854 Portfolio information (Futures) (No item found)
+2021-10-11 12:32:54,544 Go Charting F 202112
+2021-10-11 12:32:55,626 test1 button clicked
+2021-10-11 12:35:38,804 test2 button clicked
+2021-10-11 12:39:07,162 Kiwoom initializing...
+2021-10-11 12:39:12,798 Kiwoom log in success
+2021-10-11 12:39:12,798 Account information
+2021-10-11 12:39:13,315 Deposit information (Futures)
+2021-10-11 12:39:13,318 F 202112 trading information begins to be monitored
+2021-10-11 12:39:13,392 Portfolio information (Futures) (No item found)
+2021-10-11 12:39:17,455 Go Charting F 202112
+2021-10-11 12:39:19,872 test1 button clicked
+2021-10-11 12:40:53,834 Kiwoom initializing...
+2021-10-11 12:40:59,170 Kiwoom log in success
+2021-10-11 12:40:59,171 Account information
+2021-10-11 12:40:59,676 Deposit information (Futures)
+2021-10-11 12:40:59,678 F 202112 trading information begins to be monitored
+2021-10-11 12:40:59,746 Portfolio information (Futures) (No item found)
+2021-10-11 12:41:35,639 Go Charting F 202112
+2021-10-11 12:41:40,867 test1 button clicked
+2021-10-11 12:42:51,246 test2 button clicked
+2021-10-11 12:43:04,130 Chart scope 80
+2021-10-11 12:43:07,950 Chart scope 70
+2021-10-11 12:43:10,998 Chart scope 60
+2021-10-11 12:43:11,244 Chart scope 50
+2021-10-11 12:46:52,343 Kiwoom initializing...
+2021-10-11 12:46:57,917 Kiwoom log in success
+2021-10-11 12:46:57,917 Account information
+2021-10-11 12:46:58,423 Deposit information (Futures)
+2021-10-11 12:46:58,936 Portfolio information (Futures) (No item found)
+2021-10-11 12:46:58,938 F 202112 trading information begins to be monitored
+2021-10-11 12:46:58,938 Go Charting F 202112
+2021-10-11 12:47:04,623 test1 button clicked
+2021-10-11 12:47:25,624 Kiwoom initializing...
+2021-10-11 12:47:31,148 Kiwoom log in success
+2021-10-11 12:47:31,149 Account information
+2021-10-11 12:47:31,664 Deposit information (Futures)
+2021-10-11 12:47:32,177 Portfolio information (Futures) (No item found)
+2021-10-11 12:47:32,179 F 202112 trading information begins to be monitored
+2021-10-11 12:47:32,179 Go Charting F 202112
+2021-10-11 12:47:35,999 test1 button clicked
+2021-10-11 12:48:10,883 Kiwoom initializing...
+2021-10-11 12:48:17,139 Kiwoom log in success
+2021-10-11 12:48:17,139 Account information
+2021-10-11 12:48:17,654 Deposit information (Futures)
+2021-10-11 12:48:18,170 Portfolio information (Futures) (No item found)
+2021-10-11 12:48:18,172 F 202112 trading information begins to be monitored
+2021-10-11 12:48:18,172 Go Charting F 202112
+2021-10-11 12:48:25,754 test1 button clicked
+2021-10-11 12:49:27,041 test2 button clicked
+2021-10-11 12:50:23,637 Chart scope 80
+2021-10-11 12:50:24,595 Chart scope 70
+2021-10-11 12:50:25,432 Chart scope 60
+2021-10-11 12:50:26,472 Chart scope 50
+2021-10-11 12:50:27,288 Chart scope 40
+2021-10-11 12:50:28,168 Chart scope 50
+2021-10-11 12:50:28,858 Chart scope 60
+2021-10-11 12:50:29,194 Chart scope 70
+2021-10-11 12:50:29,670 Chart scope 80
+2021-10-11 12:50:30,873 Chart scope 90
+2021-10-11 12:50:31,153 Chart scope 100
+2021-10-11 12:50:31,854 Chart scope 110
+2021-10-11 12:50:32,113 Chart scope 120
+2021-10-11 12:50:32,851 Chart scope 130
+2021-10-11 12:50:33,133 Chart scope 140
+2021-10-11 12:50:34,027 Chart scope 150
+2021-10-11 12:50:34,300 Chart scope 160
+2021-10-11 12:50:35,394 Chart scope 170
+2021-10-11 12:50:35,646 Chart scope 180
+2021-10-11 12:50:36,605 Chart scope 190
+2021-10-11 12:50:36,878 Chart scope 200
+2021-10-11 12:50:38,858 Chart scope 190
+2021-10-11 12:50:39,095 Chart scope 180
+2021-10-11 12:50:39,119 Chart scope 170
+2021-10-11 12:50:39,677 Chart scope 160
+2021-10-11 12:50:39,925 Chart scope 150
+2021-10-11 12:50:40,462 Chart scope 140
+2021-10-11 12:50:40,731 Chart scope 130
+2021-10-11 12:50:41,230 Chart scope 120
+2021-10-11 12:50:41,505 Chart scope 110
+2021-10-11 12:51:13,711 Kiwoom initializing...
+2021-10-11 12:51:19,927 Kiwoom log in success
+2021-10-11 12:51:19,927 Account information
+2021-10-11 12:51:20,443 Deposit information (Futures)
+2021-10-11 12:51:20,957 Portfolio information (Futures) (No item found)
+2021-10-11 12:51:20,959 F 202112 trading information begins to be monitored
+2021-10-11 12:51:20,959 Go Charting F 202112
+2021-10-11 12:51:34,348 test1 button clicked
+2021-10-11 12:53:37,190 Kiwoom initializing...
+2021-10-11 12:53:42,781 Kiwoom log in success
+2021-10-11 12:53:42,782 Account information
+2021-10-11 12:53:43,287 Deposit information (Futures)
+2021-10-11 12:53:43,794 Portfolio information (Futures) (No item found)
+2021-10-11 12:53:43,796 F 202112 trading information begins to be monitored
+2021-10-11 12:53:43,796 Go Charting F 202112
+2021-10-11 12:53:46,013 test1 button clicked
+2021-10-11 12:56:16,310 Kiwoom initializing...
+2021-10-11 12:56:21,826 Kiwoom log in success
+2021-10-11 12:56:21,826 Account information
+2021-10-11 12:56:22,342 Deposit information (Futures)
+2021-10-11 12:56:22,858 Portfolio information (Futures) (No item found)
+2021-10-11 12:56:22,860 F 202112 trading information begins to be monitored
+2021-10-11 12:56:22,860 Go Charting F 202112
+2021-10-11 17:53:37,333 Kiwoom initializing...
+2021-10-11 17:53:51,602 Kiwoom log in success
+2021-10-11 17:53:51,602 Account information
+2021-10-11 17:53:52,119 Deposit information (Futures)
+2021-10-11 17:53:52,640 Portfolio information (Futures) (No item found)
+2021-10-11 17:53:52,641 F 202112 trading information begins to be monitored
+2021-10-11 17:53:52,641 Go Charting F 202112
+2021-10-11 17:54:32,600 test1 button clicked
+2021-10-11 17:55:37,873 test2 button clicked
+2021-10-11 17:59:26,402 Kiwoom initializing...
+2021-10-11 17:59:31,853 Kiwoom log in success
+2021-10-11 17:59:31,853 Account information
+2021-10-11 17:59:32,368 Deposit information (Futures)
+2021-10-11 17:59:32,881 Portfolio information (Futures) (No item found)
+2021-10-11 17:59:32,882 F 202112 trading information begins to be monitored
+2021-10-11 17:59:32,882 Go Charting F 202112
+2021-10-11 17:59:40,005 test1 button clicked
+2021-10-11 18:11:22,585 test2 button clicked

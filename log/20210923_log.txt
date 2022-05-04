@@ -1,0 +1,195 @@
+2021-09-23 09:35:23,856 Kiwoom initializing...
+2021-09-23 09:36:03,365 Kiwoom log in success
+2021-09-23 09:36:03,365 Account information
+2021-09-23 09:36:03,878 Deposit information (Futures)
+2021-09-23 09:36:03,901 Portfolio information (Futures) (No item found)
+2021-09-23 14:24:42,500 Kiwoom initializing...
+2021-09-23 14:25:03,250 Kiwoom log in success
+2021-09-23 14:25:03,250 Account information
+2021-09-23 14:25:03,760 Deposit information (Futures)
+2021-09-23 14:25:03,791 Portfolio information (Futures) (No item found)
+2021-09-23 14:25:10,020 [93mALGORITHM STARTED [97m
+2021-09-23 14:25:11,065 [93mALGORITHM (ORDER) sale order LOCKED 1 [97m
+2021-09-23 14:25:11,066 [96mALGORITHM (SELL) holding:0 price:410.1 amount:3 [97m
+2021-09-23 14:25:11,072 [93mALGORITHM (BLOCK) sale ordered 1 [97m
+2021-09-23 14:25:11,101 Send order (SELL) command committed successfully KOA_CREATE_FO_ORD
+2021-09-23 14:25:11,246 Order execution(-¸Åµµ) F 202112(Á¢¼ö), order:3, executed_sum:0, open:3, price:410.1, number:72978, original:0
+2021-09-23 14:25:11,247 [96mALGORITHM (EXECUTION1) holding 0 virtual 0 order.executed_amount 0 [97m
+2021-09-23 14:25:11,247 [94mALGORITHM (SHORT1)  order 0 executed 0 open 0 holding 0 virtual 0 [97m
+2021-09-23 14:25:11,247 [94mALGORITHM (SHORT2) 001S order 3 executed 0 open 3 holding 0 virtual 0 [97m
+2021-09-23 14:25:11,248 [96mALGORITHM (EXECUTION2) holding 0 virtual 0 [97m
+2021-09-23 14:25:11,248 [93mALGORITHM (COUNT) open sale orders 0 [97m
+2021-09-23 14:25:11,249 [93mALGORITHM (COUNT) sale order UNLOCKED [97m
+2021-09-23 14:25:11,249 [92mALGORITHM (EXECUTION) F 202112 -¸Åµµ Á¢¼ö order:3 executed_each:0 open:3 number:72978 executed:0 holding:0 [97m
+2021-09-23 14:25:11,249 [94mALGORITHM (DEBUG) 14:25:12 Purchases 0 Sales 1 [97m
+2021-09-23 14:25:11,249 [94mALGORITHM sale     order 3 executed 0 open 3 [97m
+2021-09-23 14:25:11,256 Balance information
+2021-09-23 14:25:11,260 [93mALGORITHM (DEBUG) profit 0 profit rate 0.0 [97m
+2021-09-23 14:25:11,493 Order execution(-¸Åµµ) F 202112(Ã¼°á), order:3, executed_sum:1, open:2, price:410.1, number:72978, original:0
+2021-09-23 14:25:11,495 [96mALGORITHM (EXECUTION1) holding 0 virtual 0 order.executed_amount -1 [97m
+2021-09-23 14:25:11,496 [94mALGORITHM Add contract called [97m
+2021-09-23 14:25:11,496 [94mALGORITHM (SHORT1) 001S order 3 executed 0 open 3 holding -1 virtual 0 [97m
+2021-09-23 14:25:11,497 [93mALGORITHM (ORDER) purchase order LOCKED 1 [97m
+2021-09-23 14:25:11,500 [96mALGORITHM (BUY) holding:-1 price:410.0 amount:1 [97m
+2021-09-23 14:25:11,510 [94mALGORITHM (SHORT2) 002S order 3 executed 1 open 2 holding -1 virtual -1 [97m
+2021-09-23 14:25:11,511 [96mALGORITHM (EXECUTION2) holding -1 virtual -1 [97m
+2021-09-23 14:25:11,511 [92mALGORITHM (EXECUTION) F 202112 -¸Åµµ Ã¼°á order:3 executed_each:-1 open:2 number:72978 executed:410.1 holding:-1 [97m
+2021-09-23 14:25:11,511 [94mALGORITHM (DEBUG) 14:25:12 Purchases 0 Sales 1 [97m
+2021-09-23 14:25:11,511 [94mALGORITHM sale     order 3 executed 1 open 2 [97m
+2021-09-23 14:25:11,521 Balance information
+2021-09-23 14:25:11,528 [93mALGORITHM (BLOCK) purchase ordered 1 [97m
+2021-09-23 14:25:11,709 Send order (BUY) command committed successfully KOA_CREATE_FO_ORD
+2021-09-23 14:25:11,750 Order execution(-¸Åµµ) F 202112(Ã¼°á), order:3, executed_sum:2, open:1, price:410.1, number:72978, original:0
+2021-09-23 14:25:11,750 [96mALGORITHM (EXECUTION1) holding -1 virtual -1 order.executed_amount -1 [97m
+2021-09-23 14:25:11,750 [94mALGORITHM Add contract called [97m
+2021-09-23 14:25:11,750 [94mALGORITHM (SHORT1) 002S order 3 executed 1 open 2 holding -2 virtual -1 [97m
+2021-09-23 14:25:11,751 [93mALGORITHM (ORDER) purchase order LOCKED 2 [97m
+2021-09-23 14:25:11,751 [96mALGORITHM (BUY) holding:-2 price:410.0 amount:1 [97m
+2021-09-23 14:25:11,754 [94mALGORITHM (SHORT2) 002S order 3 executed 2 open 1 holding -2 virtual -2 [97m
+2021-09-23 14:25:11,754 [96mALGORITHM (EXECUTION2) holding -2 virtual -2 [97m
+2021-09-23 14:25:11,755 [92mALGORITHM (EXECUTION) F 202112 -¸Åµµ Ã¼°á order:3 executed_each:-1 open:1 number:72978 executed:410.1 holding:-2 [97m
+2021-09-23 14:25:11,755 [94mALGORITHM (DEBUG) 14:25:13 Purchases 0 Sales 1 [97m
+2021-09-23 14:25:11,755 [94mALGORITHM sale     order 3 executed 2 open 1 [97m
+2021-09-23 14:25:11,776 Balance information
+2021-09-23 14:25:11,788 Order execution(+¸Å¼ö) F 202112(Á¢¼ö), order:1, executed_sum:0, open:1, price:410.0, number:72980, original:0
+2021-09-23 14:25:11,788 [96mALGORITHM (EXECUTION1) holding -2 virtual -2 order.executed_amount 0 [97m
+2021-09-23 14:25:11,789 [94mALGORITHM (LONG1)  order 0 executed 0 open 0 holding -2 virtual -2 order.executed 0 [97m
+2021-09-23 14:25:11,789 [94mALGORITHM (LONG2) 001L order 1 executed 0 open 1 holding -2 virtual -2 [97m
+2021-09-23 14:25:11,789 [96mALGORITHM (EXECUTION2) holding -2 virtual -2 [97m
+2021-09-23 14:25:11,789 [93mALGORITHM (COUNT) open purchase orders 1 [97m
+2021-09-23 14:25:11,789 [92mALGORITHM (EXECUTION) F 202112 +¸Å¼ö Á¢¼ö order:1 executed_each:0 open:1 number:72980 executed:0 holding:-2 [97m
+2021-09-23 14:25:11,795 [94mALGORITHM (DEBUG) 14:25:13 Purchases 1 Sales 1 [97m
+2021-09-23 14:25:11,795 [94mALGORITHM sale     order 3 executed 2 open 1 [97m
+2021-09-23 14:25:11,795 [94mALGORITHM purchase order 1 executed 0 open 1 [97m
+2021-09-23 14:25:11,799 Balance information
+2021-09-23 14:25:11,926 Send order (BUY) command committed successfully KOA_CREATE_FO_ORD
+2021-09-23 14:25:12,039 Order execution(+¸Å¼ö) F 202112(Á¢¼ö), order:1, executed_sum:0, open:1, price:410.0, number:72981, original:0
+2021-09-23 14:25:12,039 [96mALGORITHM (EXECUTION1) holding -2 virtual -2 order.executed_amount 0 [97m
+2021-09-23 14:25:12,039 [94mALGORITHM (LONG1) 001L order 1 executed 0 open 1 holding -2 virtual -2 order.executed 0 [97m
+2021-09-23 14:25:12,040 [94mALGORITHM (LONG2) 002L order 2 executed 0 open 2 holding -2 virtual -2 [97m
+2021-09-23 14:25:12,040 [96mALGORITHM (EXECUTION2) holding -2 virtual -2 [97m
+2021-09-23 14:25:12,040 [93mALGORITHM (COUNT) open purchase orders 0 [97m
+2021-09-23 14:25:12,040 [93mALGORITHM (COUNT) purchase order UNLOCKED [97m
+2021-09-23 14:25:12,040 [92mALGORITHM (EXECUTION) F 202112 +¸Å¼ö Á¢¼ö order:1 executed_each:0 open:1 number:72981 executed:0 holding:-2 [97m
+2021-09-23 14:25:12,041 [94mALGORITHM (DEBUG) 14:25:13 Purchases 2 Sales 1 [97m
+2021-09-23 14:25:12,041 [94mALGORITHM sale     order 3 executed 2 open 1 [97m
+2021-09-23 14:25:12,041 [94mALGORITHM purchase order 1 executed 0 open 1 [97m
+2021-09-23 14:25:12,041 [94mALGORITHM purchase order 1 executed 0 open 1 [97m
+2021-09-23 14:25:12,046 Balance information
+2021-09-23 14:25:12,543 [93mALGORITHM (DEBUG) profit -12300 profit rate -0.01 [97m
+2021-09-23 14:25:12,648 Order execution(-¸Åµµ) F 202112(Ã¼°á), order:3, executed_sum:3, open:0, price:410.1, number:72978, original:0
+2021-09-23 14:25:12,649 [96mALGORITHM (EXECUTION1) holding -2 virtual -2 order.executed_amount -1 [97m
+2021-09-23 14:25:12,649 [94mALGORITHM Add contract called [97m
+2021-09-23 14:25:12,649 [94mALGORITHM (SHORT1) 002S order 3 executed 2 open 1 holding -3 virtual -2 [97m
+2021-09-23 14:25:12,649 [93mALGORITHM (ORDER) purchase order LOCKED 1 [97m
+2021-09-23 14:25:12,650 [96mALGORITHM (BUY) holding:-3 price:410.0 amount:1 [97m
+2021-09-23 14:25:12,652 [94mALGORITHM (SHORT2) 002S order 3 executed 3 open 0 holding -3 virtual -3 [97m
+2021-09-23 14:25:12,652 [96mALGORITHM (EXECUTION2) holding -3 virtual -3 [97m
+2021-09-23 14:25:12,652 [92mALGORITHM (EXECUTION) F 202112 -¸Åµµ Ã¼°á order:3 executed_each:-1 open:0 number:72978 executed:410.1 holding:-3 [97m
+2021-09-23 14:25:12,653 [94mALGORITHM (DEBUG) 14:25:14 Purchases 2 Sales 0 [97m
+2021-09-23 14:25:12,653 [94mALGORITHM purchase order 1 executed 0 open 1 [97m
+2021-09-23 14:25:12,653 [94mALGORITHM purchase order 1 executed 0 open 1 [97m
+2021-09-23 14:25:12,786 Balance information
+2021-09-23 14:25:12,816 [93mALGORITHM (BLOCK) purchase ordered 1 [97m
+2021-09-23 14:25:13,536 Send order (BUY) command committed successfully KOA_CREATE_FO_ORD
+2021-09-23 14:25:13,581 Order execution(+¸Å¼ö) F 202112(Á¢¼ö), order:1, executed_sum:0, open:1, price:410.0, number:72983, original:0
+2021-09-23 14:25:13,581 [96mALGORITHM (EXECUTION1) holding -3 virtual -3 order.executed_amount 0 [97m
+2021-09-23 14:25:13,583 [94mALGORITHM (LONG1) 002L order 2 executed 0 open 2 holding -3 virtual -3 order.executed 0 [97m
+2021-09-23 14:25:13,583 [94mALGORITHM (LONG2) 003L order 3 executed 0 open 3 holding -3 virtual -3 [97m
+2021-09-23 14:25:13,583 [96mALGORITHM (EXECUTION2) holding -3 virtual -3 [97m
+2021-09-23 14:25:13,583 [93mALGORITHM (COUNT) open purchase orders 0 [97m
+2021-09-23 14:25:13,584 [93mALGORITHM (COUNT) purchase order UNLOCKED [97m
+2021-09-23 14:25:13,584 [92mALGORITHM (EXECUTION) F 202112 +¸Å¼ö Á¢¼ö order:1 executed_each:0 open:1 number:72983 executed:0 holding:-3 [97m
+2021-09-23 14:25:13,584 [94mALGORITHM (DEBUG) 14:25:14 Purchases 3 Sales 0 [97m
+2021-09-23 14:25:13,584 [94mALGORITHM purchase order 1 executed 0 open 1 [97m
+2021-09-23 14:25:13,584 [94mALGORITHM purchase order 1 executed 0 open 1 [97m
+2021-09-23 14:25:13,594 [94mALGORITHM purchase order 1 executed 0 open 1 [97m
+2021-09-23 14:25:13,611 Balance information
+2021-09-23 14:25:18,026 [93mALGORITHM STOPPED [97m
+2021-09-23 14:25:18,330 [93mALGORITHM (DEBUG) profit -55950 profit rate -0.02 [97m
+2021-09-23 14:25:18,580 Send order (CANCEL BUY) command committed successfully KOA_CREATE_FO_ORD
+2021-09-23 14:25:18,584 [93mALGORITHM (REPORT) cancel purchases ordered successfully 0 [97m
+2021-09-23 14:25:18,733 Order execution(¸Å¼öÃë¼Ò) F 202112(Á¢¼ö), order:1, executed_sum:0, open:1, price:0.0, number:72997, original:72980
+2021-09-23 14:25:18,880 Order execution(¸Å¼öÃë¼Ò) F 202112(È®ÀÎ), order:1, executed_sum:0, open:0, price:0.0, number:72997, original:72980
+2021-09-23 14:25:18,884 Order execution(+¸Å¼ö) F 202112(Á¢¼ö), order:1, executed_sum:0, open:0, price:410.0, number:72980, original:0
+2021-09-23 14:25:18,891 Balance information
+2021-09-23 14:25:18,894 Send order (CANCEL BUY) command committed successfully KOA_CREATE_FO_ORD
+2021-09-23 14:25:18,914 Order execution(¸Å¼öÃë¼Ò) F 202112(Á¢¼ö), order:1, executed_sum:0, open:1, price:0.0, number:72998, original:72981
+2021-09-23 14:25:18,920 Order execution(¸Å¼öÃë¼Ò) F 202112(È®ÀÎ), order:1, executed_sum:0, open:0, price:0.0, number:72998, original:72981
+2021-09-23 14:25:18,925 Order execution(+¸Å¼ö) F 202112(Á¢¼ö), order:1, executed_sum:0, open:0, price:410.0, number:72981, original:0
+2021-09-23 14:25:18,943 Balance information
+2021-09-23 14:25:18,990 Send order (CANCEL BUY) command committed successfully KOA_CREATE_FO_ORD
+2021-09-23 14:25:19,005 Order execution(¸Å¼öÃë¼Ò) F 202112(Á¢¼ö), order:1, executed_sum:0, open:1, price:0.0, number:72999, original:72983
+2021-09-23 14:25:19,012 Order execution(¸Å¼öÃë¼Ò) F 202112(È®ÀÎ), order:1, executed_sum:0, open:0, price:0.0, number:72999, original:72983
+2021-09-23 14:25:19,016 Order execution(+¸Å¼ö) F 202112(Á¢¼ö), order:1, executed_sum:0, open:0, price:410.0, number:72983, original:0
+2021-09-23 14:25:19,022 Balance information
+2021-09-23 14:30:19,408 Send order (BUY) command committed successfully KOA_CREATE_FO_ORD
+2021-09-23 14:30:19,639 Order execution(+¸Å¼ö) F 202112(Á¢¼ö), order:3, executed_sum:0, open:3, price:0.0, number:73817, original:0
+2021-09-23 14:30:19,642 Balance information
+2021-09-23 14:30:27,432 Order execution(+¸Å¼ö) F 202112(Ã¼°á), order:3, executed_sum:1, open:2, price:0.0, number:73817, original:0
+2021-09-23 14:30:27,439 Balance information
+2021-09-23 14:30:29,034 Order execution(+¸Å¼ö) F 202112(Ã¼°á), order:3, executed_sum:3, open:0, price:0.0, number:73817, original:0
+2021-09-23 14:30:29,038 Balance information
+2021-09-23 15:19:58,348 market operation state 2 152000 001000
+2021-09-23 15:20:58,347 market operation state 2 152100 000900
+2021-09-23 15:21:58,531 market operation state 2 152200 000800
+2021-09-23 15:22:58,332 market operation state 2 152300 000700
+2021-09-23 15:23:58,340 market operation state 2 152400 000600
+2021-09-23 15:24:58,329 market operation state 2 152500 000500
+2021-09-23 15:25:58,333 market operation state 2 152600 000400
+2021-09-23 15:26:58,328 market operation state 2 152700 000300
+2021-09-23 15:27:58,326 market operation state 2 152800 000200
+2021-09-23 15:28:58,325 market operation state 2 152900 000100
+2021-09-23 15:29:08,337 market operation state 2 152910 000050
+2021-09-23 15:29:18,334 market operation state 2 152920 000040
+2021-09-23 15:29:28,333 market operation state 2 152930 000030
+2021-09-23 15:29:38,325 market operation state 2 152940 000020
+2021-09-23 15:29:48,322 market operation state 2 152950 000010
+2021-09-23 15:29:58,337 market operation state 4 153000 000000
+2021-09-23 15:32:18,315 market operation state 8 888888 000000
+2021-09-23 15:34:58,217 market operation state s 153500 000000
+2021-09-23 15:34:58,309 market operation state s 153500 000000
+2021-09-23 15:34:58,310 market operation state s 153500 000000
+2021-09-23 15:34:58,310 market operation state s 153500 000000
+2021-09-23 15:34:58,311 market operation state s 153500 000000
+2021-09-23 15:34:58,311 market operation state s 153500 000000
+2021-09-23 15:34:58,312 market operation state s 153500 000000
+2021-09-23 15:34:58,415 market operation state s 153500 000000
+2021-09-23 15:34:58,415 market operation state s 153500 000000
+2021-09-23 15:34:58,416 market operation state s 153500 000000
+2021-09-23 15:34:58,416 market operation state s 153500 000000
+2021-09-23 15:34:58,417 market operation state s 153500 000000
+2021-09-23 15:34:58,417 market operation state s 153500 000000
+2021-09-23 15:34:58,508 market operation state s 153500 000000
+2021-09-23 15:34:58,509 market operation state s 153500 000000
+2021-09-23 15:34:58,510 market operation state s 153500 000000
+2021-09-23 15:34:58,510 market operation state s 153500 000000
+2021-09-23 15:34:58,617 market operation state s 153500 000000
+2021-09-23 15:34:58,618 market operation state s 153500 000000
+2021-09-23 15:34:58,618 market operation state s 153500 000000
+2021-09-23 15:39:58,403 market operation state a 154000 000000
+2021-09-23 15:44:58,597 market operation state e 154500 000000
+2021-09-23 15:44:58,598 market operation state e 154500 000000
+2021-09-23 15:44:58,598 market operation state e 154500 000000
+2021-09-23 15:44:58,691 market operation state e 154500 000000
+2021-09-23 15:44:58,795 market operation state e 154500 000000
+2021-09-23 15:44:58,796 market operation state e 154500 000000
+2021-09-23 15:44:58,904 market operation state e 154500 000000
+2021-09-23 15:44:58,905 market operation state e 154500 000000
+2021-09-23 15:44:58,996 market operation state e 154500 000000
+2021-09-23 15:44:58,997 market operation state e 154500 000000
+2021-09-23 15:44:59,090 market operation state e 154500 000000
+2021-09-23 15:44:59,090 market operation state e 154500 000000
+2021-09-23 15:44:59,198 market operation state e 154500 000000
+2021-09-23 15:44:59,291 market operation state e 154500 000000
+2021-09-23 15:44:59,291 market operation state e 154500 000000
+2021-09-23 15:44:59,693 market operation state e 154500 000000
+2021-09-23 15:44:59,796 market operation state e 154500 000000
+2021-09-23 15:44:59,906 market operation state e 154500 000000
+2021-09-23 15:45:00,103 market operation state e 154500 000000
+2021-09-23 15:45:00,194 market operation state e 154500 000000
+2021-09-23 15:59:58,376 market operation state b 160000 000000
+2021-09-23 15:59:58,377 market operation state c 160000 000000
+2021-09-23 17:59:58,155 market operation state d 180000 000000
+2021-09-23 18:01:17,954 market operation state 9 999999 000000
+2021-09-23 20:45:18,417 All screens are disconnected

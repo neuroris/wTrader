@@ -1,0 +1,7 @@
+2021-11-12 18:45:44,825 Kiwoom initializing...
+2021-11-12 18:45:54,084 test1 button clicked
+2021-11-12 18:45:54,085 my func called
+2021-11-12 18:46:02,947 test1 button clicked
+2021-11-12 18:46:02,948 my func called
+2021-11-12 18:46:16,042 Kiwoom initializing...
+2021-11-12 18:46:19,487 test1 button clicked
