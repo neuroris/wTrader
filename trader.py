@@ -43,6 +43,9 @@ from wookalgorithm.futures.algorithm39 import FMAlgorithm39
 from wookalgorithm.futures.algorithm40 import FMAlgorithm40
 from wookalgorithm.futures.algorithm41 import FMAlgorithm41
 from wookalgorithm.futures.algorithm42 import FMAlgorithm42
+from wookalgorithm.futures.algorithm43 import FMAlgorithm43
+from wookalgorithm.futures.algorithm44 import FMAlgorithm44
+from wookalgorithm.futures.algorithm45 import FMAlgorithm45
 from wookitem import Item, FuturesItem, Order, OrderStatus
 from wookdata import *
 import math, copy, time
@@ -51,7 +54,7 @@ class Trader(TraderBase):
     def __init__(self, log, key):
         self.broker = Kiwoom(self, log, key)
         # self.broker = Bankis(self, log, key)
-        self.algorithm = FMAlgorithm42 (self, log)
+        self.algorithm = FMAlgorithm45(self, log)
         self.general_account_index = 0
         self.futures_account_index = 0
         super().__init__(log)
