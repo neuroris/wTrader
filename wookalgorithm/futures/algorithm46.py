@@ -15,7 +15,7 @@ import pandas
 import math, copy, time
 
 '''
-Original Algorithm (2021, 05, 26)
+Original Algorithm (2022, 06, 28)
 1. Price average first degree regression model
 2. Multiple episode
 3. Moving Average Slope MA5
@@ -23,7 +23,7 @@ Original Algorithm (2021, 05, 26)
 5. Non-stopping gain by MA5R1 slope
 '''
 
-class FMAlgorithm45(FuturesAlgorithmBase):
+class FMAlgorithm46(FuturesAlgorithmBase):
     def __init__(self, trader, log):
         super().__init__(trader, log)
         self.futures = None
@@ -289,6 +289,7 @@ class FMAlgorithm45(FuturesAlgorithmBase):
         #         anticipated_position = HOLD_POSITION
 
         previous_position = chart.position[-2]
+        previous_previous_position = chart.position[-3]
 
         # Trade
         if previous_position in (NOT_AVAILABLE_POSITION, WAIT_POSITION, SETTLE_POSITION):
@@ -301,6 +302,10 @@ class FMAlgorithm45(FuturesAlgorithmBase):
                     self.sell(self.episode_amount, 0, MARKET)
             else:
                 chart.loc[current_time, 'position'] = WAIT_POSITION
+        elif previous_position in (PURCHASE_POSITION, SELL_POSITION):
+            chart.loc[current_time, 'position'] = HOLD_POSITION
+        elif previous_previous_position in (PURCHASE_POSITION, SELL_POSITION):
+            chart.loc[current_time, 'position'] = HOLD_POSITION
         elif previous_position == HOLD_POSITION:
             if chart.MA5R1_Slope[-2] * self.futures.holding_amount < 0:
                 chart.loc[current_time, 'position'] = SETTLE_POSITION
@@ -310,8 +315,7 @@ class FMAlgorithm45(FuturesAlgorithmBase):
                     self.buy(-self.futures.holding_amount, 0, 'MARKET')
             else:
                 chart.loc[current_time, 'position'] = HOLD_POSITION
-        elif previous_position in (PURCHASE_POSITION, SELL_POSITION):
-            chart.loc[current_time, 'position'] = HOLD_POSITION
+
 
         # # Trade by anticipated position
         # if anticipated_position == LONG_POSITION:
